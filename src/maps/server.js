@@ -23,16 +23,15 @@ const config = {
   }
 };
 
-// Ruta para obtener parcelas
+
 app.get('/parcelas', async (req, res) => {
   try {
     let pool = await sql.connect(config);
     let result = await pool.request()
-      .query('SELECT TOP (1000) [id_parcelacion], [latitud], [longitud], [imagen], [id_sector], [id_fase], [id_cultivo], [registrada] FROM [dbo].[parcelacion]');
-    
+     .query('SELECT * FROM vw_parcelacion');
+
     res.json(result.recordset);
   } catch (err) {
-    console.error('Error al obtener parcelas:', err);
     res.status(500).send('Error al obtener parcelas de la base de datos');
   }
 });
@@ -41,10 +40,8 @@ app.get('/parcelas', async (req, res) => {
 app.get('/', (req, res) => {
     // Ajusta la ruta para ir un nivel arriba desde `src/maps`
     const filePath = path.join(__dirname, '..', '..', 'public', 'index.html');
-    console.log('Servidor corriendo', filePath);
     res.sendFile(filePath);
   });
-  
   
 
 // Iniciar el servidor
