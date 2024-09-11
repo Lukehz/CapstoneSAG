@@ -1,129 +1,111 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="utf-8">
-<title>Map with User Location and Coordinate Geocoder</title>
-<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
-<link href="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.css" rel="stylesheet">
-<script src="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js"></script>
-<style>
-body { margin: 0; padding: 0; }
-#map { position: absolute; top: 0; bottom: 0; width: 100%; }
-</style>
+  <meta charset="utf-8">
+  <title>Land Mosaic Vision</title>
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.12.0/mapbox-gl.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.2/mapbox-gl-geocoder.css" type="text/css">
+  <style>
+    body { margin: 0; padding: 0; }
+    #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+  </style>
 </head>
 <body>
-<script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js"></script>
-<link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css" type="text/css">
+  <div id="map"></div>
 
+  <script src="https://api.mapbox.com/mapbox-gl-js/v2.12.0/mapbox-gl.js"></script>
+  <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.2/mapbox-gl-geocoder.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (typeof mapboxgl === 'undefined') {
+        console.error('Mapbox GL JS no se ha cargado.');
+        return;
+      }
 
-<div id="map"></div>
-
-
-<script>
-    mapboxgl.accessToken = 'pk.eyJ1Ijoibmljb2xlODAxIiwiYSI6ImNtMHdvdGE3MzAzbnQybG93aXRncnlqb2QifQ.9G8XyYyv4V1b0OJGRnpEZA';
-    const map = new mapboxgl.Map({
+      mapboxgl.accessToken = 'pk.eyJ1Ijoibmljb2xlODAxIiwiYSI6ImNtMHdvdGE3MzAzbnQybG93aXRncnlqb2QifQ.9G8XyYyv4V1b0OJGRnpEZA';
+      const map = new mapboxgl.Map({
         container: 'map',
-        style: 'mapbox://styles/mapbox/streets-v12',
+        style: 'mapbox://styles/mapbox/satellite-streets-v12',
         center: [0, 0],
-        zoom: 2
-    });
+        zoom: 2,
+        maxZoom: 100, // Limitar el zoom máximo para mejorar el rendimiento
+        minZoom: 1   // Limitar el zoom mínimo para evitar cargas innecesarias
+      });
 
+      // Solo añadir el control del geocodificador si es necesario
+      map.on('load', () => {
+        fetch('http://localhost:3000/parcelas')
+          .then(response => response.json())
+          .then(parcelas => {
+            if (!parcelas.length) {
+              console.log('No se encontraron parcelas');
+              return;
+            }
 
-    let userMarker;
+            const bounds = new mapboxgl.LngLatBounds();
 
+            parcelas.forEach(parcela => {
+              new mapboxgl.Marker()
+                .setLngLat([parcela.longitud, parcela.latitud])
+                .setPopup(new mapboxgl.Popup().setHTML(`
+                  <h3>Parcela ID: ${parcela.id_parcelacion}</h3>
+                  <p>Coordenadas: ${parcela.latitud}, ${parcela.longitud}</p>
+                  <p>Sector: ${parcela.id_sector}</p>
+                  <p>Fase: ${parcela.id_fase}</p>
+                  <p>Cultivo: ${parcela.id_cultivo}</p>
+                `))
+                .addTo(map);
 
-    function centerMapOnUserLocation() {
-        if ("geolocation" in navigator) {
-            navigator.geolocation.getCurrentPosition(position => {
-                const lat = position.coords.latitude;
-                const lon = position.coords.longitude;
-               
-                map.setCenter([lon, lat]);
-                map.setZoom(14);
-
-
-                if (!userMarker) {
-                    userMarker = new mapboxgl.Marker().setLngLat([lon, lat]).addTo(map);
-                } else {
-                    userMarker.setLngLat([lon, lat]);
-                }
-            }, null, {
-                enableHighAccuracy: false,
-                timeout: 5000,
-                maximumAge: 60000 // Cache de la posición por 1 minuto
+              bounds.extend([parcela.longitud, parcela.latitud]);
             });
-        }
-    }
 
+            map.fitBounds(bounds, { padding: 50 });
 
-    map.on('load', centerMapOnUserLocation);
+            // Añadir el control del geocodificador solo si es necesario
+            const coordinatesGeocoder = function (query) {
+              const matches = query.match(/^(-?\d+\.?\d*)[, ]+(-?\d+\.?\d*)$/);
+              if (!matches) return null;
 
-
-    setInterval(centerMapOnUserLocation, 60000);
-
-
-    // Función para buscar por coordenadas
-    const coordinatesGeocoder = function (query) {
-        const matches = query.match(
-            /^[ ]*(?:Lng: )?(-?\d+\.?\d*)[, ]+(?:Lat: )?(-?\d+\.?\d*)[ ]*$/i
-        );
-        if (!matches) {
-            return null;
-        }
-
-
-        function coordFeature(lng, lat) {
-            return {
-                center: [lng, lat],
-                geometry: {
+              function coordinateFeature(lng, lat) {
+                return {
+                  center: [lng, lat],
+                  geometry: {
                     type: 'Point',
                     coordinates: [lng, lat]
-                },
-                place_name: 'Lat: ' + lat + ' Lng: ' + lng,
-                place_type: ['coordinate'],
-                properties: {},
-                type: 'Feature'
+                  },
+                  place_name: `Lat: ${lat} Lng: ${lng}`,
+                  place_type: ['coordinate'],
+                  properties: {},
+                  type: 'Feature'
+                };
+              }
+
+              const coord1 = Number(matches[1]);
+              const coord2 = Number(matches[2]);
+              const geocodes = [];
+
+              if (Math.abs(coord1) <= 90 && Math.abs(coord2) <= 180) {
+                geocodes.push(coordinateFeature(coord1, coord2));
+              }
+
+              return geocodes;
             };
-        }
 
-
-        const coord1 = Number(matches[1]);
-        const coord2 = Number(matches[2]);
-        const geocodes = [];
-
-
-        if (coord1 < -90 || coord1 > 90) {
-            geocodes.push(coordFeature(coord1, coord2));
-        }
-
-
-        if (coord2 < -90 || coord2 > 90) {
-            geocodes.push(coordFeature(coord2, coord1));
-        }
-
-
-        if (geocodes.length === 0) {
-            return null;
-        }
-
-
-        return geocodes;
-    };
-
-
-    // Añadir el geocoder al mapa
-    const geocoder = new MapboxGeocoder({
-        accessToken: mapboxgl.accessToken,
-        localGeocoder: coordinatesGeocoder,
-        zoom: 14,
-        placeholder: "Enter coordinates (lng, lat)",
-        mapboxgl: mapboxgl
+            map.addControl(
+              new MapboxGeocoder({
+                accessToken: mapboxgl.accessToken,
+                localGeocoder: coordinatesGeocoder,
+                zoom: 4,
+                placeholder: 'Ingrese coordenadas',
+                mapboxgl: mapboxgl,
+                reverseGeocode: true
+              })
+            );
+          })
+          .catch(error => console.error('Error al obtener las parcelas:', error));
+      });
     });
-
-
-    map.addControl(geocoder);
-</script>
+  </script>
 </body>
 </html>
-
-
