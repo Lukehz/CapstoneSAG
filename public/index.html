@@ -33,7 +33,9 @@
         minZoom: 1   // Limitar el zoom mínimo para evitar cargas innecesarias
       });
 
-      // Solo añadir el control del geocodificador si es necesario
+      //El codigo anterior es para la integracion del mapbox, no modificar a no ser que sea style, center, zoom, maxzoom, minzoom
+
+      // Carga el servidor en busca de datos
       map.on('load', () => {
         fetch('http://localhost:3000/parcelas')
           .then(response => response.json())
@@ -44,7 +46,7 @@
             }
 
             const bounds = new mapboxgl.LngLatBounds();
-
+            //Se conecta con la base de datos para la visualizacion de las coordenadas de las parcelas
             parcelas.forEach(parcela => {
               new mapboxgl.Marker()
                 .setLngLat([parcela.longitud, parcela.latitud])
@@ -61,8 +63,9 @@
             });
 
             map.fitBounds(bounds, { padding: 50 });
+            //Aca termina el codigo para visualizar parcelas
 
-            // Añadir el control del geocodificador solo si es necesario
+            // Empieza el codigo para buscar coordenadas
             const coordinatesGeocoder = function (query) {
               const matches = query.match(/^(-?\d+\.?\d*)[, ]+(-?\d+\.?\d*)$/);
               if (!matches) return null;
@@ -105,6 +108,7 @@
           })
           .catch(error => console.error('Error al obtener las parcelas:', error));
       });
+      //Aca termina el codigo
     });
   </script>
 </body>
