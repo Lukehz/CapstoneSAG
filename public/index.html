@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.2/mapbox-gl-geocoder.css" type="text/css">
   <style>
     body { margin: 0; padding: 0; }
-    #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+    #map { position: absolute; top: 0; bottom: 0; width: 70%; }
   </style>
 </head>
 <body>
@@ -28,87 +28,104 @@
         container: 'map',
         style: 'mapbox://styles/mapbox/satellite-streets-v12',
         center: [0, 0],
-        zoom: 2,
-        maxZoom: 100, // Limitar el zoom máximo para mejorar el rendimiento
+        zoom: 10,
+        maxZoom: 20, // Limitar el zoom máximo para mejorar el rendimiento
         minZoom: 1   // Limitar el zoom mínimo para evitar cargas innecesarias
       });
+      
 
-      //El codigo anterior es para la integracion del mapbox, no modificar a no ser que sea style, center, zoom, maxzoom, minzoom
+      let markers = []; // Array para almacenar los marcadores
 
-      // Carga el servidor en busca de datos
-      map.on('load', () => {
+      const updateParcelas = () => {
+        console.log('Fetching parcelas...');
         fetch('http://localhost:3000/parcelas')
-          .then(response => response.json())
+          .then(response => {
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+          })
           .then(parcelas => {
+            console.log('Received parcelas');
             if (!parcelas.length) {
               console.log('No se encontraron parcelas');
               return;
             }
-
+  
+            markers.forEach(marker => marker.remove());
+            markers = [];
+  
             const bounds = new mapboxgl.LngLatBounds();
-            //Se conecta con la base de datos para la visualizacion de las coordenadas de las parcelas
             parcelas.forEach(parcela => {
-              new mapboxgl.Marker()
+
+              
+              const marker = new mapboxgl.Marker()
                 .setLngLat([parcela.longitud, parcela.latitud])
                 .setPopup(new mapboxgl.Popup().setHTML(`
-                  <h3>Parcela ID: ${parcela.id_parcelacion}</h3>
-                  <p>Coordenadas: ${parcela.latitud}, ${parcela.longitud}</p>
-                  <p>Sector: ${parcela.id_sector}</p>
-                  <p>Fase: ${parcela.id_fase}</p>
-                  <p>Cultivo: ${parcela.id_cultivo}</p>
+                <h3>Parcela ID: ${parcela.ID}</h3>
+                <p>Coordenadas: ${parcela.latitud}, ${parcela.longitud}</p>
+                <p>Fase: ${parcela.Fase}</p>
+                <p>Cultivo: ${parcela.Cultivo}</p>
+                <p>Comuna: ${parcela.Comuna}</p>
+                <p>Registrada: ${parcela.Registrada}</p>
                 `))
                 .addTo(map);
-
+  
+              markers.push(marker);
               bounds.extend([parcela.longitud, parcela.latitud]);
             });
-
-            map.fitBounds(bounds, { padding: 50 });
-            //Aca termina el codigo para visualizar parcelas
-
-            // Empieza el codigo para buscar coordenadas
-            const coordinatesGeocoder = function (query) {
-              const matches = query.match(/^(-?\d+\.?\d*)[, ]+(-?\d+\.?\d*)$/);
-              if (!matches) return null;
-
-              function coordinateFeature(lng, lat) {
-                return {
-                  center: [lng, lat],
-                  geometry: {
-                    type: 'Point',
-                    coordinates: [lng, lat]
-                  },
-                  place_name: `Lat: ${lat} Lng: ${lng}`,
-                  place_type: ['coordinate'],
-                  properties: {},
-                  type: 'Feature'
-                };
-              }
-
-              const coord1 = Number(matches[1]);
-              const coord2 = Number(matches[2]);
-              const geocodes = [];
-
-              if (Math.abs(coord1) <= 90 && Math.abs(coord2) <= 180) {
-                geocodes.push(coordinateFeature(coord1, coord2));
-              }
-
-              return geocodes;
-            };
-
-            map.addControl(
-              new MapboxGeocoder({
-                accessToken: mapboxgl.accessToken,
-                localGeocoder: coordinatesGeocoder,
-                zoom: 4,
-                placeholder: 'Ingrese coordenadas',
-                mapboxgl: mapboxgl,
-                reverseGeocode: true
-              })
-            );
+  
+            map.fitBounds(bounds, { padding: 50, duration: 0 });
           })
-          .catch(error => console.error('Error al obtener las parcelas:', error));
-      });
-      //Aca termina el codigo
+          .catch(error => console.error('Error fetching parcelas:', error));
+      };
+  
+
+      // Inicializar la carga de parcelas
+      updateParcelas();
+
+      
+
+      // Empieza el código para buscar coordenadas
+      const coordinatesGeocoder = function (query) {
+        const matches = query.match(/^(-?\d+\.?\d*)[, ]+(-?\d+\.?\d*)$/);
+        if (!matches) return null;
+
+        function coordinateFeature(lng, lat) {
+          return {
+            center: [lng, lat],
+            geometry: {
+              type: 'Point',
+              coordinates: [lng, lat]
+            },
+            place_name: `Lat: ${lat} Lng: ${lng}`,
+            place_type: ['coordinate'],
+            properties: {},
+            type: 'Feature'
+          };
+        }
+
+        const coord1 = Number(matches[1]);
+        const coord2 = Number(matches[2]);
+        const geocodes = [];
+
+        if (Math.abs(coord1) <= 90 && Math.abs(coord2) <= 180) {
+          geocodes.push(coordinateFeature(coord1, coord2));
+        }
+
+        return geocodes;
+      };
+
+      map.addControl(
+        new MapboxGeocoder({
+          accessToken: mapboxgl.accessToken,
+          localGeocoder: coordinatesGeocoder,
+          zoom: 4,
+          placeholder: 'Ingrese coordenadas',
+          mapboxgl: mapboxgl,
+          reverseGeocode: true
+        })
+      );
     });
   </script>
 </body>
