@@ -29,6 +29,7 @@ const config = {
 };
 
 
+
 // Ruta para obtener parcelas
 app.get('/parcelas', async (req, res) => {
   try {
@@ -84,8 +85,6 @@ app.post('/save-quarantine', async (req, res) => {
     res.status(500).send('Error al guardar la cuarentena en la base de datos');
   }
 });
-
-
 
 
 // Manejo de ruta no encontrada (para cualquier ruta no especificada)
