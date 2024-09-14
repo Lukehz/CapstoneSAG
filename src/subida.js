@@ -35,16 +35,21 @@ app.post('/upload', upload.single('image'), async (req, res) => {
         // Consulta para insertar la imagen en la base de datos
         const query = `
             INSERT INTO parcelacion (latitud, longitud, imagen, id_sector, id_fase, id_cultivo, registrada) 
-            VALUES (1, 1, @image_data, 1, 1, 1, 1)
+            VALUES (@latitud, @longitud, @image_data, @id_sector, @id_fase, @id_cultivo, @registrada)
         `;
         
         // Usamos el método `request` para ejecutar la consulta parametrizada
         const request = new sql.Request();
+        request.input('latitud', sql.Float, req.body.latitud);
+        request.input('longitud', sql.Float, req.body.longitud);
         request.input('image_data', sql.VarBinary, req.file.buffer);
+        request.input('id_sector', sql.Int, req.body.id_sector);
+        request.input('id_fase', sql.Int, req.body.id_fase);
+        request.input('id_cultivo', sql.Int, req.body.id_cultivo);
+        request.input('registrada', sql.Bit, req.body.registrada);
         await request.query(query);
 
         res.send('Imagen subida exitosamente.');
-
     } catch (err) {
         console.error('Error al subir la imagen:', err);
         res.status(500).send('Error al subir la imagen.');
@@ -54,7 +59,54 @@ app.post('/upload', upload.single('image'), async (req, res) => {
     }
 });
 
-// Endpoint para obtener la imagen de la base de datos
+// Endpoint para obtener los datos de la imagen
+app.get('/get-data', async (req, res) => {
+    const id = req.query.id;
+
+    if (!id) {
+        return res.status(400).send('ID de parcelación no proporcionado.');
+    }
+
+    try {
+        // Conectar a la base de datos
+        await connectDB();
+
+        // Consulta para obtener los datos de la base de datos
+        const query = `
+            SELECT latitud, longitud, id_sector, id_fase, id_cultivo, registrada 
+            FROM parcelacion 
+            WHERE id_parcelacion = @id
+        `;
+
+        const request = new sql.Request();
+        request.input('id', sql.Int, id);
+
+        const result = await request.query(query);
+
+        if (result.recordset.length === 0) {
+            return res.status(404).send('Datos no encontrados.');
+        }
+
+        const { latitud, longitud, id_sector, id_fase, id_cultivo, registrada } = result.recordset[0];
+
+        res.json({
+            latitud,
+            longitud,
+            id_sector,
+            id_fase,
+            id_cultivo,
+            registrada
+        });
+
+    } catch (err) {
+        console.error('Error al obtener los datos:', err);
+        res.status(500).send('Error al obtener los datos.');
+    } finally {
+        sql.close();
+    }
+});
+
+// Endpoint para obtener la imagen
 app.get('/get-image', async (req, res) => {
     const id = req.query.id;
 
@@ -83,7 +135,8 @@ app.get('/get-image', async (req, res) => {
         }
 
         const imageBuffer = result.recordset[0].imagen;
-
+        
+        // Configurar los encabezados para la imagen
         res.setHeader('Content-Type', 'image/jpeg'); // Ajusta el tipo de contenido si es necesario
         res.send(imageBuffer);
 

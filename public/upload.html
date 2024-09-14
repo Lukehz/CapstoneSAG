@@ -9,19 +9,27 @@
   <h1>Subir Imagen</h1>
   <form id="uploadForm" enctype="multipart/form-data">
     <input type="file" name="image" accept="image/*" required>
+    <input type="number" name="latitud" placeholder="Latitud" step="any" required>
+    <input type="number" name="longitud" placeholder="Longitud" step="any" required>
+    <input type="number" name="id_sector" placeholder="ID Sector" required>
+    <input type="number" name="id_fase" placeholder="ID Fase" required>
+    <input type="number" name="id_cultivo" placeholder="ID Cultivo" required>
+    <input type="number" name="registrada" placeholder="Registrada (0 o 1)" min="0" max="1" required>
     <button type="submit">Subir Imagen</button>
   </form>
   <p id="message"></p>
 
-  <h2>Obtener Imagen</h2>
+  <h2>Obtener Imagen y Datos</h2>
   <form id="getImageForm">
     <input type="number" id="idParcelacion" placeholder="Ingrese ID de Parcelación" required>
-    <button type="submit">Obtener Imagen</button>
-    <button type="button" id="getMatrixButton">Matriz_pixeles</button>
+    <button type="submit">Obtener Imagen y Datos</button>
+    <button type="button" id="getMatrixButton">Obtener Matriz de Píxeles</button>
   </form>
   <div id="imageContainer"></div>
+  <div id="dataContainer"></div>
 
   <script>
+    // Manejar el envío del formulario de carga de imágenes
     document.getElementById('uploadForm').addEventListener('submit', function(event) {
       event.preventDefault();
 
@@ -40,10 +48,32 @@
       });
     });
 
+    // Manejar el formulario para obtener datos e imagen
     document.getElementById('getImageForm').addEventListener('submit', function(event) {
       event.preventDefault();
 
       const id = document.getElementById('idParcelacion').value;
+
+      // Obtener los datos
+      fetch(`/get-data?id=${id}`)
+        .then(response => response.json())
+        .then(data => {
+          const dataContainer = document.getElementById('dataContainer');
+          dataContainer.innerHTML = `
+            <p>Latitud: ${data.latitud}</p>
+            <p>Longitud: ${data.longitud}</p>
+            <p>ID Sector: ${data.id_sector}</p>
+            <p>ID Fase: ${data.id_fase}</p>
+            <p>ID Cultivo: ${data.id_cultivo}</p>
+            <p>Registrada: ${data.registrada}</p>
+          `;
+        })
+        .catch(error => {
+          document.getElementById('dataContainer').textContent = 'Error al obtener los datos.';
+          console.error('Error:', error);
+        });
+
+      // Obtener la imagen
       fetch(`/get-image?id=${id}`)
         .then(response => {
           if (!response.ok) {
@@ -54,9 +84,9 @@
         .then(blob => {
           const img = document.createElement('img');
           img.src = URL.createObjectURL(blob); // Crear una URL para el blob
-          const container = document.getElementById('imageContainer');
-          container.innerHTML = ''; // Limpiar cualquier imagen previa
-          container.appendChild(img);
+          const imageContainer = document.getElementById('imageContainer');
+          imageContainer.innerHTML = ''; // Limpiar cualquier imagen previa
+          imageContainer.appendChild(img);
         })
         .catch(error => {
           document.getElementById('imageContainer').textContent = 'Error al obtener la imagen.';
@@ -64,6 +94,7 @@
         });
     });
 
+    // Manejar el botón para obtener la matriz de píxeles
     document.getElementById('getMatrixButton').addEventListener('click', function() {
       const id = document.getElementById('idParcelacion').value;
       fetch(`/get-pixel-matrix?id=${id}`)
