@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Subir Imagen</title>
+</head>
+<body>
+  <h1>Subir Imagen</h1>
+  <form id="uploadForm" enctype="multipart/form-data">
+    <input type="file" name="image" accept="image/*" required>
+    <button type="submit">Subir Imagen</button>
+  </form>
+  <p id="message"></p>
+
+  <h2>Obtener Imagen</h2>
+  <form id="getImageForm">
+    <input type="number" id="idParcelacion" placeholder="Ingrese ID de Parcelación" required>
+    <button type="submit">Obtener Imagen</button>
+    <button type="button" id="getMatrixButton">Matriz_pixeles</button>
+  </form>
+  <div id="imageContainer"></div>
+
+  <script>
+    document.getElementById('uploadForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      const formData = new FormData(this);
+      fetch('/upload', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.text())
+      .then(text => {
+        document.getElementById('message').textContent = text;
+      })
+      .catch(error => {
+        document.getElementById('message').textContent = 'Error al subir la imagen.';
+        console.error('Error:', error);
+      });
+    });
+
+    document.getElementById('getImageForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      const id = document.getElementById('idParcelacion').value;
+      fetch(`/get-image?id=${id}`)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('No se pudo obtener la imagen.');
+          }
+          return response.blob(); // Obtener la imagen como un blob
+        })
+        .then(blob => {
+          const img = document.createElement('img');
+          img.src = URL.createObjectURL(blob); // Crear una URL para el blob
+          const container = document.getElementById('imageContainer');
+          container.innerHTML = ''; // Limpiar cualquier imagen previa
+          container.appendChild(img);
+        })
+        .catch(error => {
+          document.getElementById('imageContainer').textContent = 'Error al obtener la imagen.';
+          console.error('Error:', error);
+        });
+    });
+
+    document.getElementById('getMatrixButton').addEventListener('click', function() {
+      const id = document.getElementById('idParcelacion').value;
+      fetch(`/get-pixel-matrix?id=${id}`)
+        .then(response => response.text())
+        .then(text => {
+          // Crear un enlace para descargar el archivo
+          const blob = new Blob([text], { type: 'text/plain' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'pixel_matrix.txt';
+          a.click();
+          URL.revokeObjectURL(url);
+        })
+        .catch(error => {
+          document.getElementById('imageContainer').textContent = 'Error al obtener la matriz de píxeles.';
+          console.error('Error:', error);
+        });
+    });
+  </script>
+</body>
+</html>
