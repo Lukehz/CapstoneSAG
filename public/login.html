@@ -20,13 +20,6 @@
         </form>
         <p id="mensajeError"></p>
     </div>
-
-    <!-- Solo los administradores verán esto -->
-    <div id="adminSection" style="display: none;">
-        <h2>Sección de Administrador</h2>
-        <p>Bienvenido Administrador, aquí puedes gestionar usuarios.</p>
-    </div>
-
     <script>
         // Login
         document.getElementById('loginForm').addEventListener('submit', function(e) {
@@ -46,14 +39,8 @@
             .then(response => response.json())
             .then(data => {
                 if (data.message === 'Sesión iniciada correctamente') {
-                    alert('Login exitoso');
-
-                    // Si el rol es administrador, mostrar la sección de administrador
-                    if (data.role === 'admin') {
-                        document.getElementById('adminSection').style.display = 'block';
-                    } else {
-                        alert('Bienvenido Usuario');
-                    }
+                    // Redirigir según el rol del usuario
+                    window.location.href = data.redirect;
                 } else {
                     document.getElementById('mensajeError').innerText = data.message;
                 }

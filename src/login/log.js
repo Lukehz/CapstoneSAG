@@ -40,7 +40,7 @@ app.use(session({
 app.post('/login', async (req, res) => {
   try {
     // Validar que los campos estén presentes
-    if (!req.body.username ||!req.body.password) {
+    if (!req.body.username || !req.body.password) {
       return res.status(400).json({ message: 'El nombre de usuario y la contraseña son obligatorios' });
     }
 
@@ -62,8 +62,14 @@ app.post('/login', async (req, res) => {
     const usuario = result.recordset[0];
 
     // Establecer la sesión con el tipo de usuario (rol)
-    req.session.usuario = { username: usuario.nombre_usuario, role: usuario.rol };
-    res.status(200).json({ message: 'Sesión iniciada correctamente', role: usuario.rol });
+    req.session.usuario = { username: usuario.usuario, role: usuario.rol };
+
+    // Redirigir según el rol
+    if (usuario.rol === 'admin') {
+      return res.status(200).json({ message: 'Sesión iniciada correctamente', redirect: "/registro" });
+    } else {
+      return res.status(200).json({ message: 'Sesión iniciada correctamente', redirect: "/index" });
+    }
   } catch (err) {
     console.error('Error en el inicio de sesión:', err);
     res.status(500).json({ message: 'Error en el inicio de sesión', error: err });
@@ -77,16 +83,27 @@ app.get('/protected', (req, res) => {
   }
 
   const role = req.session.usuario.role;
-  res.status(200).json({ message: `Bienvenido, ${req.session.usuario.username}`, role });
+  res.status(200).json({ message: `Bienvenido, ${req.session.usuario.username}` });
 });
 
-// Ruta solo para administradores
-app.get('/admin', (req, res) => {
+// Ruta para el archivo de registro (solo para administradores)
+app.get('/registro', (req, res) => {
   if (!req.session.usuario || req.session.usuario.role !== 'admin') {
     return res.status(403).json({ message: 'Acceso denegado, solo administradores' });
   }
 
-  res.status(200).json({ message: 'Bienvenido, Administrador' });
+  // Servir el archivo de registro para administradores
+  res.sendFile(path.join(__dirname, '../../public', 'registro.html'));
+});
+
+// Ruta para el archivo de index (para usuarios normales)
+app.get('/index', (req, res) => {
+  if (!req.session.usuario || req.session.usuario.role !== 'user') {
+    return res.status(403).json({ message: 'Acceso denegado' });
+  }
+
+  // Servir el archivo index.html para usuarios normales
+  res.sendFile(path.join(__dirname, '../../public', 'index.html'));
 });
 
 // Ruta para cerrar la sesión
@@ -95,12 +112,12 @@ app.get('/logout', (req, res) => {
   res.status(200).json({ message: 'Sesión cerrada correctamente' });
 });
 
-// Servir el archivo login.html desde la carpeta public
+// Ruta para servir login.html desde la carpeta public
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../../public', 'login.html'));
 });
 
 // Iniciar el servidor
 app.listen(port, () => {
-  console.log(`Servidor escuchando en http://localhost:${port}`);
+  console.log(`Servidor corriendo en http://localhost:${port}`);
 });
