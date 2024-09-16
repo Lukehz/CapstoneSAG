@@ -8,41 +8,99 @@
 <body>
     <!-- Formulario de registro de usuario -->
     <div>
-        <H2>Registro de usuario</H2>
-        <form id="register" action="/registro" method="POST">
-            <br>
+        <h2>Registro de usuario</h2>
+        <form id="registerForm">
             <label for="nombre">Nombre:</label>
             <input type="text" id="nombre" name="nombre" required>
-            <br>
-            <br>
+            <br><br>
             <label for="apellido">Apellido:</label>
             <input type="text" id="apellido" name="apellido" required>
-            <br>
-            <br>
-            <label for="rut">RUT:</label>
-            <input type="text" id="rut" name="rut" required>
-            <br>
-            <br>
+            <br><br>
+            <label for="rut">Rut:</label>
+            <input type="text" id="rut" name="rut" required pattern="[0-9]{1,10}" title="Solo números enteros" oninput="validarRut(this)">
+            <br><br>
+            <label for="dv_rut">DV-Rut:</label>
+            <input type="text" id="dv_rut" name="dv_rut" required pattern="[0-9Kk]" maxlength="1" title="Debe ser un número o la letra K">
+            <br><br>
             <label for="correo">Correo electrónico:</label>
             <input type="email" id="correo" name="correo" required>
-            <br>
-            <br>
+            <br><br>
             <label for="usuario">Usuario:</label>
             <input type="text" id="usuario" name="usuario" required>
-            <br>
-            <br>
+            <br><br>
             <label for="contraseña">Contraseña:</label>
-            <input type="password" id="contraseña" name="contraseña" required>
-            <br>
-            <br>
+            <input type="password" id="contraseña" name="contraseña" required minlength="6" title="La contraseña debe tener al menos 6 caracteres">
+            <br><br>
             <label for="rol">Rol:</label>
             <select id="rol" name="rol" required>
                 <option value="usuario">Usuario</option>
                 <option value="admin">Administrador</option>
             </select>
-
+            <br><br>
             <input type="submit" value="Registrar usuario">
         </form>
+        <p id="mensajeRegistro"></p>
     </div>
+
+    <script>
+        // Función de validación de RUT
+        function validarRut(input) {
+            const rut = input.value;
+            const regex = /^[0-9]{1,10}$/; // Solo números
+            if (!regex.test(rut)) {
+                input.setCustomValidity("El RUT solo debe contener números.");
+            } else {
+                input.setCustomValidity("");
+            }
+        }
+
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevenir el comportamiento por defecto del formulario
+
+            const nombre = document.getElementById('nombre').value;
+            const apellido = document.getElementById('apellido').value;
+            const rut = document.getElementById('rut').value;
+            const dv_rut = document.getElementById('dv_rut').value.toUpperCase(); // Convertir DV a mayúsculas
+            const correo = document.getElementById('correo').value;
+            const usuario = document.getElementById('usuario').value;
+            const contraseña = document.getElementById('contraseña').value;
+            const rol = document.getElementById('rol').value;
+
+            // Hacer una solicitud POST al backend con Fetch API
+            fetch('http://localhost:3001/registro', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    nombre,
+                    apellido,
+                    rut,
+                    dv_rut,
+                    correo,
+                    usuario,
+                    contraseña,
+                    rol
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('mensajeRegistro').innerText = 'Usuario registrado con éxito';
+                    document.getElementById('mensajeRegistro').style.color = 'green';
+                    // Limpiar el formulario después del registro
+                    document.getElementById('registerForm').reset();
+                } else {
+                    document.getElementById('mensajeRegistro').innerText = 'Error al registrar usuario: ' + data.message;
+                    document.getElementById('mensajeRegistro').style.color = 'red';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('mensajeRegistro').innerText = 'Error en la solicitud';
+                document.getElementById('mensajeRegistro').style.color = 'red';
+            });
+        });
+    </script>
 </body>
 </html>
