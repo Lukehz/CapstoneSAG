@@ -8,11 +8,40 @@
   <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.2/mapbox-gl-geocoder.css" type="text/css">
   <style>
     body { margin: 0; padding: 0; }
-    #map { position: absolute; top: 0; bottom: 0; width: 70%; }
+    #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+    #controls {
+      position: absolute;
+      top: 10px;
+      right: 600px;
+      z-index: 10;
+      background-color: rgba(255, 255, 255, 0.8);
+      padding: 10px;
+      border-radius: 5px;
+    }
+    button, input {
+      margin: 5px;
+      padding: 10px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    input {
+      background-color: white;
+      color: black;
+      width: 200px;
+    }
   </style>
 </head>
 <body>
   <div id="map"></div>
+
+  <div id="controls">
+    <button id="create-quarantine">Crear cuarentena</button>
+    <button id="save-quarantine">Guardar cuarentena</button>
+    <input id="quarantine-comment" type="text" placeholder="Ingrese un comentario para la cuarentena">
+  </div>
 
   <script src="https://api.mapbox.com/mapbox-gl-js/v2.12.0/mapbox-gl.js"></script>
   <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.2/mapbox-gl-geocoder.min.js"></script>
@@ -29,12 +58,13 @@
         style: 'mapbox://styles/mapbox/satellite-streets-v12',
         center: [0, 0],
         zoom: 10,
-        maxZoom: 20, // Limitar el zoom máximo para mejorar el rendimiento
-        minZoom: 1   // Limitar el zoom mínimo para evitar cargas innecesarias
+        maxZoom: 20,
+        minZoom: 1
       });
-      
 
-      let markers = []; // Array para almacenar los marcadores
+      let drawingMode = false;
+      let quarantinePoints = [];
+      let parcelaMarkers = [];
 
       const updateParcelas = () => {
         console.log('Fetching parcelas...');
@@ -51,14 +81,12 @@
               console.log('No se encontraron parcelas');
               return;
             }
-  
-            markers.forEach(marker => marker.remove());
-            markers = [];
-  
+ 
+            parcelaMarkers.forEach(marker => marker.remove());
+            parcelaMarkers = [];
+ 
             const bounds = new mapboxgl.LngLatBounds();
             parcelas.forEach(parcela => {
-
-              
               const marker = new mapboxgl.Marker()
                 .setLngLat([parcela.longitud, parcela.latitud])
                 .setPopup(new mapboxgl.Popup().setHTML(`
@@ -70,23 +98,187 @@
                 <p>Registrada: ${parcela.Registrada}</p>
                 `))
                 .addTo(map);
-  
-              markers.push(marker);
+ 
+              parcelaMarkers.push(marker);
               bounds.extend([parcela.longitud, parcela.latitud]);
             });
-  
+ 
             map.fitBounds(bounds, { padding: 50, duration: 0 });
           })
           .catch(error => console.error('Error fetching parcelas:', error));
       };
-  
-
-      // Inicializar la carga de parcelas
+      
       updateParcelas();
 
-      
+      map.on('click', (e) => {
+        if (drawingMode) {
+          const coords = [e.lngLat.lng, e.lngLat.lat];
+          quarantinePoints.push(coords);
 
-      // Empieza el código para buscar coordenadas
+          if (quarantinePoints.length > 1) {
+            const line = {
+              type: 'Feature',
+              geometry: {
+                type: 'LineString',
+                coordinates: quarantinePoints
+              }
+            };
+
+            map.getSource('line')?.setData(line);
+          }
+
+          updateQuarantinePoints();
+        }
+      });
+
+      document.getElementById('create-quarantine').addEventListener('click', () => {
+        drawingMode = !drawingMode;
+        
+        if (drawingMode) {
+            document.getElementById('create-quarantine').innerText = 'Cancelar creación';
+            quarantinePoints = [];
+    
+            if (map.getLayer('quarantine-points')) {
+                map.removeLayer('quarantine-points');
+            }
+            if (map.getSource('quarantine-points')) {
+                map.removeSource('quarantine-points');
+            }
+    
+            if (map.getLayer('line')) {
+                map.removeLayer('line');
+            }
+            if (map.getSource('line')) {
+                map.removeSource('line');
+            }
+    
+            map.addSource('line', {
+                type: 'geojson',
+                data: {
+                    type: 'FeatureCollection',
+                    features: []
+                }
+            });
+    
+            map.addLayer({
+                id: 'line',
+                type: 'line',
+                source: 'line',
+                paint: {
+                    'line-color': '#ff0000',
+                    'line-width': 3
+                }
+            });
+        } else {
+            document.getElementById('create-quarantine').innerText = 'Crear cuarentena';
+    
+            if (map.getLayer('line')) {
+                map.removeLayer('line');
+            }
+            if (map.getSource('line')) {
+                map.removeSource('line');
+            }
+            if (map.getLayer('quarantine-points')) {
+                map.removeLayer('quarantine-points');
+            }
+            if (map.getSource('quarantine-points')) {
+                map.removeSource('quarantine-points');
+            }
+    
+            quarantinePoints = [];
+        }
+      });
+    
+      document.getElementById('save-quarantine').addEventListener('click', () => {
+        if (quarantinePoints.length < 3) {
+          alert('Debe haber al menos tres puntos para guardar una cuarentena.');
+          return;
+        }
+    
+        const closedPoints = [...quarantinePoints, quarantinePoints[0]];
+        const comentario = document.getElementById('quarantine-comment').value;
+    
+        console.log('Puntos de cuarentena a enviar:', closedPoints);
+        console.log('Comentario a enviar:', comentario);
+    
+        fetch('http://localhost:3000/save-quarantine', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ 
+            points: closedPoints,
+            comentario: comentario
+          })
+        })
+
+        .then(response => response.text())
+        .then(data => {
+        console.log('Respuesta:', data);
+        })
+        
+        
+        
+        .then(data => {
+          console.log('Datos recibidos del servidor:', data);
+          alert(`Cuarentena guardada con éxito. ID: ${data.id_cuarentena}`);
+          quarantinePoints = [];
+          document.getElementById('quarantine-comment').value = '';
+          if (map.getLayer('line')) {
+            map.removeLayer('line');
+          }
+          if (map.getSource('line')) {
+            map.removeSource('line');
+          }
+          if (map.getLayer('quarantine-points')) {
+            map.removeLayer('quarantine-points');
+          }
+          if (map.getSource('quarantine-points')) {
+            map.removeSource('quarantine-points');
+          }
+        })
+       
+      });
+  
+      function updateQuarantinePoints() {
+        if (map.getSource('quarantine-points')) {
+          map.getSource('quarantine-points').setData({
+            type: 'FeatureCollection',
+            features: quarantinePoints.map(point => ({
+              type: 'Feature',
+              geometry: {
+                type: 'Point',
+                coordinates: point
+              }
+            }))
+          });
+        } else {
+          map.addSource('quarantine-points', {
+            type: 'geojson',
+            data: {
+              type: 'FeatureCollection',
+              features: quarantinePoints.map(point => ({
+                type: 'Feature',
+                geometry: {
+                  type: 'Point',
+                  coordinates: point
+                }
+              }))
+            }
+          });
+    
+          map.addLayer({
+            id: 'quarantine-points',
+            type: 'circle',
+            source: 'quarantine-points',
+            paint: {
+              'circle-radius': 6,
+              'circle-color': '#FF0000'
+            }
+          });
+        }
+      }
+
       const coordinatesGeocoder = function (query) {
         const matches = query.match(/^(-?\d+\.?\d*)[, ]+(-?\d+\.?\d*)$/);
         if (!matches) return null;
@@ -110,6 +302,10 @@
         const geocodes = [];
 
         if (Math.abs(coord1) <= 90 && Math.abs(coord2) <= 180) {
+          geocodes.push(coordinateFeature(coord2, coord1));
+        }
+
+        if (Math.abs(coord1) <= 180 && Math.abs(coord2) <= 90) {
           geocodes.push(coordinateFeature(coord1, coord2));
         }
 
