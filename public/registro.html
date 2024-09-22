@@ -19,7 +19,7 @@
             <label for="rut">Rut:</label>
             <input type="text" id="rut" name="rut" required pattern="[0-9]{1,10}" title="Solo números enteros" oninput="validarRut(this)">
             <br><br>
-            <label for="dv_rut">DV-Rut:</label>
+            <label for="dv_rut">Dv-Rut:</label>
             <input type="text" id="dv_rut" name="dv_rut" required pattern="[0-9Kk]" maxlength="1" title="Debe ser un número o la letra K">
             <br><br>
             <label for="correo">Correo electrónico:</label>
@@ -41,7 +41,8 @@
         </form>
         <p id="mensajeRegistro"></p>
     </div>
-
+    <br><br>
+    <button onclick="window.location.href='index.html';">Ir a mapa</button>
     <script>
         // Función de validación de RUT
         function validarRut(input) {
