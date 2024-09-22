@@ -9,12 +9,28 @@
   <h1>Subir Imagen</h1>
   <form id="uploadForm" enctype="multipart/form-data">
     <input type="file" name="image" accept="image/*" required>
-    <input type="number" name="latitud" placeholder="Latitud" step="any" required>
-    <input type="number" name="longitud" placeholder="Longitud" step="any" required>
-    <input type="number" name="id_sector" placeholder="ID Sector" required>
-    <input type="number" name="id_fase" placeholder="ID Fase" required>
-    <input type="number" name="id_cultivo" placeholder="ID Cultivo" required>
-    <input type="number" name="registrada" placeholder="Registrada (0 o 1)" min="0" max="1" required>
+    <input type="number" name="latitud" placeholder="Latitud" step="any" min="-90" max="90" required>
+    <input type="number" name="longitud" placeholder="Longitud" step="any" min="-180" max="180" required>
+    <select name="id_sector" id="id_sector" required>
+      <option value="">Seleccione un Sector</option>
+      <!-- Las opciones se llenarán aquí con JavaScript -->
+  </select>
+
+  <select name="id_fase" id="id_fase" required>
+      <option value="">Seleccione una Fase</option>
+      <!-- Las opciones se llenarán aquí con JavaScript -->
+  </select>
+
+  <select name="id_cultivo" id="id_cultivo" required>
+      <option value="">Seleccione un Cultivo</option>
+      <!-- Las opciones se llenarán aquí con JavaScript -->
+  </select>
+
+  <select name="registrada" required>
+      <option value="">Seleccione si esta registrada</option>
+      <option value="0">No Registrada</option>
+      <option value="1">Registrada</option>
+  </select>
     <button type="submit">Subir Imagen</button>
   </form>
   <p id="message"></p>
@@ -29,6 +45,43 @@
   <div id="dataContainer"></div>
 
   <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+        try {
+            const response = await fetch('/opciones');
+            const data = await response.json();
+
+            // Llenar el dropdown de sectores
+            const sectorSelect = document.getElementById('id_sector');
+            data.sectores.forEach(sector => {
+                const option = document.createElement('option');
+                option.value = sector.id_sector;
+                option.textContent = sector.Sector;
+                sectorSelect.appendChild(option);
+            });
+
+            // Llenar el dropdown de fases
+            const faseSelect = document.getElementById('id_fase');
+            data.fases.forEach(fase => {
+                const option = document.createElement('option');
+                option.value = fase.id_fase;
+                option.textContent = fase.nombre;
+                faseSelect.appendChild(option);
+            });
+
+            // Llenar el dropdown de cultivos
+            const cultivoSelect = document.getElementById('id_cultivo');
+            data.cultivos.forEach(cultivo => {
+                const option = document.createElement('option');
+                option.value = cultivo.id_cultivo;
+                option.textContent = cultivo.nombre;
+                cultivoSelect.appendChild(option);
+            });
+
+        } catch (error) {
+            console.error('Error al cargar las opciones:', error);
+        }
+    });
+
     // Manejar el envío del formulario de carga de imágenes
     document.getElementById('uploadForm').addEventListener('submit', function(event) {
       event.preventDefault();

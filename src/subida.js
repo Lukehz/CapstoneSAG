@@ -1,7 +1,7 @@
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
-const { connectDB, sql } = require('./db'); // Importa la función de conexión y el módulo sql
+const { connectDB, sql, query } = require('./db'); // Importa la función de conexión y el módulo sql
 const sharp = require('sharp'); // Necesitamos sharp para procesar imágenes
 
 const app = express();
@@ -21,6 +21,43 @@ connectDB().catch(err => {
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../public/upload.html'));
 });
+
+// Opciones para los campos id_fase, id_cultivo, id_sector
+app.get('/opciones', async (req, res) => {
+    try {
+        await connectDB(); // Asegúrate de que connectDB devuelva una promesa
+
+        const faseQuery = 'SELECT id_fase, nombre FROM fase';
+        const cultivoQuery = 'SELECT id_cultivo, nombre FROM cultivo';
+        const sectorQuery = `
+            SELECT 
+                s.id_sector, 
+                CONCAT(r.nombre, ', ', s.comuna) AS Sector 
+            FROM sector s 
+            LEFT JOIN provincia p ON p.id_provincia = s.id_provincia 
+            LEFT JOIN region r ON r.id_region = p.id_region
+        `;
+
+        // Realiza las consultas en paralelo
+        const [fases, cultivos, sectores] = await Promise.all([
+            query(faseQuery).catch(error => { throw new Error('Error en faseQuery: ' + error.message); }),
+            query(cultivoQuery).catch(error => { throw new Error('Error en cultivoQuery: ' + error.message); }),
+            query(sectorQuery).catch(error => { throw new Error('Error en sectorQuery: ' + error.message); })
+        ]);
+
+        // Envía la respuesta con los resultados
+        res.json({ fases, cultivos, sectores });
+
+    } catch (error) {
+        console.error('Error al obtener opciones:', error);
+        return res.status(500).json({ message: 'Error al obtener opciones', error: error.message });
+    }
+});
+
+
+// Función para realizar consultas de manera asíncrona
+
+
 
 // Endpoint para subir imagen a la base de datos
 app.post('/upload', upload.single('image'), async (req, res) => {

@@ -7,11 +7,11 @@ const config = {
     server: 'ProyectoCapstone.mssql.somee.com',
     database: 'ProyectoCapstone',
     options: {
-      encrypt: true,
-      trustServerCertificate: true
+        encrypt: true,
+        trustServerCertificate: true
     }
-  };
-  
+};
+
 
 // Función para conectar a la base de datos
 const connectDB = async () => {
@@ -20,11 +20,24 @@ const connectDB = async () => {
         console.log('Conexión exitosa a SQL Server');
     } catch (error) {
         console.error('Error al conectar a SQL Server:', error.message);
+        throw error; // Lanza el error para manejarlo donde se llame
     }
 };
 
-// Exportar la conexión
+// Función para realizar consultas
+const query = async (sqlQuery) => {
+    try {
+        const result = await sql.query(sqlQuery);
+        return result.recordset; // Devuelve los resultados de la consulta
+    } catch (error) {
+        console.error('Error en la consulta SQL:', error.message);
+        throw error; // Lanza el error para que sea manejado en el endpoint
+    }
+};
+
+// Exportar la conexion y funcion
 module.exports = {
     connectDB,
-    sql
+    sql,
+    query // Asegúrate de exportar la función query también
 };
