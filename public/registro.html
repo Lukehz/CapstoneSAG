@@ -39,15 +39,12 @@
             </select>
             <br><br>
             <input type="submit" value="Registrar usuario">
-            <!-- Nuevo botón para eliminar usuario -->
             <button type="button" id="deleteButton">Eliminar usuario</button>
             <br><br>
             <button onclick="window.location.href='index.html';">Ir a mapa</button>
         </form>
         <p id="mensajeRegistro"></p>
     </div>
-    
-
     <script>
         // Función de validación de RUT
         function validarRut(input) {
@@ -67,7 +64,7 @@
             const nombre = document.getElementById('nombre').value;
             const apellido = document.getElementById('apellido').value;
             const rut = document.getElementById('rut').value;
-            const dv_rut = document.getElementById('dv_rut').value.toUpperCase(); // Convertir DV a mayúsculas
+            const dv_rut = document.getElementById('dv_rut').value.toUpperCase();
             const correo = document.getElementById('correo').value;
             const usuario = document.getElementById('usuario').value;
             const contraseña = document.getElementById('contraseña').value;
