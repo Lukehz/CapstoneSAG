@@ -70,29 +70,26 @@ app.post('/upload', upload.single('image'), async (req, res) => {
         await connectDB();
 
         // Consulta para insertar la imagen en la base de datos
-        const query = `
+        const sqlQuery = `
             INSERT INTO parcelacion (latitud, longitud, imagen, id_sector, id_fase, id_cultivo, registrada) 
             VALUES (@latitud, @longitud, @image_data, @id_sector, @id_fase, @id_cultivo, @registrada)
         `;
-        
-        // Usamos el método `request` para ejecutar la consulta parametrizada
-        const request = new sql.Request();
-        request.input('latitud', sql.Float, req.body.latitud);
-        request.input('longitud', sql.Float, req.body.longitud);
-        request.input('image_data', sql.VarBinary, req.file.buffer);
-        request.input('id_sector', sql.Int, req.body.id_sector);
-        request.input('id_fase', sql.Int, req.body.id_fase);
-        request.input('id_cultivo', sql.Int, req.body.id_cultivo);
-        request.input('registrada', sql.Bit, req.body.registrada);
-        await request.query(query);
+
+        // Usar la función `query` para ejecutar la consulta
+        await query(sqlQuery, [
+            { name: 'latitud', type: sql.Float, value: parseFloat(req.body.latitud) },
+            { name: 'longitud', type: sql.Float, value: parseFloat(req.body.longitud) },
+            { name: 'image_data', type: sql.VarBinary, value: req.file.buffer },
+            { name: 'id_sector', type: sql.Int, value: parseInt(req.body.id_sector) },
+            { name: 'id_fase', type: sql.Int, value: parseInt(req.body.id_fase) },
+            { name: 'id_cultivo', type: sql.Int, value: parseInt(req.body.id_cultivo) },
+            { name: 'registrada', type: sql.Bit, value: Number(req.body.registrada) } // Asegúrate de que sea un booleano
+        ]);
 
         res.send('Imagen subida exitosamente.');
     } catch (err) {
         console.error('Error al subir la imagen:', err);
         res.status(500).send('Error al subir la imagen.');
-    } finally {
-        // Cerrar la conexión a la base de datos
-        sql.close();
     }
 });
 
@@ -109,22 +106,23 @@ app.get('/get-data', async (req, res) => {
         await connectDB();
 
         // Consulta para obtener los datos de la base de datos
-        const query = `
+        const sqlQuery = `
             SELECT latitud, longitud, id_sector, id_fase, id_cultivo, registrada 
             FROM parcelacion 
             WHERE id_parcelacion = @id
         `;
 
-        const request = new sql.Request();
-        request.input('id', sql.Int, id);
+        const result = await query(sqlQuery, [
+            { name: 'id', type: sql.Int, value: parseInt(id) }
+        ]);
 
-        const result = await request.query(query);
+        console.log('Resultado de la consulta:', result); // Para depuración
 
-        if (result.recordset.length === 0) {
+        if (result.length === 0) {
             return res.status(404).send('Datos no encontrados.');
         }
 
-        const { latitud, longitud, id_sector, id_fase, id_cultivo, registrada } = result.recordset[0];
+        const { latitud, longitud, id_sector, id_fase, id_cultivo, registrada } = result[0];
 
         res.json({
             latitud,
@@ -138,9 +136,7 @@ app.get('/get-data', async (req, res) => {
     } catch (err) {
         console.error('Error al obtener los datos:', err);
         res.status(500).send('Error al obtener los datos.');
-    } finally {
-        sql.close();
-    }
+    } 
 });
 
 // Endpoint para obtener la imagen
@@ -156,22 +152,24 @@ app.get('/get-image', async (req, res) => {
         await connectDB();
 
         // Consulta para obtener la imagen desde la base de datos
-        const query = `
+        const sqlQuery = `
             SELECT imagen 
             FROM parcelacion 
             WHERE id_parcelacion = @id
         `;
 
-        const request = new sql.Request();
-        request.input('id', sql.Int, id);
+        const result = await query(sqlQuery, [
+            { name: 'id', type: sql.Int, value: parseInt(id) }
+        ]);
 
-        const result = await request.query(query);
+        console.log('Resultado de la consulta:', result); // Depuración
 
-        if (result.recordset.length === 0) {
+        // Verifica que result no esté vacío y tenga la estructura esperada
+        if (!result || result.length === 0 || !result[0].imagen) {
             return res.status(404).send('Imagen no encontrada.');
         }
 
-        const imageBuffer = result.recordset[0].imagen;
+        const imageBuffer = result[0].imagen;
         
         // Configurar los encabezados para la imagen
         res.setHeader('Content-Type', 'image/jpeg'); // Ajusta el tipo de contenido si es necesario
@@ -180,10 +178,7 @@ app.get('/get-image', async (req, res) => {
     } catch (err) {
         console.error('Error al obtener la imagen:', err);
         res.status(500).send('Error al obtener la imagen.');
-    } finally {
-        // Cerrar la conexión a la base de datos
-        sql.close();
-    }
+    } 
 });
 
 // Endpoint para obtener la matriz de píxeles de la imagen
