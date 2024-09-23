@@ -8,7 +8,8 @@
 <body>
     <!-- Formulario de registro de usuario -->
     <div>
-        <h2>Registro de usuario</h2>
+        <h2>Registro y eliminación de usuario</h2>
+        <p>Para la eliminacion de usuario solo debe escribir el Rut</p>
         <form id="registerForm">
             <label for="nombre">Nombre:</label>
             <input type="text" id="nombre" name="nombre" required>
@@ -38,11 +39,15 @@
             </select>
             <br><br>
             <input type="submit" value="Registrar usuario">
+            <!-- Nuevo botón para eliminar usuario -->
+            <button type="button" id="deleteButton">Eliminar usuario</button>
+            <br><br>
+            <button onclick="window.location.href='index.html';">Ir a mapa</button>
         </form>
         <p id="mensajeRegistro"></p>
     </div>
-    <br><br>
-    <button onclick="window.location.href='index.html';">Ir a mapa</button>
+    
+
     <script>
         // Función de validación de RUT
         function validarRut(input) {
@@ -55,6 +60,7 @@
             }
         }
 
+        // Función para registrar usuario
         document.getElementById('registerForm').addEventListener('submit', function(e) {
             e.preventDefault(); // Prevenir el comportamiento por defecto del formulario
 
@@ -67,7 +73,7 @@
             const contraseña = document.getElementById('contraseña').value;
             const rol = document.getElementById('rol').value;
 
-            // Hacer una solicitud POST al backend con Fetch API
+            // Hacer una solicitud POST al backend para registrar el usuario
             fetch('http://localhost:3001/registro', {
                 method: 'POST',
                 headers: {
@@ -89,10 +95,44 @@
                 if (data.success) {
                     document.getElementById('mensajeRegistro').innerText = 'Usuario registrado con éxito';
                     document.getElementById('mensajeRegistro').style.color = 'green';
-                    // Limpiar el formulario después del registro
                     document.getElementById('registerForm').reset();
                 } else {
                     document.getElementById('mensajeRegistro').innerText = 'Error al registrar usuario: ' + data.message;
+                    document.getElementById('mensajeRegistro').style.color = 'red';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('mensajeRegistro').innerText = 'Error en la solicitud';
+                document.getElementById('mensajeRegistro').style.color = 'red';
+            });
+        });
+
+        // Función para eliminar usuario
+        document.getElementById('deleteButton').addEventListener('click', function() {
+            const rut = document.getElementById('rut').value;
+
+            if (rut === '') {
+                document.getElementById('mensajeRegistro').innerText = 'Por favor, ingrese un RUT para eliminar';
+                document.getElementById('mensajeRegistro').style.color = 'red';
+                return;
+            }
+
+            // Hacer una solicitud DELETE al backend para eliminar el usuario
+            fetch(`http://localhost:3001/usuario/${rut}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('mensajeRegistro').innerText = 'Usuario eliminado con éxito';
+                    document.getElementById('mensajeRegistro').style.color = 'green';
+                    document.getElementById('registerForm').reset();
+                } else {
+                    document.getElementById('mensajeRegistro').innerText = 'Error al eliminar usuario: ' + data.message;
                     document.getElementById('mensajeRegistro').style.color = 'red';
                 }
             })

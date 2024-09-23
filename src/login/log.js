@@ -136,6 +136,37 @@ app.post('/registro', async (req, res) => {
   }
 });
 
+// Ruta DELETE para eliminar un usuario por su RUT
+app.delete('/usuario/:rut', async (req, res) => {
+  const rut = req.params.rut; // Obtener el RUT de los parámetros de la URL
+
+  try {
+      // Conectar a SQL Server
+      let pool = await sql.connect(config);
+
+      // Consulta SQL para eliminar el usuario por RUT
+      const query = 'DELETE FROM usuario WHERE rut = @rut';
+
+      // Ejecutar la consulta utilizando un parámetro
+      let result = await pool.request()
+          .input('rut', sql.VarChar, rut)  // Definir el parámetro 'rut'
+          .query(query);
+
+      // Verificar si se eliminó algún registro
+      if (result.rowsAffected[0] > 0) {
+          res.json({ success: true, message: 'Usuario eliminado con éxito' });
+      } else {
+          res.status(404).json({ success: false, message: 'Usuario no encontrado' });
+      }
+
+      // Cerrar la conexión
+      await sql.close();
+  } catch (err) {
+      console.error('Error ejecutando la consulta SQL:', err);
+      res.status(500).json({ success: false, message: 'Error al eliminar el usuario' });
+  }
+});
+
 // Ruta para el archivo de index (para usuarios normales)
 app.get('/index', (req, res) => {
   if (!req.session.usuario || req.session.usuario.role !== 'user') {
