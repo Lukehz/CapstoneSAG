@@ -76,16 +76,6 @@ app.post('/login', async (req, res) => {
   }
 });
 
-// Ruta protegida (acceso para todos los usuarios logueados)
-app.get('/protected', (req, res) => {
-  if (!req.session.usuario) {
-    return res.status(401).json({ message: 'Acceso denegado, sesión no iniciada' });
-  }
-
-  const role = req.session.usuario.role;
-  res.status(200).json({ message: `Bienvenido, ${req.session.usuario.username}` });
-});
-
 // Ruta para el archivo de registro (solo para administradores)
 app.get('/registro', (req, res) => {
   if (!req.session.usuario || req.session.usuario.role !== 'admin') {
