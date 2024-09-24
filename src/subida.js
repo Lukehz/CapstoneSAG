@@ -194,22 +194,21 @@ app.get('/get-pixel-matrix', async (req, res) => {
         await connectDB();
 
         // Consulta para obtener la imagen desde la base de datos
-        const query = `
+        const sqlQuery = `
             SELECT imagen 
             FROM parcelacion 
             WHERE id_parcelacion = @id
         `;
 
-        const request = new sql.Request();
-        request.input('id', sql.Int, id);
+        const result = await query(sqlQuery, [
+            { name: 'id', type: sql.Int, value: parseInt(id) }
+        ]);
 
-        const result = await request.query(query);
-
-        if (result.recordset.length === 0) {
+        if (result.length === 0) {
             return res.status(404).send('Imagen no encontrada.');
         }
 
-        const imageBuffer = result.recordset[0].imagen;
+        const imageBuffer = result[0].imagen;
 
         // Procesar la imagen para obtener la matriz de píxeles
         const image = sharp(imageBuffer);
@@ -240,10 +239,7 @@ app.get('/get-pixel-matrix', async (req, res) => {
     } catch (err) {
         console.error('Error al obtener la matriz de píxeles:', err);
         res.status(500).send('Error al obtener la matriz de píxeles.');
-    } finally {
-        // Cerrar la conexión a la base de datos
-        sql.close();
-    }
+    } 
 });
 
 // Servir archivos estáticos (front-end)
