@@ -4,6 +4,8 @@ let drawingMode = false;
 let quarantinePoints = [];
 let parcelaMarkers = [];
 
+/* */ 
+
 const updateParcelas = () => {
   console.log('Obteniendo parcelas...');
   fetch('http://localhost:3000/parcelas')
