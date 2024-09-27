@@ -1,6 +1,5 @@
 /* Maneja las operaciones de los datos de cuarentena que estan relacionada con la bd */
 
-
 const sql = require('mssql');
 const { getConnection } = require('../Models/db');
 
@@ -75,48 +74,52 @@ const saveQuarantine = async (req, res) => {
     if (pool) await pool.close();
   }
 };
-
 const getAllQuarantines = async (req, res) => {
-    let pool;
-    try {
-      pool = await getConnection();
-      const result = await pool.request()
-        .query(`
-          SELECT c.id_cuarentena, c.latitud, c.longitud, c.radio, c.comentario, 
-                 v.latitud as vertice_lat, v.longitud as vertice_lon, v.orden
-          FROM dbo.cuarentena c
-          LEFT JOIN dbo.vertice v ON c.id_cuarentena = v.id_cuarentena
-          ORDER BY c.id_cuarentena, v.orden
-        `);
-  
-      const quarantines = result.recordset.reduce((acc, row) => {
-        if (!acc[row.id_cuarentena]) {
-          acc[row.id_cuarentena] = {
-            id: row.id_cuarentena,
-            latitud: row.latitud,
-            longitud: row.longitud,
-            radio: row.radio,
-            comentario: row.comentario,
-            vertices: []
-          };
-        }
-        if (row.vertice_lat && row.vertice_lon) {
-          acc[row.id_cuarentena].vertices.push([row.vertice_lon, row.vertice_lat]);
-        }
-        return acc;
-      }, {});
-  
-      res.json(Object.values(quarantines));
-    } catch (error) {
-      console.error('Error al obtener cuarentenas:', error);
-      res.status(500).json({ success: false, error: error.message });
-    } finally {
-      if (pool) await pool.close();
-    }
-  };
-  
-  module.exports = {
-    saveQuarantine,
-    getAllQuarantines
-  };
-  
+  let pool;
+  try {
+    pool = await getConnection();
+    const result = await pool.request()
+      .query(`
+        SELECT c.id_cuarentena, c.latitud, c.longitud, c.radio, c.comentario, 
+               v.id_conexion, v.latitud_INI, v.longitud_INI, v.latitud_END, v.longitud_END, v.ORDEN
+        FROM dbo.cuarentena c
+        INNER JOIN VW_conexiones_cuarentena v ON c.id_cuarentena = v.id_cuarentena
+        ORDER BY c.id_cuarentena, v.ORDEN
+      `);
+
+    const quarantines = result.recordset.reduce((acc, row) => {
+      if (!acc[row.id_cuarentena]) {
+        acc[row.id_cuarentena] = {
+          id: row.id_cuarentena,
+          latitud: row.latitud,
+          longitud: row.longitud,
+          radio: row.radio,
+          comentario: row.comentario,
+          conexiones: [] // Cambié a conexiones
+        };
+      }
+    
+      acc[row.id_cuarentena].conexiones.push({
+        id_conexion: row.id_conexion,
+        latitud_INI: row.latitud_INI,
+        longitud_INI: row.longitud_INI,
+        latitud_END: row.latitud_END,
+        longitud_END: row.longitud_END,
+        orden: row.ORDEN
+      });
+      return acc;
+    }, {});
+
+    res.json(Object.values(quarantines));
+  } catch (error) {
+    console.error('Error al obtener cuarentenas:', error);
+    res.status(500).json({ success: false, error: error.message });
+  } finally {
+    if (pool) await pool.close();
+  }
+};
+
+module.exports = {
+  saveQuarantine,
+  getAllQuarantines
+};

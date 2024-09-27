@@ -5,10 +5,11 @@ mapboxgl.accessToken = 'pk.eyJ1Ijoibmljb2xlODAxIiwiYSI6ImNtMHdvdGE3MzAzbnQybG93a
 const map = new mapboxgl.Map({
   container: 'map',
   style: 'mapbox://styles/mapbox/satellite-streets-v12',
-  center: [0, 0],
-  zoom: 10,
+  center: [-72.9369, -41.4717],
+  zoom: 11,
   maxZoom: 20,
-  minZoom: 1
+  minZoom: 1,
+  fitBoundsOptions: null
 });
 
 const coordinatesGeocoder = function (query) {
@@ -48,10 +49,10 @@ map.addControl(
   new MapboxGeocoder({
     accessToken: mapboxgl.accessToken,
     localGeocoder: coordinatesGeocoder,
-    zoom: 4,
     placeholder: 'Ingrese coordenadas',
     mapboxgl: mapboxgl,
     reverseGeocode: true
+    
   })
 );
 
