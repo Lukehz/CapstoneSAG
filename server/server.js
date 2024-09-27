@@ -29,7 +29,7 @@ const errorHandler = (err, req, res, next) => {
   });
 };
 
-// Manejo de ruta no encontrada (para cualquier ruta no especificada)
+// Manejo de ruta no encontrada (paraz cualquier ruta no especificada)
 app.use((req, res) => {
   res.status(404).json({ error: 'Ruta no encontrada' });
 });

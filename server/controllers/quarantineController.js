@@ -119,7 +119,49 @@ const getAllQuarantines = async (req, res) => {
   }
 };
 
+const deleteQuarantine = async (req, res) => {
+  const { id } = req.params;
+  let pool;
+  let transaction;
+
+  try {
+    pool = await getConnection();
+    transaction = new sql.Transaction(pool);
+    await transaction.begin();
+
+    // Paso 1: Eliminar las conexiones
+    await transaction.request()
+      .input('id_cuarentena', sql.Int, id)
+      .query('DELETE FROM dbo.conexion_cuarentena WHERE id_cuarentena = @id_cuarentena');
+
+    // Paso 2: Eliminar los vértices
+    await transaction.request()
+      .input('id_cuarentena', sql.Int, id)
+      .query('DELETE FROM dbo.vertice WHERE id_cuarentena = @id_cuarentena');
+
+    // Paso 3: Eliminar la cuarentena
+    const result = await transaction.request()
+      .input('id_cuarentena', sql.Int, id)
+      .query('DELETE FROM dbo.cuarentena WHERE id_cuarentena = @id_cuarentena');
+
+    await transaction.commit();
+
+    if (result.rowsAffected[0] > 0) {
+      res.json({ success: true, message: `Cuarentena con ID ${id} eliminada exitosamente` });
+    } else {
+      res.status(404).json({ success: false, message: `No se encontró una cuarentena con ID ${id}` });
+    }
+  } catch (error) {
+    console.error('Error al eliminar la cuarentena:', error);
+    if (transaction) await transaction.rollback();
+    res.status(500).json({ success: false, error: error.message });
+  } finally {
+    if (pool) await pool.close();
+  }
+};
+
 module.exports = {
   saveQuarantine,
-  getAllQuarantines
+  getAllQuarantines,
+  deleteQuarantine  // Añade esta línea
 };

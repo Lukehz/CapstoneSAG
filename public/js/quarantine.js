@@ -7,7 +7,7 @@ let parcelaMarkers = [];
 /* */ 
 
 const updateParcelas = () => {
-  console.log('Obteniendo parcelas...');
+  alert('Obteniendo parcelas...');
   fetch('http://localhost:3000/parcelas')
     .then(response => {
       if (!response.ok) {
@@ -16,12 +16,13 @@ const updateParcelas = () => {
       return response.json();
     })
     .then(parcelas => {
-      console.log('Parcelas recibidas');
+     alert('Parcelas recibidas');
       if (!parcelas.length) {
         console.log('No se encontraron parcelas');
         return;
       }
 
+      // Limpiar marcadores existentes
       parcelaMarkers.forEach(marker => marker.remove());
       parcelaMarkers = [];
 
@@ -42,13 +43,33 @@ const updateParcelas = () => {
             `))
             .addTo(map);
 
-          parcelaMarkers.push(marker);
-          bounds.extend([parcela.longitud, parcela.latitud]);
+          parcelaMarkers.push(marker); // Agregar el marcador al array
+          bounds.extend([parcela.longitud, parcela.latitud]); // Ajustar los límites del mapa
         }
       });
     })
     .catch(error => console.error('Error al obtener parcelas:', error));
 };
+
+// Función para alternar la visibilidad de las parcelas
+function toggleParcelas() {
+  const isVisible = this.checked; // Obtener estado del checkbox
+  
+  if (isVisible) {
+    updateParcelas(); // Actualizar y mostrar parcelas si está marcado
+  } else {
+    // Si no está marcado, eliminar todos los marcadores
+    parcelaMarkers.forEach(marker => marker.remove());
+    parcelaMarkers = [];
+    console.log('Parcelas ocultadas del mapa.');
+  }
+}
+
+// Evento de carga de DOM
+document.addEventListener('DOMContentLoaded', () => {
+  const parcelaCheckbox = document.getElementById('parcela-toggle');
+  parcelaCheckbox.addEventListener('change', toggleParcelas); // Agregar evento al checkbox
+});
 
 // Función para actualizar los puntos de cuarentena
 const updateQuarantinePoints = () => {
@@ -283,6 +304,9 @@ function fetchAndDisplayQuarantines() {
           paint: {
             'fill-color': '#FF0000',
             'fill-opacity': 0.5
+          },
+          layout: {
+            visibility: 'none'
           }
         });
       } else {
