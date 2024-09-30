@@ -10,9 +10,6 @@ const port = 3001;
 // Configuración de CORS y JSON
 app.use(cors());         // Permitir CORS
 app.use(express.json());
-const HTML_DIR = path.join(__dirname, '/public/')
-app.use(express.static(HTML_DIR))
-app.use(express.static('js'));
 // Conectar a la base de datos
 connectToDatabase();
 
@@ -23,6 +20,19 @@ app.use(session({
   saveUninitialized: true,
   cookie: { secure: false }
 }));
+
+// Middleware para verificar la autenticación y el rol
+function verificarAutenticacion(role) {
+  return (req, res, next) => {
+    if (!req.session.usuario) {
+      return res.status(401).json({ message: 'Acceso no autorizado' });
+    }
+    if (role && req.session.usuario.role !== role) {
+      return res.status(403).json({ message: 'Acceso denegado' });
+    }
+    next();
+  };
+}
 
 // Rutas
 app.use('/registro', registroRouter);
@@ -50,6 +60,7 @@ app.post('/login', async (req, res) => {
     const usuario = result.recordset[0];
     req.session.usuario = { username: usuario.usuario, role: usuario.rol };
 
+    // Redirigir según el rol
     if (usuario.rol === 'admin') {
       return res.json({ message: 'Sesión iniciada correctamente', redirect: '/admin' });
     } else if (usuario.rol === 'user') {
@@ -68,28 +79,23 @@ app.get('/', (req, res) => {
   res.sendFile(path.resolve(__dirname, '../../public', 'login.html'));
 });
 
-app.get('/admin', (req, res) => {
-  if (!req.session.usuario || req.session.usuario.role!== 'admin') {
-    return res.status(403).json({ message: 'Acceso denegado' });
-  }
+// Ruta protegida para admin
+app.get('/admin', verificarAutenticacion('admin'), (req, res) => {
   res.sendFile(path.join(__dirname, '../../public', 'admin.html'));
 });
-// Ruta para el archivo de index (para usuarios normales)
-app.get('/index', (req, res) => {
-  if (!req.session.usuario || req.session.usuario.role !== 'user') {
-    return res.status(403).json({ message: 'Acceso denegado' });
-  }
-  // Servir la página de index (usuario regular)
+
+// Ruta protegida para index (usuarios normales)
+app.get('/index', verificarAutenticacion('user'), (req, res) => {
   res.sendFile(path.join(__dirname, '../../public', 'index.html'));
-
-// Ruta para servir admin.html desde la carpeta public
-  res.sendFile(path.join(__dirname, '../../public', 'admin.html'));
 });
 
-//ruta para la pagina registro
+// Ruta para servir la página de registro
 app.get('/registro.html', (req, res) => {
-  res.sendFile(__dirname + '/public/registro.html');
+  res.sendFile(path.join(__dirname, '../../public', 'registro.html'));
 });
+
+app.use("/static", express.static('./static/'));
+
 // Ruta para cerrar la sesión
 app.get('/logout', (req, res) => {
   req.session.destroy();
