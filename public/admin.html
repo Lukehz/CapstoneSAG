@@ -7,9 +7,6 @@
     <script defer src="admin.js"></script>
 </head>
 <body>
-    <h1>Gestión de Usuarios</h1>
-    
-    <!-- Tabla donde se mostrarán los usuarios -->
     <table border="1" id="tablaUsuarios">
         <thead>
             <tr>
@@ -20,14 +17,19 @@
                 <th>nombre</th>
                 <th>apellido</th>
                 <th>rol</th>
+                <th>Acciones</th> <!-- Nueva columna para las acciones (editar/eliminar) -->
             </tr>
         </thead>
         <tbody>
             <!-- Los usuarios se mostrarán aquí dinámicamente -->
         </tbody>
     </table>
-    <br><br><br>
+    </table>
+    <br><br>
+    <button onclick="window.location.href='editarUsuario.html';">editar Usuario</button>
+    <br><br>
     <!-- Botón para redirigir a la página de registro -->
     <button onclick="window.location.href='registro.html';">Agregar Nuevo Usuario</button>
+    <script src="/static/adm.js"></script>
 </body>
 </html>

@@ -9,7 +9,6 @@
     <!-- Formulario de registro de usuario -->
     <div>
         <h2>Registro y eliminación de usuario </h2>
-        <p>Para la eliminacion de usuario solo debe escribir el Rut</p>
         <form id="registerForm">
             <label for="nombre">Nombre:</label>
             <input type="text" id="nombre" name="nombre" required>
@@ -39,7 +38,6 @@
             </select>
             <br><br>
             <input type="submit" value="Registrar usuario">
-            <button type="button" id="deleteButton">Eliminar usuario</button>
             <br><br>
             <button type="button" onclick="window.location.href='index.html';">Ir a mapa</button>
             <br><br>
@@ -99,41 +97,6 @@
                     document.getElementById('registerForm').reset();
                 } else {
                     document.getElementById('mensajeRegistro').innerText = 'Error al registrar usuario: ' + data.message;
-                    document.getElementById('mensajeRegistro').style.color = 'red';
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                document.getElementById('mensajeRegistro').innerText = 'Error en la solicitud';
-                document.getElementById('mensajeRegistro').style.color = 'red';
-            });
-        });
-
-        // Función para eliminar usuario
-        document.getElementById('deleteButton').addEventListener('click', function() {
-            const rut = document.getElementById('rut').value;
-
-            if (rut === '') {
-                document.getElementById('mensajeRegistro').innerText = 'Por favor, ingrese un RUT para eliminar';
-                document.getElementById('mensajeRegistro').style.color = 'red';
-                return;
-            }
-
-            // Hacer una solicitud DELETE al backend para eliminar el usuario
-            fetch(`http://localhost:3001/usuario/${rut}`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    document.getElementById('mensajeRegistro').innerText = 'Usuario eliminado con éxito';
-                    document.getElementById('mensajeRegistro').style.color = 'green';
-                    document.getElementById('registerForm').reset();
-                } else {
-                    document.getElementById('mensajeRegistro').innerText = 'Error al eliminar usuario: ' + data.message;
                     document.getElementById('mensajeRegistro').style.color = 'red';
                 }
             })
