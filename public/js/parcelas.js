@@ -1,7 +1,5 @@
 import { map } from './map.js';
 
-let drawingMode = false;
-let quarantinePoints = [];
 let parcelaMarkers = [];
 
 /* */ 
@@ -68,5 +66,7 @@ function toggleParcelas() {
 // Evento de carga de DOM
 document.addEventListener('DOMContentLoaded', () => {
   const parcelaCheckbox = document.getElementById('parcela-toggle');
+    // Checkbox esté desmarcado al cargar la página
+    parcelaCheckbox.checked = false;
   parcelaCheckbox.addEventListener('change', toggleParcelas); // Agregar evento al checkbox
 });
