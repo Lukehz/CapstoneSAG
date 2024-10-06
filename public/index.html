@@ -1,132 +1,100 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-  <meta charset="utf-8">
-  <title>Land Mosaic Vision</title>
-  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
-  <link href="https://api.mapbox.com/mapbox-gl-js/v2.12.0/mapbox-gl.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.2/mapbox-gl-geocoder.css" type="text/css">
-  <style>
-    body { margin: 0; padding: 0; }
-    #map { position: absolute; top: 0; bottom: 0; width: 70%; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabla de Datos</title>
+<script>
+        async function fetchData() {
+            const response = await fetch('/api/data');
+            const data = await response.json();
+            const tableBody = document.getElementById('table-body');
+            tableBody.innerHTML = '';
+
+            data.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.id_parcelacion}</td>
+                    <td>${row.latitud}</td>
+                    <td>${row.longitud}</td>
+                    <td>${row.id_sector}</td>
+                    <td>${row.id_fase}</td>
+                    <td>${row.id_cultivo}</td>
+                    <td>${row.registrada}</td>
+                    <td>
+                        <button onclick="editProduct(${row.id_parcelacion})">Editar</button>
+                        <button onclick="deleteProduct(${row.id_parcelacion})">Eliminar</button>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        async function createProduct() {
+            const latitud = document.getElementById('latitud').value;
+            const longitud = document.getElementById('longitud').value;
+            const id_sector = document.getElementById('id_sector').value;
+            const id_fase = document.getElementById('id_fase').value;
+            const id_cultivo = document.getElementById('id_cultivo').value;
+            const registrada = document.getElementById('registrada').value; 
+            await fetch('/api/data', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ latitud, longitud, id_sector, id_fase, id_cultivo , registrada}),
+            });
+            fetchData();
+        }
+        window.onload = async () => {
+    await loadSelectOptions(); // Carga las opciones
+    await fetchData(); // Carga los datos
+};
+
+    </script>
 </head>
 <body>
-  <div id="map"></div>
+    <h1>Datos de la Tabla</h1>
+    <input type="file" name="image" accept="image/*" required>
+    <input type="number" name="latitud" placeholder="Latitud" step="any" min="-90" max="90" required>
+    <input type="number" name="longitud" placeholder="Longitud" step="any" min="-180" max="180" required>
+    <select name="id_sector" id="id_sector" required>
+      <option value="">Seleccione un Sector</option>
+      <!-- Las opciones se llenarán aquí con JavaScript -->
+  </select>
 
-  <script src="https://api.mapbox.com/mapbox-gl-js/v2.12.0/mapbox-gl.js"></script>
-  <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.2/mapbox-gl-geocoder.min.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      if (typeof mapboxgl === 'undefined') {
-        console.error('Mapbox GL JS no se ha cargado.');
-        return;
-      }
+  <select name="id_fase" id="id_fase" required>
+      <option value="">Seleccione una Fase</option>
+      <!-- Las opciones se llenarán aquí con JavaScript -->
+  </select>
 
-      mapboxgl.accessToken = 'pk.eyJ1Ijoibmljb2xlODAxIiwiYSI6ImNtMHdvdGE3MzAzbnQybG93aXRncnlqb2QifQ.9G8XyYyv4V1b0OJGRnpEZA';
-      const map = new mapboxgl.Map({
-        container: 'map',
-        style: 'mapbox://styles/mapbox/satellite-streets-v12',
-        center: [0, 0],
-        zoom: 10,
-        maxZoom: 20, // Limitar el zoom máximo para mejorar el rendimiento
-        minZoom: 1   // Limitar el zoom mínimo para evitar cargas innecesarias
-      });
-      
+  <select name="id_cultivo" id="id_cultivo" required>
+      <option value="">Seleccione un Cultivo</option>
+      <!-- Las opciones se llenarán aquí con JavaScript -->
+  </select>
 
-      let markers = []; // Array para almacenar los marcadores
-
-      const updateParcelas = () => {
-        console.log('Fetching parcelas...');
-        fetch('http://localhost:3000/parcelas')
-          .then(response => {
-            if (!response.ok) {
-              throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-          })
-          .then(parcelas => {
-            console.log('Received parcelas');
-            if (!parcelas.length) {
-              console.log('No se encontraron parcelas');
-              return;
-            }
-  
-            markers.forEach(marker => marker.remove());
-            markers = [];
-  
-            const bounds = new mapboxgl.LngLatBounds();
-            parcelas.forEach(parcela => {
-
-              
-              const marker = new mapboxgl.Marker()
-                .setLngLat([parcela.longitud, parcela.latitud])
-                .setPopup(new mapboxgl.Popup().setHTML(`
-                <h3>Parcela ID: ${parcela.ID}</h3>
-                <p>Coordenadas: ${parcela.latitud}, ${parcela.longitud}</p>
-                <p>Fase: ${parcela.Fase}</p>
-                <p>Cultivo: ${parcela.Cultivo}</p>
-                <p>Comuna: ${parcela.Comuna}</p>
-                <p>Registrada: ${parcela.Registrada}</p>
-                `))
-                .addTo(map);
-  
-              markers.push(marker);
-              bounds.extend([parcela.longitud, parcela.latitud]);
-            });
-  
-            map.fitBounds(bounds, { padding: 50, duration: 0 });
-          })
-          .catch(error => console.error('Error fetching parcelas:', error));
-      };
-  
-
-      // Inicializar la carga de parcelas
-      updateParcelas();
-
-      
-
-      // Empieza el código para buscar coordenadas
-      const coordinatesGeocoder = function (query) {
-        const matches = query.match(/^(-?\d+\.?\d*)[, ]+(-?\d+\.?\d*)$/);
-        if (!matches) return null;
-
-        function coordinateFeature(lng, lat) {
-          return {
-            center: [lng, lat],
-            geometry: {
-              type: 'Point',
-              coordinates: [lng, lat]
-            },
-            place_name: `Lat: ${lat} Lng: ${lng}`,
-            place_type: ['coordinate'],
-            properties: {},
-            type: 'Feature'
-          };
-        }
-
-        const coord1 = Number(matches[1]);
-        const coord2 = Number(matches[2]);
-        const geocodes = [];
-
-        if (Math.abs(coord1) <= 90 && Math.abs(coord2) <= 180) {
-          geocodes.push(coordinateFeature(coord1, coord2));
-        }
-
-        return geocodes;
-      };
-
-      map.addControl(
-        new MapboxGeocoder({
-          accessToken: mapboxgl.accessToken,
-          localGeocoder: coordinatesGeocoder,
-          zoom: 4,
-          placeholder: 'Ingrese coordenadas',
-          mapboxgl: mapboxgl,
-          reverseGeocode: true
-        })
-      );
-    });
-  </script>
+  <select name="registrada" required>
+      <option value="">Seleccione si esta registrada</option>
+      <option value="0">No Registrada</option>
+      <option value="1">Registrada</option>
+  </select>
+    <button onclick="createProduct()">Crear Producto</button>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>id_parcelacion</th>
+                <th>latitud</th>
+                <th>longitud</th>
+                <th>id_sector</th>
+                <th>id_fase</th>
+                <th>id_cultivo</th>
+                <th>registrada</th>
+                <!-- Agrega más encabezados según tu tabla -->
+            </tr>
+        </thead>
+        <tbody id="table-body">
+            <!-- Los datos se agregarán aquí -->
+        </tbody>
+    </table>
 </body>
 </html>

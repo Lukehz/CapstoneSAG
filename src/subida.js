@@ -1,7 +1,7 @@
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
-const { connectDB, sql, query } = require('./db'); // Importa la función de conexión y el módulo sql
+const { connectDB, sql, query } = require('./config/db'); // Importa la función de conexión y el módulo sql
 const sharp = require('sharp'); // Necesitamos sharp para procesar imágenes
 
 const app = express();
