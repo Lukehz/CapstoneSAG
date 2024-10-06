@@ -403,9 +403,17 @@ async function deleteItem(id) {
 // Función para validar campos
 function validarCampos(formData) {
     for (const [key, value] of formData.entries()) {
-        if (value.trim() === '') {
-            alert(`Los campos no pueden estar vacios.`);
+        console.log(key, value);
+
+        // Verifica si el valor es una cadena antes de aplicar trim
+        if (typeof value === 'string' && value.trim() === '') {
+            alert(`Los campos no pueden estar vacíos.`);
             return false;
+        }
+        
+        // Si el valor es un objeto File, no hacemos nada porque no es obligatorio
+        if (value instanceof File) {
+            continue; // Ignorar el campo de imagen
         }
     }
     return true;
@@ -484,7 +492,12 @@ document.getElementById('itemForm').addEventListener('submit', async (e) => {
     }
 
     // Validar los campos antes de enviar
+    for (const [key, value] of formData.entries()) {
+        console.log(`Key: ${key}, Value: ${value}`);
+    }
+    console.log('Campos: ' + formData);
     if (!validarCampos(formData)) {
+        console.log('salir si hay campos vacios');
         return; // Salir si hay un campo vacío
     }
 

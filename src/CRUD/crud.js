@@ -4,9 +4,107 @@ const bodyParser = require('body-parser'); // Middleware para parsear cuerpos de
 const multer = require('multer'); // Middleware para manejar la subida de archivos
 const path = require('path'); // Módulo para trabajar con rutas y directorios de archivos
 const { connectDB, sql, query } = require('../config/db'); // Importa la función para conectar a la base de datos
+// LO NUEVO LOGIN
+const session = require('express-session');
+const cors = require('cors'); // Asegúrate de requerir CORS
 
 // Inicializar la aplicación Express
 const app = express();
+
+app.use(cors()); // Habilita CORS para todas las solicitudes
+app.use(express.json());
+/* DUDA
+app.use(cors({
+    origin: 'http://localhost:3001' // Permite solo solicitudes desde este origen
+  }));
+*/
+// LO NUEVO LOGIN
+// Configuración de la sesión
+app.use(session({
+    secret: 'mi_clave_secreta',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false }
+  }));
+  // LO NUEVO LOGIN
+  // Middleware para verificar la autenticación y el rol
+  function verificarAutenticacion(role) {
+    return (req, res, next) => {
+      if (!req.session.usuario) {
+        return res.status(401).json({ message: 'Acceso no autorizado' });
+      }
+      if (role && req.session.usuario.role !== role) {
+        return res.status(403).json({ message: 'Acceso denegado' });
+      }
+      next();
+    };
+  }
+//lo nuevo LOGIN
+// Rutas
+app.post('/login', async (req, res) => {
+    console.log('Datos recibidos en /login:', req.body); // <-- Depuración
+    try {
+      const { username, password } = req.body;
+  
+      if (!username || !password) {
+        return res.status(400).json({ message: 'El nombre de usuario y la contraseña son obligatorios' });
+      }
+  
+      // Consulta a la base de datos
+      const query = 'SELECT * FROM usuario WHERE usuario = @username AND password = @password';
+      const request = new sql.Request();
+      request.input('username', sql.VarChar, username);
+      request.input('password', sql.VarChar, password);
+  
+      const result = await request.query(query);
+  
+      if (result.recordset.length === 0) {
+        return res.status(401).json({ message: 'Usuario no encontrado o contraseña incorrecta' });
+      }
+  
+      const usuario = result.recordset[0];
+      req.session.usuario = { username: usuario.usuario, role: usuario.rol };
+  
+      // Redirigir según el rol
+      if (usuario.rol === 'admin') {
+        return res.json({ message: 'Sesión iniciada correctamente', redirect: '/crud/crud.html' });
+      } else if (usuario.rol === 'user') {
+        return res.json({ message: 'Sesión iniciada correctamente', redirect: '/index' });
+      } else {
+        return res.status(403).json({ message: 'Rol de usuario no autorizado' });
+      }
+    } catch (err) {
+      console.error('Error en el inicio de sesión:', err);
+      return res.status(500).json({ message: 'Error en el inicio de sesión' });
+    }
+  });
+  
+  // Ruta para servir login.html desde la carpeta public
+  app.get('/', (req, res) => {
+    res.sendFile(path.resolve(__dirname, '../../public', 'login.html'));
+  });
+  
+  // Ruta protegida para admin
+  app.get('/crud/crud.html', verificarAutenticacion('admin'), (req, res) => {
+    res.sendFile(path.join(__dirname, '../../public/crud', 'crud.html'));
+  });
+  
+  // Ruta protegida para index (usuarios normales)
+  app.get('/index', verificarAutenticacion('user'), (req, res) => {
+    res.sendFile(path.join(__dirname, '../../public', 'index.html'));
+  });
+  
+  // Servir archivos estáticos
+  app.use('/static', express.static(path.join(__dirname, '../../public/static')));
+  app.use('/crud', express.static(path.join(__dirname, '../../public/crud')));
+  
+  // Ruta para cerrar la sesión
+  app.get('/logout', (req, res) => {
+    req.session.destroy();
+    res.status(200).json({ message: 'Sesión cerrada correctamente' });
+  });
+
+
 
 // Middleware para parsear el cuerpo de las solicitudes JSON
 app.use(bodyParser.json());
@@ -22,11 +120,6 @@ connectDB();
 // Configuración de almacenamiento en multer
 const storage = multer.memoryStorage(); // Usamos almacenamiento en memoria para manejar archivos en el buffer
 const upload = multer({ storage: storage }); // Inicializa multer con la configuración de almacenamiento
-
-// Ruta principal para servir el archivo HTML
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../../public/crud/crud.html')); // Envía el archivo HTML como respuesta
-});
 
 // Exportar la aplicación para su uso en otros módulos
 module.exports = app;

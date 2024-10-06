@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const password = document.getElementById('password').value;
 
     // Hacer una solicitud POST con fetch para enviar las credenciales al backend
-    fetch('http://localhost:3001/login', {
+    fetch('/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
