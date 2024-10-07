@@ -3,9 +3,6 @@ import { map } from './map.js';
 let drawingMode = false;
 let quarantinePoints = [];
 
-/* */ 
-
-// Función para actualizar los puntos de cuarentena
 const updateQuarantinePoints = () => {
   const pointsData = {
     type: 'FeatureCollection',
@@ -37,6 +34,7 @@ const updateQuarantinePoints = () => {
     });
   }
 };
+
 
 // Función para actualizar el polígono de cuarentena
 const updateQuarantinePolygon = () => {
@@ -113,6 +111,7 @@ const removeLayersAndSources = () => {
     }
   });
 };
+
 // Evento del botón "Crear Cuarentena"
 document.getElementById('create-quarantine').addEventListener('click', () => {
   drawingMode = !drawingMode;
@@ -124,9 +123,8 @@ document.getElementById('create-quarantine').addEventListener('click', () => {
     updateQuarantinePolygon(); // Actualizar el polígono (estará vacío inicialmente)
   } else {
     document.getElementById('create-quarantine').innerText = 'Crear cuarentena';
-    
     // Limpiar los puntos y las capas al cancelar
-    removeLayersAndSources(['quarantine-points', 'quarantine-outline', 'quarantine-polygon'], 'quarantine-polygon');
+    removeLayersAndSources();
     quarantinePoints = []; // Asegurarse de que los puntos se limpien al cancelar
   }
 });
@@ -139,7 +137,7 @@ document.getElementById('save-quarantine').addEventListener('click', () => {
   }
 
   const orderedPoints = quarantinePoints.sort((a, b) => a.order - b.order).map(point => point.coords);
-  const closedPoints = [...orderedPoints, orderedPoints[0]];
+  const closedPoints = [...orderedPoints, orderedPoints[0]]; // Cerrar el polígono
   const comentario = document.getElementById('quarantine-comment').value;
 
   fetch('http://localhost:3000/quarantine/save-quarantine', {
@@ -154,10 +152,12 @@ document.getElementById('save-quarantine').addEventListener('click', () => {
   })
   .then(response => response.json())
   .then(data => {
-    alert(`Cuarentena guardada con éxito. ID: ${data.id_cuarentena}`);
-    quarantinePoints = []; // Reiniciar puntos solo al guardar
-    document.getElementById('quarantine-comment').value = '';
-    removeLayersAndSources(['quarantine-points', 'quarantine-polygon', 'quarantine-outline'], 'quarantine-polygon');
+    if (data.success) {
+      alert(`Cuarentena guardada con éxito. ID: ${data.id_cuarentena}`);
+      fetchAndDisplayQuarantines(); // Actualizar la lista de cuarentenas
+    } else {
+      throw new Error(data.message || 'Error al guardar la cuarentena');
+    }
   })
   .catch(error => {
     console.error('Error:', error);
@@ -167,8 +167,7 @@ document.getElementById('save-quarantine').addEventListener('click', () => {
 
 // Evento de clic en el mapa
 document.addEventListener('DOMContentLoaded', () => {
-  updateParcelas(); // Asegúrate de que esta función esté definida
-
+  
   map.on('click', (e) => {
     if (drawingMode) {
       const coords = [e.lngLat.lng, e.lngLat.lat];
@@ -253,15 +252,55 @@ function fetchAndDisplayQuarantines() {
 
       map.on('click', 'quarantine-layer', (e) => {
         const properties = e.features[0].properties;
-        new mapboxgl.Popup()
+      
+        const popup = new mapboxgl.Popup()
           .setLngLat(e.lngLat)
           .setHTML(`
             <h3>Cuarentena ID: ${properties.id}</h3>
             <p>Comentario: ${properties.comentario}</p>
+            <button class="delete-button" data-id="${properties.id}">Eliminar</button>
           `)
           .addTo(map);
       });
-
+      
+      // Escuchar clics en el documento
+      document.addEventListener('click', (e) => {
+        if (e.target.classList.contains('delete-button')) {
+          const id = e.target.dataset.id; // Obtener el ID desde el atributo data-id
+          if (confirm('¿Estás seguro de eliminar esta cuarentena?')) {
+            eliminarCuarentena(id);
+          }
+        }
+      });
+      
+     
+      function eliminarCuarentena(id) {
+        console.log(`Intentando eliminar cuarentena con ID: ${id}`);
+        fetch(`http://localhost:3000/quarantine/quarantines/${id}`, {
+          method: 'DELETE',
+        })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Error al eliminar la cuarentena');
+            }
+            return response.json();
+          })
+          .then(data => {
+            console.log('Datos de respuesta:', data);
+            if (data.success) {
+              alert(data.message);
+              removeQuarantineFromMap(id); // Llama a esta función para actualizar el mapa
+              fetchAndDisplayQuarantines(); // Vuelve a cargar las cuarentenas
+            } else {
+              throw new Error(data.message || 'Error al eliminar la cuarentena');
+            }
+          })
+          .catch(error => {
+            console.error('Error al eliminar la cuarentena:', error);
+            alert(`Error al eliminar la cuarentena: ${error.message}`);
+          });
+      }
+      
       map.on('mouseenter', 'quarantine-layer', () => {
         map.getCanvas().style.cursor = 'pointer';
       });
@@ -292,10 +331,21 @@ function toggleQuarantines() {
 
 document.addEventListener('DOMContentLoaded', () => {
   const quarantineCheckbox = document.getElementById('quarantine-toggle');
+  quarantineCheckbox.checked = false;
   quarantineCheckbox.addEventListener('change', toggleQuarantines);
   
   fetchAndDisplayQuarantines();
 });
 
+function removeQuarantineFromMap(quarantineId) {
+  const currentSource = map.getSource('quarantine-source');
+  if (currentSource) {
+    const features = currentSource._data.features.filter(feature => feature.properties.id !== quarantineId);
+    currentSource.setData({
+      type: 'FeatureCollection',
+      features: features
+    });
+  }
+}
 
 

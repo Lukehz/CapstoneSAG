@@ -5,6 +5,6 @@ const { saveQuarantine, getAllQuarantines, deleteQuarantine} = require('../contr
 // Ruta para guardar cuarentena
 router.post('/save-quarantine', saveQuarantine)
 router.get('/get-all-quarantines', getAllQuarantines);
-router.delete('delete-quarantine/:id', deleteQuarantine)
+router.delete('/quarantines/:id', deleteQuarantine);
 
 module.exports = router;
