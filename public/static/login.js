@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const password = document.getElementById('password').value;
 
     // Hacer una solicitud POST con fetch para enviar las credenciales al backend
-    fetch('/login', {
+    fetch('/api/auth/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
     })
     .catch(error => {
       console.error('Error:', error);
-      document.getElementById('mensajeError').innerText = 'Ocurrió un error al iniciar sesión.';
+      document.getElementById('mensajeError').innerText = 'Ocurrió un error al iniciar sesión xdddddddddd.';
     });
   });
 });

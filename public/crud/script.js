@@ -1,40 +1,24 @@
-// Al cargar la página, puedes cargar una tabla por defecto si lo deseas
+// Al cargar la página, carga la tabla parcelacion por defecto
 document.addEventListener("DOMContentLoaded", () => loadItems('parcelacion')); // Cambia a la tabla por defecto
 
 let nameTable = 'parcelacion'; // Valor predeterminado
 
-// Función para manejar la visualización de la imagen en un modal
-function viewImage(itemId) {
-    const imageUrl = `/get-image?id=${itemId}`; // Construye la URL para obtener la imagen
-    const modalImage = document.getElementById('modalImage');
-    if (modalImage) { // Verifica que el elemento existe
-        modalImage.src = imageUrl; // Asigna la URL de la imagen al modal
-        document.getElementById('imageModal').style.display = 'block'; // Muestra el modal
-    } else {
-        console.error('El elemento modalImage no se encuentra en el DOM.');
-    }
-}
-
-// Función para cerrar el modal
-function closeModalImg() {
-    const modal = document.getElementById('imageModal');
-    if (modal) {
-        modal.style.display = 'none'; // Oculta el modal
-    }
-}
-
+/********************************** READ ********************************/
+/****** LEE TODOS LOS ITEMS, CREA LA TABLA Y RELLENA CON LOS ITEMS ******/
 // Cargar ítems según la tabla seleccionada
 async function loadItems(Table) {
-    const crudTitle = document.getElementById('crud-title');
-    const addButton = document.getElementById('addButton');
-    nameTable = Table;
-    console.log(nameTable);
-    addButton.style.display = 'block';
+    const crudTitle = document.getElementById('crud-title'); // Obtiene el elemento del título
+    const addButton = document.getElementById('addButton'); // Obtiene el botón de agregar
+    nameTable = Table; // Guarda el nombre de la tabla seleccionada
+    console.log(nameTable); // Imprime el nombre de la tabla en la consola
+    addButton.style.display = 'block'; // Muestra el botón de agregar
+
+
     // Cambiar el título y el botón según la tabla
     if (nameTable === 'parcelacion') {
         crudTitle.textContent = 'Gestión de Parcelaciones';
         addButton.textContent = 'Agregar Parcelación';
-        addButton.onclick = () => openModal('parcelacion');
+        addButton.onclick = () => openModal('parcelacion'); // Asigna función al botón
     } else if (nameTable === 'region') {
         crudTitle.textContent = 'Gestión de Regiones';
         addButton.textContent = 'Agregar Región';
@@ -65,20 +49,20 @@ async function loadItems(Table) {
         addButton.onclick = () => openModal('usuario');
     } else if (nameTable === 'historial') {
         crudTitle.textContent = 'Gestión de Historial';
-        addButton.style.display = 'none';
+        addButton.style.display = 'none'; // Oculta el botón de agregar para historial
         //addButton.textContent = 'Agregar Historial';
         //addButton.onclick = () => openModal('historial');
     }
     
     try {
-        const response = await fetch(`/api/read/${nameTable}`); // Usa el endpoint adecuado
+        const response = await fetch(`api/${nameTable}`); // Realiza la solicitud para cargar ítems
         if (!response.ok) {
             throw new Error('Error al cargar los datos');
         }
-        const items = await response.json();
+        const items = await response.json(); // Convierte la respuesta a JSON
 
-        const itemList = document.getElementById('itemList');
-        const tableHeaders = document.getElementById('tableHeaders');
+        const itemList = document.getElementById('itemList'); // Obtiene la lista de ítems
+        const tableHeaders = document.getElementById('tableHeaders'); // Obtiene los encabezados de la tabla
 
         // Limpiar contenido previo
         itemList.innerHTML = '';
@@ -88,9 +72,9 @@ async function loadItems(Table) {
             // Definir encabezados según los datos
             const headers = Object.keys(items[0]); // Obtener claves del primer objeto
             headers.forEach((header, index) => {
-                const th = document.createElement('th');
+                const th = document.createElement('th'); // Crear un nuevo encabezado
                 th.textContent = header.charAt(0).toUpperCase() + header.slice(1); // Capitalizar
-                tableHeaders.appendChild(th);
+                tableHeaders.appendChild(th); // Agregar encabezado a la tabla
                 if (nameTable === 'parcelacion') {
                 // Si estamos en la tercera columna, añadimos el encabezado de "Imagen" después
                 if (index === 2) {
@@ -108,47 +92,76 @@ async function loadItems(Table) {
             }
             // Poblamos las filas
             items.forEach(item => {
-                const row = document.createElement('tr');
+                const row = document.createElement('tr'); // Crear una nueva fila
                 headers.forEach((header, index) => {
-                    const td = document.createElement('td');
+                    const td = document.createElement('td'); // Crear una nueva celda
                     td.textContent = item[header]; // Asignar valor del item
-                    row.appendChild(td);
+                    row.appendChild(td); // Agregar celda a la fila
                     if (nameTable === 'parcelacion') {
                     // Si estamos en la tercera columna, añadimos la celda de imagen después
                     if (index === 2) {
                         const imagenTd = document.createElement('td');
-                        const verImagenBtn = document.createElement('button');
-                        verImagenBtn.textContent = 'Ver Imagen';
+                        const verImagenBtn = document.createElement('button'); // Crear botón para ver imagen
+                        verImagenBtn.textContent = 'Ver Imagen'; // Texto del botón
                         verImagenBtn.onclick = () => viewImage(item.id); // Llamar a la función viewImage
-                        imagenTd.appendChild(verImagenBtn);
-                        row.appendChild(imagenTd);
+                        imagenTd.appendChild(verImagenBtn); // Agregar botón a la celda
+                        row.appendChild(imagenTd); // Agregar celda de imagen a la fila
                     }
                 }});
                 if (nameTable !== 'historial') {
-                const actionsTd = document.createElement('td');
+                const actionsTd = document.createElement('td'); // Crear celda de acciones
                 actionsTd.innerHTML = `
                     <button onclick="editItem(${item.id})">Editar</button>
                     <button onclick="deleteItem(${item.id})">Eliminar</button>
                 `;
-                row.appendChild(actionsTd);
+                row.appendChild(actionsTd); // Agregar celda de acciones a la fila
                 }
-                itemList.appendChild(row);
+                itemList.appendChild(row); // Agregar fila a la lista de ítems
             });
         }        
     } catch (error) {
-        console.error('Error al cargar los ítems:', error);
+        console.error('Error al cargar los ítems:', error); // Manejo de errores
     }
 }
 
+
+
+/************ MODAL PARA VISUALIZAR IMAGEN ***********/
+// Función para manejar la visualización de la imagen en un modal
+function viewImage(itemId) {
+    const imageUrl = `api/parcelacion/get-image?id=${itemId}`; // Construye la URL para obtener la imagen
+    const modalImage = document.getElementById('modalImage');
+    if (modalImage) { // Verifica que el elemento existe
+        modalImage.src = imageUrl; // Asigna la URL de la imagen al modal
+        document.getElementById('imageModal').style.display = 'block'; // Muestra el modal
+    } else {
+        console.error('El elemento modalImage no se encuentra en el DOM.');
+    }
+}
+
+// Función para cerrar el modal que muestra la imagen
+function closeModalImg() {
+    const modal = document.getElementById('imageModal'); // Obtiene el elemento del modal de imagen
+    if (modal) { // Verifica que el modal exista
+        modal.style.display = 'none'; // Oculta el modal
+    }
+}
+/*****************************************************/
+
+
+
+/**************** MODAL PARA FORMULARIO DE CREAR Y EDITAR *********************/
+// Función para abrir el modal y cargar los campos correspondientes según la tabla seleccionada
 function openModal(nameTable, item = null) {
-    const modal = document.getElementById('myModal');
-    const title = document.getElementById('modalTitle');
-    const formFields = document.getElementById('formFields');
-    const crudTitle = document.getElementById('crud-title');
+    const modal = document.getElementById('myModal'); // Obtiene el elemento del modal
+    const title = document.getElementById('modalTitle'); // Obtiene el título del modal
+    const formFields = document.getElementById('formFields'); // Obtiene el contenedor de los campos del formulario
+    const crudTitle = document.getElementById('crud-title'); // Obtiene el título de CRUD
 
     // Limpiar campos previos
     formFields.innerHTML = '';
 
+    // Configuración de campos y título según la tabla seleccionada
     if (nameTable === 'parcelacion') {
         title.textContent = item ? 'Editar Parcelación' : 'Agregar Parcelación';
         
@@ -272,17 +285,19 @@ function openModal(nameTable, item = null) {
             document.getElementById('itemId').value = item.id_parcelacion; // Ajustar según el ID
             console.log('ID del ítem:', document.getElementById('itemId').value); // Verificación del ID
 
-            document.getElementById('latitud').value = item.latitud;
-            document.getElementById('longitud').value = item.longitud;
+            document.getElementById('latitud').value = item.latitud; // Llenar campo de latitud
+            document.getElementById('longitud').value = item.longitud; // Llenar campo de longitud
+            
 
+            // Asigna valores a los select después de un retardo para asegurarse de que las opciones se hayan cargado
             setTimeout(() => {
                 document.getElementById('id_sector').value = item.id_sector || '';
                 document.getElementById('id_fase').value = item.id_fase || '';
                 document.getElementById('id_cultivo').value = item.id_cultivo || '';
-            }, 1250); // Retardo para asegurarse de que las opciones se hayan cargado
+            }, 1250); 
 
             const registradaSelect = document.getElementById('registrada');
-            registradaSelect.value = item.registrada ? '1' : '0'; 
+            registradaSelect.value = item.registrada ? '1' : '0';  // Asignar valor a "registrada"
         } else if (nameTable === 'region') {
             document.getElementById('itemId').value = item.id_region; // Ajustar según el ID
             console.log('ID del ítem:', document.getElementById('itemId').value); // Verificación del ID
@@ -293,17 +308,21 @@ function openModal(nameTable, item = null) {
         } else if (nameTable === 'provincia') {
             document.getElementById('itemId').value = item.id_provincia; // Ajustar según el ID
             console.log('ID del ítem:', document.getElementById('itemId').value); // Verificación del ID
+
+            // Asigna valores después de un retardo para asegurar que las opciones se hayan cargado
             setTimeout(() => {
             document.getElementById('id_region').value = item.id_region;
-            }, 400); // Retardo para asegurarse de que las opciones se hayan cargado
+            }, 400);
             document.getElementById('nombre').value = item.nombre;
 
         } else if (nameTable === 'sector') {
             document.getElementById('itemId').value = item.id_sector; // Ajustar según el ID
             console.log('ID del ítem:', document.getElementById('itemId').value); // Verificación del ID
+
+            // Asigna valores después de un retardo para asegurar que las opciones se hayan cargado
             setTimeout(() => {
             document.getElementById('id_provincia').value = item.id_provincia;
-            }, 400); // Retardo para asegurarse de que las opciones se hayan cargado
+            }, 400); 
             document.getElementById('comuna').value = item.comuna;
 
         } else if (nameTable === 'cuarentena') {
@@ -312,10 +331,10 @@ function openModal(nameTable, item = null) {
             setTimeout(() => {
             document.getElementById('id_sector').value = item.id_sector;
             }, 1000); // Retardo para asegurarse de que las opciones se hayan cargado
-            document.getElementById('latitud').value = item.latitud;
-            document.getElementById('longitud').value = item.longitud;
-            document.getElementById('radio').value = item.radio;
-            document.getElementById('comentario').value = item.comentario;
+            document.getElementById('latitud').value = item.latitud; // Llenar latitud
+            document.getElementById('longitud').value = item.longitud; // Llenar longitud
+            document.getElementById('radio').value = item.radio; // Llenar radio
+            document.getElementById('comentario').value = item.comentario; // Llenar comentario
 
         } else if (nameTable === 'cultivo') {
             document.getElementById('itemId').value = item.id_cultivo; // Ajustar según el ID
@@ -349,105 +368,66 @@ function openModal(nameTable, item = null) {
     modal.style.display = 'block'; // Mostrar modal
 }
 
+// Función para cerrar el modal y reiniciar el formulario
 function closeModal() {
-    const modal = document.getElementById('myModal');
-    modal.style.display = "none"; // O usa clases CSS para ocultar el modal
+    const modal = document.getElementById('myModal'); // Obtiene el elemento del modal
+    modal.style.display = "none"; // Oculta el modal
 
     // Reiniciar el formulario
-    document.getElementById('itemForm').reset();
+    document.getElementById('itemForm').reset(); // Restablece todos los campos del formulario
     document.getElementById('itemId').value = ''; // Asegúrate de resetear el ID también
 }
-//////////////////////////////
+/*****************************************************************************/
+
+/*********** LEER ITEM PARA CARGAR SUS DATOS **********************/
+// Función para editar un ítem dado su ID
 function editItem(id) {
-    console.log(nameTable);
-    console.log(id);
-    fetch(`/api/readEdit/${nameTable}/${id}`)
+    console.log(nameTable); // Muestra en consola el nombre de la tabla actual
+    console.log(id); // Muestra en consola el ID del ítem que se va a editar
+
+    // Realiza una petición para obtener el ítem por su ID
+    fetch(`/api/${nameTable}/${id}`)
         .then(response => {
+            // Verifica si la respuesta es correcta
             if (!response.ok) throw new Error('Error al obtener el ítem');
-            return response.json();
+            return response.json(); // Devuelve los datos en formato JSON
 
         })
         .then(item => {
             console.log(item, 'item'); // Ver los datos obtenidos
             
             // Abre el modal con los datos del ítem
-            document.getElementById('modalTitle').innerText = `Editar ${nameTable}`;
-            document.getElementById('submitButton').innerText = 'Confirmar Cambios';
-            openModal(nameTable, item); // Pasa el objeto item
+            document.getElementById('modalTitle').innerText = `Editar ${nameTable}`; // Cambia el título del modal
+            document.getElementById('submitButton').innerText = 'Confirmar Cambios'; // Cambia el texto del botón
+            openModal(nameTable, item); // Llama a la función openModal pasando el objeto item
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => console.error('Error:', error)); // Maneja errores y los muestra en consola
 }
 
 
-async function deleteItem(id) {
-    const confirmation = confirm('¿Estás seguro de que deseas eliminar este ítem?');
-    if (confirmation) {
-        try {
-            const response = await fetch(`/api/delete/${nameTable}/${id}`, {
-                method: 'DELETE',
-            });
-
-            if (response.ok) {
-                alert('Ítem eliminado con éxito.');
-                loadItems(nameTable); // Recargar la lista de ítems después de eliminar
-            } else {
-                throw new Error('Error al eliminar el ítem');
-            }
-        } catch (error) {
-            console.error('Error al eliminar el ítem:', error);
-            alert('No se pudo eliminar el ítem.');
-        }
-    }
-}
-
-// Función para validar campos
-function validarCampos(formData) {
-    for (const [key, value] of formData.entries()) {
-        console.log(key, value);
-
-        // Verifica si el valor es una cadena antes de aplicar trim
-        if (typeof value === 'string' && value.trim() === '') {
-            alert(`Los campos no pueden estar vacíos.`);
-            return false;
-        }
-        
-        // Si el valor es un objeto File, no hacemos nada porque no es obligatorio
-        if (value instanceof File) {
-            continue; // Ignorar el campo de imagen
-        }
-    }
-    return true;
-}
-
-
+/******* CREATE OR UPDATE ************/
+// Agregar un listener para el evento submit del formulario
 document.getElementById('itemForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    trimInputFields(); // Limpia los campos
+    e.preventDefault(); // Evita que el formulario se envíe de manera convencional
+    trimInputFields(); // Limpia los campos del formulario
 
+    // Validación específica para el usuario
     if (nameTable === 'usuario') {
-    // Obtener los valores de RUT y dígito verificador
-    const rutInput = document.getElementById('rut').value;
-    const dvInput = document.getElementById('dv_rut').value;
+        // Obtener los valores de RUT y dígito verificador
+        const rutInput = document.getElementById('rut').value;
+        const dvInput = document.getElementById('dv_rut').value;
 
         // Validar el RUT
         if (!validarRUT(rutInput, dvInput)) {
-            alert('El dígito verificador del RUT es incorrecto.');
+            alert('El dígito verificador del RUT es incorrecto.'); // Alerta si el dv no es inválido
             return; // Salir de la función si la validación falla
         }
     }
-    const id = document.getElementById('itemId').value;
+    const id = document.getElementById('itemId').value; // Obtener el ID del ítem
     console.log('ID:', id);
-    const formData = new FormData();
-    
-        // Verifica si se están obteniendo los valores
-        //const nombre = document.getElementById('nombre').value;
-        //const numero = document.getElementById('numero').value;
-    
-        //console.log('Nombreeeee:', nombre); // Deberías ver el valor aquí
-        //console.log('Númerooooo:', numero); // Deberías ver el valor aquí
+    const formData = new FormData(); // Crear un nuevo objeto FormData
 
-
-    // Agregar campos comunes
+    // Agregar campos comunes dependiendo de la tabla
     if (nameTable === 'parcelacion') {
         formData.append('latitud', document.getElementById('latitud').value);
         formData.append('longitud', document.getElementById('longitud').value);
@@ -457,7 +437,7 @@ document.getElementById('itemForm').addEventListener('submit', async (e) => {
         formData.append('registrada', document.getElementById('registrada').value);
         const imageFile = document.getElementById('image').files[0];
         if (imageFile) {
-            formData.append('image', imageFile);
+            formData.append('image', imageFile); // Agregar archivo de imagen si existe
         }
     } else if (nameTable === 'region') {
         formData.append('numero', document.getElementById('numero').value);
@@ -491,11 +471,13 @@ document.getElementById('itemForm').addEventListener('submit', async (e) => {
         formData.append('rol', document.getElementById('rol').value);
     }
 
-    // Validar los campos antes de enviar
+
     for (const [key, value] of formData.entries()) {
         console.log(`Key: ${key}, Value: ${value}`);
     }
     console.log('Campos: ' + formData);
+
+    // Validar los campos antes de enviar
     if (!validarCampos(formData)) {
         console.log('salir si hay campos vacios');
         return; // Salir si hay un campo vacío
@@ -509,7 +491,7 @@ document.getElementById('itemForm').addEventListener('submit', async (e) => {
                 console.log(`Key: ${key}, Value: ${value}`);
             }
             // Actualizar ítem existente
-            response = await fetch(`/api/edit/${nameTable}/${id}`, {
+            response = await fetch(`/api/${nameTable}/${id}`, {
                 method: 'PUT',
                 body: formData // Envía el FormData directamente
             }
@@ -525,15 +507,21 @@ document.getElementById('itemForm').addEventListener('submit', async (e) => {
             // Crear nuevo ítem
             console.log(nameTable);
             for (const [key, value] of formData.entries()) {
-                console.log(`Key: ${key}, Value: ${value}`);
+                console.log(`DATOS Key: ${key}, Value: ${value}`);
             }
-            response = await fetch(`/api/create/${nameTable}`, {
+            response = await fetch(`/api/${nameTable}/`, {
                 method: 'POST',
                 body: formData // Envía el FormData directamente
             });
 
             if (!response.ok) {
-                throw new Error('Error al crear el ítem');
+                const errorData = await response.json(); // Obtener los datos de error del servidor
+                if (errorData.error) {
+                    alert(errorData.error); // Mostrar alerta con el mensaje de error
+                    return; // Salir de la función si hay un error en la respuesta
+                } else {
+                    throw new Error('Error al crear el ítem');
+                }
             }
         }
 
@@ -547,82 +535,74 @@ document.getElementById('itemForm').addEventListener('submit', async (e) => {
     }
 });
 
-async function loadOptions(nameTable) {
-    try {
-        const response = await fetch('/opciones');
-        const data = await response.json();
-        console.log(data)
+/******* DELETE ************/
+// Función asíncrona para eliminar un ítem dado su ID
+async function deleteItem(id) {
 
-        // Llenar el dropdown de sectores para ambas PARCELACIONES Y CUARENTENA
-        // Llenar el dropdown de sectores
-        const sectorSelect = document.getElementById('id_sector');
-        data.sectores.forEach(sector => {
-            const option = document.createElement('option');
-            option.value = sector.id_sector;
-            option.textContent = sector.sector;
-            sectorSelect.appendChild(option);
-        });
+    // Alerta de confirmación al usuario antes de proceder con la eliminación
+    const confirmation = confirm('¿Estás seguro de que deseas eliminar este ítem?');
 
-        // Si nameTable es 'parcelacion', llenar los dropdowns de fases y cultivos
-        if (nameTable === 'parcelacion') {
-        // Llenar el dropdown de fases
-        const faseSelect = document.getElementById('id_fase');
-        data.fases.forEach(fase => {
-            const option = document.createElement('option');
-            option.value = fase.id_fase;
-            option.textContent = fase.nombre;
-            faseSelect.appendChild(option);
-        });
+    if (confirmation) { // Si el usuario confirma
+        try {
+            // Realiza una solicitud DELETE al servidor para eliminar el ítem
+            const response = await fetch(`/api/${nameTable}/${id}`, {
+                method: 'DELETE', // Especifica que la solicitud es de tipo DELETE
+            });
 
-        // Llenar el dropdown de cultivos
-        const cultivoSelect = document.getElementById('id_cultivo');
-        data.cultivos.forEach(cultivo => {
-            const option = document.createElement('option');
-            option.value = cultivo.id_cultivo;
-            option.textContent = cultivo.nombre;
-            cultivoSelect.appendChild(option);
-        });
-    }
-    } catch (error) {
-        console.error('Error al cargar las opciones:', error);
+            // Verifica si la respuesta fue exitosa
+            if (response.ok) {
+                alert('Ítem eliminado con éxito.'); // Muestra un mensaje de éxito
+                loadItems(nameTable); // Recargar la lista de ítems después de eliminar
+            } else {
+                throw new Error('Error al eliminar el ítem'); // Lanza un error si la respuesta no es exitosa
+            }
+        } catch (error) {
+            // Captura cualquier error que ocurra durante el proceso
+            console.error('Error al eliminar el ítem:', error);
+            alert('No se pudo eliminar el ítem.');
+        }
     }
 }
 
-async function loadOptionsRegion() {
-    try {
-        const response = await fetch('/api/read/region');
-        const data = await response.json();
-        console.log('data region opciones: ',data)
-        // Llenar el dropdown de sectores
-        const sectorSelect = document.getElementById('id_region');
-        data.forEach(result => {
-            const option = document.createElement('option');
-            option.value = result.id;
-            option.textContent = result.nombre;
-            sectorSelect.appendChild(option);
-        })
-    } catch (error) {
-        console.error('Error al cargar de la region:', error);
-    }};
+/******* FUNCION PARA NO PERMITIR ESPACIOS EN BLANCO ES FORMULARIOS *******/
+// Función para validar los campos de un formulario
+function validarCampos(formData) {
+    for (const [key, value] of formData.entries()) {
+        console.log(key, value);
 
-async function loadOptionsSector() {
-    try {
-        const response = await fetch('/opciones/sector');
-        const data = await response.json();
-        console.log('data Region y provincia opciones: ',data)
-        // Llenar el dropdown de sectores
-        const sectorSelect = document.getElementById('id_provincia');
-        data.forEach(result => {
-            const option = document.createElement('option');
-            option.value = result.id_provincia;
-            option.textContent = result.provincia;
-            sectorSelect.appendChild(option);
-        })
-    } catch (error) {
-        console.error('Error al cargar de la region:', error);
-    }};
+        // Verifica si el valor es una cadena antes de aplicar trim
+        if (typeof value === 'string' && value.trim() === '') {
+            alert(`Los campos no pueden estar vacíos.`); // Muestra una alerta si el campo está vacío
+            return false; // Retorna false si hay un campo vacío
+        }
+        
+        // Si el valor es un objeto File, no hacemos nada porque no es obligatorio
+        if (value instanceof File) {
+            continue; // Ignora el campo de imagen, ya que no es obligatorio
+        }
+    }
+    return true; // Retorna true si todos los campos son válidos
+}
 
+// Limpia los espacios en blanco de los formulatios
+function trimInputFields() {
+    // Selecciona todos los campos de texto, email y contraseña dentro del formulario
+    const fieldsToTrim = Array.from(document.querySelectorAll('#itemForm input[type="text"], #itemForm input[type="email"], #itemForm input[type="password"]'));
+    console.log(fieldsToTrim);
+
+    // Elimina espacios al inicio y al final de cada campo
+    return fieldsToTrim.map(field => {
+        field.value = field.value.trim(); // Elimina espacios al inicio y al final
+        return field; // Retorna el campo para la validación
+    });
+}
+/**************************************************************************/
+
+
+
+/********************** VALIDA DEL DIGITO VERIFICADOR *************************/
 function validarRUT(rut, dvIngresado) {
+    // Eliminar puntos y convertir a número
     const rutNumerico = parseInt(rut.replace(/\./g, ''), 10); // Asegúrate de que el RUT sea un número
 
     // Calcular el dígito verificador
@@ -637,15 +617,131 @@ function validarRUT(rut, dvIngresado) {
     const dvCalculado = 11 - (suma % 11);
     const dvFinal = dvCalculado === 11 ? '0' : dvCalculado === 10 ? 'K' : dvCalculado.toString();
 
-    return dvFinal.toUpperCase() === dvIngresado.toUpperCase(); // Comparar con el ingresado
+    // Comparar el dígito verificador calculado con el ingresado, ignorando mayúsculas
+    return dvFinal.toUpperCase() === dvIngresado.toUpperCase();
 }
 
-function trimInputFields() {
-    const fieldsToTrim = Array.from(document.querySelectorAll('#itemForm input[type="text"], #itemForm input[type="email"], #itemForm input[type="password"]'));
-    console.log(fieldsToTrim);
-    return fieldsToTrim.map(field => {
-        field.value = field.value.trim(); // Elimina espacios al inicio y al final
-        return field; // Retorna el campo para la validación
-    });
+/******************************************************************************/
+
+
+/************************** CERRAR SESION *****************************/
+// Función para cerrar sesion.
+async function logout() {
+    try {
+        const response = await fetch('/api/auth/logout');
+
+        if (!response.ok) {
+            throw new Error('Error al cerrar sesión');
+        }
+
+        // Si la sesión se cerró correctamente, recarga la página
+        window.location.reload();
+    } catch (error) {
+        console.error('Error:', error);
+        alert('No se pudo cerrar la sesión. Intenta nuevamente.');
+    }
 }
-    
+/******************************************************************************/
+
+
+/************************** OPCIONES PARA LOS SELECTS *****************************/
+// Función para cargar opciones de dropdowns dependiendo de la tabla (Cuarentena y parcelacion)
+async function loadOptions(nameTable) {
+    try {
+
+        // Realiza una solicitud para obtener las opciones
+        const response = await fetch(`/api/parcelacion/opciones`)
+
+        // Verifica si la respuesta fue exitosa
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`); // Manejo de errores HTTP
+        }
+
+        const data = await response.json(); // Parsea la respuesta JSON
+
+        // Verifica que la estructura de datos sea la esperada
+        if (!data.sectores || !data.fases || !data.cultivos) {
+            throw new Error('Estructura de datos inesperada');
+        }
+        console.log(data); // Para depuración
+
+        // Llenar el dropdown de sectores
+        const sectorSelect = document.getElementById('id_sector');
+        data.sectores.forEach(sector => {
+            const option = document.createElement('option');
+            option.value = sector.id_sector; // Valor del ID del sector
+            option.textContent = sector.sector; // Texto que se mostrará en el dropdown
+            sectorSelect.appendChild(option); // Agrega la opción al dropdow
+        });
+
+        // Si nameTable es 'parcelacion', llenar los dropdowns de fases y cultivos
+        if (nameTable === 'parcelacion') {
+            // Llenar el dropdown de fases
+            const faseSelect = document.getElementById('id_fase');
+            data.fases.forEach(fase => {
+                const option = document.createElement('option');
+                option.value = fase.id_fase; // Valor del ID de la fase
+                option.textContent = fase.nombre; // Texto que se mostrará en el dropdown
+                faseSelect.appendChild(option); // Agrega la opción al dropdown
+            });
+
+            // Llenar el dropdown de cultivos
+            const cultivoSelect = document.getElementById('id_cultivo');
+            data.cultivos.forEach(cultivo => {
+                const option = document.createElement('option');
+                option.value = cultivo.id_cultivo; // Valor del ID del cultivo
+                option.textContent = cultivo.nombre; // Texto que se mostrará en el dropdown
+                cultivoSelect.appendChild(option); // Agrega la opción al dropdown
+            });
+        }
+    } catch (error) {
+        // Manejo de errores
+        console.error('Error al cargar las opciones:', error);
+    }
+}
+
+// Función para cargar opciones de regiones en un dropdown
+async function loadOptionsRegion() {
+    try {
+        // Realiza una solicitud para obtener las regiones
+        const response = await fetch('/api/region');
+
+
+        const data = await response.json(); // Parsea la respuesta JSON
+        console.log('data region opciones: ',data)
+        // Llenar el dropdown de sectores
+        const sectorSelect = document.getElementById('id_region');
+        data.forEach(result => {
+            const option = document.createElement('option');
+            option.value = result.id; // Valor del ID de la región
+            option.textContent = result.nombre; // Texto que se mostrará en el dropdown
+            sectorSelect.appendChild(option); // Agrega la opción al dropdown
+        })
+    } catch (error) {
+        // Manejo de errores
+        console.error('Error al cargar de la region:', error);
+    }};
+
+// Función para cargar opciones de provincias en un dropdown
+async function loadOptionsSector() {
+
+    try {
+
+        const response = await fetch('/api/sector/opciones');
+
+        const data = await response.json(); // Parsea la respuesta JSON
+        console.log('data Region y provincia opciones: ',data)
+        // Llenar el dropdown de sectores
+        const sectorSelect = document.getElementById('id_provincia');
+        data.forEach(result => {
+            const option = document.createElement('option');
+            option.value = result.id_provincia; // Valor del ID de la provincia
+            option.textContent = result.provincia; // Texto que se mostrará en el dropdown
+            sectorSelect.appendChild(option); // Agrega la opción al dropdown
+        })
+    } catch (error) {
+        console.error('Error al cargar de la region:', error);
+    }};
+
+
+/******************************************************************************/
