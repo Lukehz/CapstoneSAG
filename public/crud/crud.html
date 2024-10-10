@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Parcelaciones</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Estilos para el botón de cerrar sesión */
+        .logout-button {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            padding: 10px 15px;
+            background-color: #ff4d4d; /* Color rojo */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <button class="logout-button" onclick="logout()">Cerrar Sesión</button>
+    <aside class="sidebar">
+        <h2>Tablas</h2>
+        <ul>
+            <li><button class="nav-button" data-table="region" onclick="loadItems('region')">Región</button></li>
+            <li><button class="nav-button" data-table="provincia" onclick="loadItems('provincia')">Provincia</button></li>
+            <li><button class="nav-button" data-table="sector" onclick="loadItems('sector')">Sector</button></li>
+            <li><button class="nav-button" data-table="cuarentena" onclick="loadItems('cuarentena')">Cuarentena</button></li>
+           <!-- <li><button class="nav-button" data-table="vertice">Vértice</button></li>
+            <li><button class="nav-button" data-table="conexion">Conexión</button></li>-->
+            <li><button class="nav-button" data-table="cultivo" onclick="loadItems('cultivo')">Cultivo</button></li>
+            <li><button class="nav-button" data-table="fase" onclick="loadItems('fase')">Fase</button></li> 
+            <li><button class="nav-button" data-table="parcelacion" onclick="loadItems('parcelacion')">Parcelación</button></li>
+            <li><button class="nav-button" data-table="historial" onclick="loadItems('historial')">Historial</button></li>
+            <li><button class="nav-button" data-table="usuario" onclick="loadItems('usuario')">Usuario</button></li>
+        </ul>
+    </aside>
+
+    <div class="container">
+        <main class="main-content">
+            <h1 id="crud-title"></h1>
+            <button id="addButton"></button>
+
+            <table id="itemsTable">
+                <thead>
+                    <tr id="tableHeaders">
+                        <!-- Los encabezados se agregarán aquí -->
+                    </tr>
+                </thead>
+                <tbody id="itemList">
+                    <!-- Aquí se agregarán las filas -->
+                </tbody>
+            </table>
+            
+        </main>
+    </div>
+
+    <!-- Modal para mostrar la imagen -->
+    <div id="imageModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModalImg()">&times;</span>
+            <img id="modalImage" style="max-width: 100%; height: auto;" />
+        </div>
+    </div>
+
+
+    <!-- Modal para agregar/actualizar parcelación -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle">Agregar Item</h2>
+            <form id="itemForm">
+                <input type="hidden" id="itemId"> <!-- Campo oculto para el ID -->
+                <div id="formFields">
+                    <!-- Los campos del formulario se llenarán aquí -->
+                </div>
+                <button type="submit" id="submitButton">Agregar Item</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
