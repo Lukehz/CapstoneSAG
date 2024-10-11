@@ -17,8 +17,12 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, '../public')));
 
 // Rutas
+app.use('/api', parcelasRoutes);
 app.use('/parcelas', parcelasRoutes);
+app.use('/api', quarantineRoutes);
+app.use('quarantines', quarantineRoutes);
 app.use('/quarantine', quarantineRoutes);
+
 
 // Middleware para manejar errores
 const errorHandler = (err, req, res, next) => {

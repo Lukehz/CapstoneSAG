@@ -1,11 +1,8 @@
-/* Maneja las operaciones de los datos de cuarentena que estan relacionada con la bd */
 const sql = require('mssql');
-  
 const { getConnection } = require('../Models/db');
 
-
 const saveQuarantine = async (req, res) => {
-  const { points, comment: comentario } = req.body;
+  const { points, comment: comentario, type, radius } = req.body;
   if (!comentario || typeof comentario !== 'string' || comentario.trim() === '') {
     return res.status(400).json({ success: false, error: 'El campo "comentario" es obligatorio y debe ser una cadena válida.' });
   }
@@ -19,11 +16,30 @@ const saveQuarantine = async (req, res) => {
     transaction = new sql.Transaction(pool);
     await transaction.begin();
 
+    let latitud, longitud, radio = null;
+    
+    if (type === 'polygon') {
+      if (points.length < 3) {
+        return res.status(400).json({ success: false, error: 'Se requieren al menos 3 puntos para un trazado.' });
+      }
+      latitud = points[0][1];
+      longitud = points[0][0];
+    } else if (type === 'radius') {
+      if (!points[0] || points[0].length !== 2 || !radius || isNaN(radius)) {
+        return res.status(400).json({ success: false, error: 'Se requiere un punto central y un radio válido para una cuarentena por radio.' });
+      }
+      latitud = points[0][1];
+      longitud = points[0][0];
+      radio = parseFloat(radius);
+    } else {
+      return res.status(400).json({ success: false, error: 'El campo "type" debe ser "polygon" o "radius".' });
+    }
+
     // Paso 1: Guardar la cuarentena
     const resultCuarentena = await transaction.request()
-      .input('latitud', sql.Float, points[0][1])
-      .input('longitud', sql.Float, points[0][0])
-      .input('radio', sql.Float, null)
+      .input('latitud', sql.Float, latitud)
+      .input('longitud', sql.Float, longitud)
+      .input('radio', sql.Float, radio)
       .input('id_sector', sql.Int, 1)
       .input('comentario', sql.NVarChar, comentario)
       .query('INSERT INTO dbo.cuarentena (latitud, longitud, radio, id_sector, comentario) OUTPUT INSERTED.id_cuarentena VALUES (@latitud, @longitud, @radio, @id_sector, @comentario)');
@@ -31,16 +47,18 @@ const saveQuarantine = async (req, res) => {
     idCuarentena = resultCuarentena.recordset[0].id_cuarentena;
     console.log(`Cuarentena guardada con ID: ${idCuarentena}`);
 
-    // Paso 2: Guardar los vértices
-    for (let i = 0; i < points.length; i++) {
-      await transaction.request()
-        .input('id_cuarentena', sql.Int, idCuarentena)
-        .input('latitud', sql.Float, points[i][1])
-        .input('longitud', sql.Float, points[i][0])
-        .input('orden', sql.Int, i + 1)
-        .query('INSERT INTO dbo.vertice (id_cuarentena, latitud, longitud, orden) VALUES (@id_cuarentena, @latitud, @longitud, @orden)');
+    // Paso 2: Guardar los vértices solo si es un trazado
+    if (type === 'polygon') {
+      for (let i = 0; i < points.length; i++) {
+        await transaction.request()
+          .input('id_cuarentena', sql.Int, idCuarentena)
+          .input('latitud', sql.Float, points[i][1])
+          .input('longitud', sql.Float, points[i][0])
+          .input('orden', sql.Int, i + 1)
+          .query('INSERT INTO dbo.vertice (id_cuarentena, latitud, longitud, orden) VALUES (@id_cuarentena, @latitud, @longitud, @orden)');
+      }
+      console.log(`Vértices guardados para la cuarentena ID: ${idCuarentena}`);
     }
-    console.log(`Vértices guardados para la cuarentena ID: ${idCuarentena}`);
 
     // Paso 3: Ejecutar el procedimiento almacenado
     await transaction.request()
@@ -48,7 +66,6 @@ const saveQuarantine = async (req, res) => {
       .execute('sp_CrearConexionesCuarentena');
     console.log(`Procedimiento almacenado ejecutado para la cuarentena ID: ${idCuarentena}`);
 
-    // Si llegamos aquí, todo se ha ejecutado correctamente
     await transaction.commit();
     res.status(201).json({
       success: true,
@@ -75,6 +92,7 @@ const saveQuarantine = async (req, res) => {
     if (pool) await pool.close();
   }
 };
+
 const getAllQuarantines = async (req, res) => {
   let pool;
   try {
@@ -226,9 +244,42 @@ const deleteQuarantine = async (req, res) => {
   // Si se alcanzó el número máximo de intentos
   res.status(500).json({ success: false, message: 'Se alcanzó el número máximo de intentos para eliminar la cuarentena debido a un deadlock.' });
 };
+
+const getComentario = async (req, res) => {
+  console.log('Obteniendo comentarios');
+  let pool;
+  try {
+    pool = await getConnection();
+    
+    const result = await pool.request().query(`
+    SELECT DISTINCT  c.id_cuarentena, 
+    c.latitud, 
+    c.longitud, 
+    c.radio, 
+    c.comentario, 
+    s.id_sector, 
+    s.comuna  -- Incluye la comuna
+    FROM dbo.cuarentena c
+    LEFT JOIN sector s ON c.id_sector = s.id_sector
+    ORDER BY c.id_cuarentena
+
+
+    `);
+
+    res.json(result.recordset);
+  } catch (err) {
+    console.error('Error al obtener comentarios:', err);
+    res.status(500).json({ error: 'Error al obtener informacion: ' + err.message });
+  } finally {
+    if (pool) {
+      await pool.close();
+    }
+  }
+};
       
 module.exports = {
   saveQuarantine,
   getAllQuarantines,
-  deleteQuarantine  // Añade esta línea
+  deleteQuarantine,
+  getComentario
 };

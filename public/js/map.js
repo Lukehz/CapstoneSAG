@@ -1,17 +1,32 @@
-/* funcionalidad del mapa */
-
+// Funcionalidad del mapa
 mapboxgl.accessToken = 'pk.eyJ1Ijoibmljb2xlODAxIiwiYSI6ImNtMHdvdGE3MzAzbnQybG93aXRncnlqb2QifQ.9G8XyYyv4V1b0OJGRnpEZA';
 
 const map = new mapboxgl.Map({
   container: 'map',
   style: 'mapbox://styles/mapbox/satellite-streets-v12',
-  center: [-72.9369, -41.4717],
+  center: [-72.9369, -41.4717], // Coordenadas iniciales
   zoom: 11,
   maxZoom: 20,
   minZoom: 1,
   fitBoundsOptions: null
 });
 
+// Coordenadas para centrar el mapa (modifica según tus necesidades)
+const mainLocation = [-72.9369, -41.4717];
+
+// Función para centrar el mapa en las coordenadas principales
+document.getElementById('center-map').addEventListener('click', () => {
+  map.flyTo({
+    center: mainLocation,
+    essential: true, // Este parámetro asegura que el vuelo se reproduzca en un navegador móvil
+    zoom: 11, // Puedes ajustar el nivel de zoom que desees
+    speed: 1, // Velocidad de animación
+    curve: 1, // Curva de la animación
+    easing: (t) => t // Easing de la animación
+  });
+});
+
+// Función de geocodificación
 const coordinatesGeocoder = function (query) {
   const matches = query.match(/^(-?\d+\.?\d*)[, ]+(-?\d+\.?\d*)$/);
   if (!matches) return null;
@@ -52,7 +67,6 @@ map.addControl(
     placeholder: 'Ingrese coordenadas',
     mapboxgl: mapboxgl,
     reverseGeocode: true
-    
   })
 );
 

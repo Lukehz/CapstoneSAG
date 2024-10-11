@@ -1,4 +1,3 @@
-/* parcela.js*/
 import { map } from './map.js';
 
 let parcelaMarkers = [];
@@ -7,7 +6,7 @@ let parcelaMarkers = [];
 
 const updateParcelas = () => {
   alert('Obteniendo parcelas...');
-  fetch('http://localhost:3000/parcelas')
+  fetch('/parcelas')
     .then(response => {
       if (!response.ok) {
         throw new Error(`Error HTTP! estado: ${response.status}`);
@@ -42,7 +41,7 @@ const updateParcelas = () => {
             <button id="delete-btn-${parcela.ID}" class="close-btn">Eliminar</button>
           `))
           .addTo(map);
-
+          
           // Agregar event listener cuando el popup se abra
   marker.getPopup().on('open', () => {
     const deleteButton = document.getElementById(`delete-btn-${parcela.ID}`);
@@ -52,7 +51,6 @@ const updateParcelas = () => {
       });
     }
   });
-    
           parcelaMarkers.push(marker); // Agregar el marcador al array
           bounds.extend([parcela.longitud, parcela.latitud]); // Ajustar los límites del mapa
         }

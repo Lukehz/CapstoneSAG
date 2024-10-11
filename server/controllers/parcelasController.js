@@ -1,5 +1,3 @@
-/* parcelaController.js*/
-
 const sql = require('mssql');
 const { getConnection } = require('../Models/db');
 
@@ -11,6 +9,30 @@ const getParcelas = async (req, res, next) => {
     res.json(result.recordset);
   } catch (err) {
     next(new Error('Error al obtener parcelas: ' + err.message));
+  } finally {
+    if (pool) {
+      await pool.close();
+    }
+  }
+};
+
+const getComuna = async (req, res, next) => {
+  let pool;
+  try {
+    pool = await getConnection();
+    
+    // Ejecutar la consulta
+    const result = await pool.request().query(`
+      SELECT p.id_parcelacion, p.latitud, p.longitud, s.comuna, c.nombre AS cultivo
+      FROM parcelacion p
+      INNER JOIN sector s ON p.id_sector = s.id_sector
+      INNER JOIN cultivo c ON p.id_cultivo = c.id_cultivo
+    `);
+
+    // Devolver los resultados como JSON
+    res.json(result.recordset);
+  } catch (err) {
+    next(new Error('Error al obtener las parcelas: ' + err.message));
   } finally {
     if (pool) {
       await pool.close();
@@ -59,5 +81,6 @@ const deleteParcela = async (req, res) => {
 
 module.exports = {
   getParcelas,
-  deleteParcela
+  deleteParcela,
+  getComuna
 };
