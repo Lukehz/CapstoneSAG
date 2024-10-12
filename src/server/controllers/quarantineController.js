@@ -1,5 +1,4 @@
-const sql = require('mssql');
-const { getConnection } = require('../Models/db');
+const { connectDB, sql } = require('../config/db');
 
 const saveQuarantine = async (req, res) => {
   const { points, comment: comentario, type, radius } = req.body;
@@ -12,7 +11,7 @@ const saveQuarantine = async (req, res) => {
   let idCuarentena;
 
   try {
-    pool = await getConnection();
+    pool = await connectDB();
     transaction = new sql.Transaction(pool);
     await transaction.begin();
 
@@ -94,17 +93,14 @@ const saveQuarantine = async (req, res) => {
 };
 
 const getAllQuarantines = async (req, res) => {
-  let pool;
   try {
-    pool = await getConnection();
-    const result = await pool.request()
-      .query(`
-        SELECT c.id_cuarentena, c.latitud, c.longitud, c.radio, c.comentario, 
-               v.id_conexion, v.latitud_INI, v.longitud_INI, v.latitud_END, v.longitud_END, v.ORDEN
-        FROM dbo.cuarentena c
-        INNER JOIN VW_conexiones_cuarentena v ON c.id_cuarentena = v.id_cuarentena
-        ORDER BY c.id_cuarentena, v.ORDEN
-      `);
+    const result = await sql.query(`
+      SELECT c.id_cuarentena, c.latitud, c.longitud, c.radio, c.comentario, 
+             v.id_conexion, v.latitud_INI, v.longitud_INI, v.latitud_END, v.longitud_END, v.ORDEN
+      FROM dbo.cuarentena c
+      INNER JOIN VW_conexiones_cuarentena v ON c.id_cuarentena = v.id_cuarentena
+      ORDER BY c.id_cuarentena, v.ORDEN
+    `);
 
     const quarantines = result.recordset.reduce((acc, row) => {
       if (!acc[row.id_cuarentena]) {
@@ -133,8 +129,6 @@ const getAllQuarantines = async (req, res) => {
   } catch (error) {
     console.error('Error al obtener cuarentenas:', error);
     res.status(500).json({ success: false, error: error.message });
-  } finally {
-    if (pool) await pool.close();
   }
 };
 
@@ -166,7 +160,7 @@ const deleteQuarantine = async (req, res) => {
   while (attempt < maxAttempts) {
     try {
       attempt++;
-      pool = await getConnection();
+      pool = await connectDB();
       console.log('Conexión a la base de datos establecida');
       transaction = new sql.Transaction(pool);
       await transaction.begin();
@@ -247,33 +241,27 @@ const deleteQuarantine = async (req, res) => {
 
 const getComentario = async (req, res) => {
   console.log('Obteniendo comentarios');
-  let pool;
+  
   try {
-    pool = await getConnection();
-    
-    const result = await pool.request().query(`
-    SELECT DISTINCT  c.id_cuarentena, 
-    c.latitud, 
-    c.longitud, 
-    c.radio, 
-    c.comentario, 
-    s.id_sector, 
-    s.comuna  -- Incluye la comuna
-    FROM dbo.cuarentena c
-    LEFT JOIN sector s ON c.id_sector = s.id_sector
-    ORDER BY c.id_cuarentena
-
-
+    // Ejecutar la consulta
+    const result = await sql.query(`
+      SELECT DISTINCT c.id_cuarentena, 
+                      c.latitud, 
+                      c.longitud, 
+                      c.radio, 
+                      c.comentario, 
+                      s.id_sector, 
+                      s.comuna  -- Incluye la comuna
+      FROM dbo.cuarentena c
+      LEFT JOIN sector s ON c.id_sector = s.id_sector
+      ORDER BY c.id_cuarentena
     `);
 
+    // Devolver los resultados como JSON
     res.json(result.recordset);
   } catch (err) {
     console.error('Error al obtener comentarios:', err);
-    res.status(500).json({ error: 'Error al obtener informacion: ' + err.message });
-  } finally {
-    if (pool) {
-      await pool.close();
-    }
+    res.status(500).json({ error: 'Error al obtener información: ' + err.message });
   }
 };
       

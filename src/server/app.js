@@ -7,20 +7,19 @@ const quarantineRoutes = require('./routes/quarantineRoutes');
 
 
 const app = express();
-const port = 3000;
 
 // Configuración de CORS
 app.use(cors());
 app.use(express.json());
 
 // Configuración para servir archivos estáticos
-app.use(express.static(path.join(__dirname, '../public')));
+app.use(express.static(path.join(__dirname, '../../public')));
 
 // Rutas
 app.use('/api', parcelasRoutes);
 app.use('/parcelas', parcelasRoutes);
 app.use('/api', quarantineRoutes);
-app.use('quarantines', quarantineRoutes);
+app.use('/quarantines', quarantineRoutes);
 app.use('/quarantine', quarantineRoutes);
 
 
@@ -41,11 +40,6 @@ app.use((req, res) => {
 // Usar el middleware de manejo de errores
 app.use(errorHandler);
 
-// Inicialización del servidor
-app.listen(port, () => {
-  console.log(`Servidor corriendo en http://localhost:${port}`);
-});
-
 // Manejo de errores no capturados
 process.on('uncaughtException', (err) => {
   console.error('Error no capturado:', err);
@@ -56,3 +50,5 @@ process.on('unhandledRejection', (reason, promise) => {
   console.error('Promesa rechazada no manejada:', reason);
   process.exit(1);
 });
+
+module.exports = app; // Exporta la aplicación

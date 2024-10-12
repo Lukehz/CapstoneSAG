@@ -1,28 +1,19 @@
-const sql = require('mssql');
-const { getConnection } = require('../Models/db');
+const { connectDB, sql } = require('../config/db');
 
 const getParcelas = async (req, res, next) => {
-  let pool;
   try {
-    pool = await getConnection();
-    const result = await pool.request().query('SELECT * FROM vw_parcelacion');
+    const result = await sql.query('SELECT * FROM vw_parcelacion');
     res.json(result.recordset);
   } catch (err) {
+    console.error('Error en getParcelas:', err); // Imprime el error para depuración
     next(new Error('Error al obtener parcelas: ' + err.message));
-  } finally {
-    if (pool) {
-      await pool.close();
-    }
   }
 };
 
 const getComuna = async (req, res, next) => {
-  let pool;
   try {
-    pool = await getConnection();
-    
     // Ejecutar la consulta
-    const result = await pool.request().query(`
+    const result = await sql.query(`
       SELECT p.id_parcelacion, p.latitud, p.longitud, s.comuna, c.nombre AS cultivo
       FROM parcelacion p
       INNER JOIN sector s ON p.id_sector = s.id_sector
@@ -32,17 +23,13 @@ const getComuna = async (req, res, next) => {
     // Devolver los resultados como JSON
     res.json(result.recordset);
   } catch (err) {
-    next(new Error('Error al obtener las parcelas: ' + err.message));
-  } finally {
-    if (pool) {
-      await pool.close();
-    }
+    console.error('Error en getComuna:', err); // Imprime el error para depuración
+    next(new Error('Error al obtener las comunas: ' + err.message));
   }
 };
 
 const deleteParcela = async (req, res) => {
   const { id } = req.params; // Verificar si el ID está llegando correctamente
-  let pool;
   let transaction;
 
   try {
@@ -51,8 +38,8 @@ const deleteParcela = async (req, res) => {
       return res.status(400).json({ success: false, message: 'ID inválido' });
     }
 
-    pool = await getConnection();
-    transaction = new sql.Transaction(pool);
+    // Comenzar la transacción
+    transaction = new sql.Transaction();
     await transaction.begin();
 
     // Realiza la eliminación
@@ -74,8 +61,6 @@ const deleteParcela = async (req, res) => {
     console.error('Error al eliminar la parcela:', error);
     if (transaction) await transaction.rollback();
     res.status(500).json({ success: false, message: 'Error al eliminar la parcela' });
-  } finally {
-    if (pool) await pool.close();
   }
 };
 
