@@ -52,9 +52,17 @@ app.get('/', (req, res) => {
     res.redirect('/login'); // Redirige a la página de login
 });
 
+// Middleware para servir archivos estáticos
+app.use(express.static(path.join(__dirname, '../../public')));
+
 // Ruta para servir login.html
 app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, '../../public', 'login.html'));
+});
+
+app.use((req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    next();
 });
 
 
