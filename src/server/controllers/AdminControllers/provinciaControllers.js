@@ -117,10 +117,39 @@ const deleteProvincia = async (req, res) => {
     }
 };
 
+const getFilteredProvincia = async (req, res) => {
+    const { regiones } = req.query; // Obtiene los nombres de las regiones desde la consulta
+    console.log(regiones);
+    let sqlQuery = 'SELECT id, region, provincia FROM vw_provincia WHERE 1=1';
+    const params = [];
+
+    // Agregar filtro si regiones está presente
+    if (regiones) {
+        const nameArray = regiones.split(',').map(name => name.trim());
+        sqlQuery += ` AND region IN (${nameArray.map((_, index) => `@regionName${index}`).join(', ')})`;
+        nameArray.forEach((name, index) => {
+            params.push({ name: `regionName${index}`, type: sql.VarChar, value: name });
+        });
+    }
+
+    // Agregar logs para depuración
+    console.log('SQL Query:', sqlQuery);
+    console.log('Parameters:', params);
+
+    try {
+        const result = await query(sqlQuery, params); // Ejecuta la consulta
+        res.json(result); // Devuelve el resultado
+    } catch (error) {
+        console.error('Error executing query:', error); // Log del error
+        res.status(500).json({ error: error.message }); // Manejo de errores
+    }
+};
+
 module.exports = {
     getProvincia,
     createProvincia,
     getProvinciaById,
     updateProvincia,
-    deleteProvincia
+    deleteProvincia,
+    getFilteredProvincia
 };

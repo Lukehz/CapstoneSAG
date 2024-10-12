@@ -43,7 +43,7 @@ app.use(express.static(path.join(__dirname, '../../public/static')));
 
 app.use(express.static(path.join(__dirname, '../../public/crud')));
 // En app.js
-app.get('/crud', verificarAutenticacion('admin'), (req, res) => {
+app.get('/crud', verificarAutenticacion('Admin'), (req, res) => {
     res.sendFile(path.join(__dirname, '../../public/crud', 'crud.html'));
 });
 

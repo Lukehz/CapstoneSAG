@@ -150,10 +150,39 @@ const deleteUsuario = async (req, res) => {
     }
 };
 
+const getFilteredUsuario = async (req, res) => {
+    const { roles } = req.query; // Obtener los roles desde la consulta
+
+    let sqlQuery = `SELECT id, [Nombre Completo], rut, correo, rol, usuario, password FROM vw_usuario WHERE 1=1`;
+    const params = [];
+
+    // Filtrar por roles si se proporciona
+    if (roles) {
+        const roleArray = roles.split(',').map(role => role.trim());
+        sqlQuery += ` AND rol IN (${roleArray.map((_, index) => `@role${index}`).join(', ')})`;
+        roleArray.forEach((role, index) => {
+            params.push({ name: `role${index}`, type: sql.VarChar, value: role });
+        });
+    }
+
+    // Agregar logs para depuración
+    console.log('SQL Query:', sqlQuery);
+    console.log('Parameters:', params);
+
+    try {
+        const result = await query(sqlQuery, params); // Ejecuta la consulta
+        res.json(result); // Devuelve el resultado
+    } catch (error) {
+        console.error('Error executing query:', error); // Log del error
+        res.status(500).json({ error: error.message }); // Manejo de errores
+    }
+};
+
 module.exports = {
     getUsuario,
     createUsuario,
     getUsuarioById,
     updateUsuario,
-    deleteUsuario
+    deleteUsuario,
+    getFilteredUsuario
 };

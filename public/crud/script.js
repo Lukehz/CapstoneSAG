@@ -6,56 +6,231 @@ let nameTable = 'parcelacion'; // Valor predeterminado
 /********************************** READ ********************************/
 /****** LEE TODOS LOS ITEMS, CREA LA TABLA Y RELLENA CON LOS ITEMS ******/
 // Cargar ítems según la tabla seleccionada
-async function loadItems(Table) {
+async function loadItems(Table, sectors = [], phases = [], crops = [], registered = [], regiones = [], provincias = [], radio = [], roles = []) {
     const crudTitle = document.getElementById('crud-title'); // Obtiene el elemento del título
     const addButton = document.getElementById('addButton'); // Obtiene el botón de agregar
+    const filters = document.getElementById('filters');
     nameTable = Table; // Guarda el nombre de la tabla seleccionada
     console.log(nameTable); // Imprime el nombre de la tabla en la consola
     addButton.style.display = 'block'; // Muestra el botón de agregar
 
 
+    let url = `api/${nameTable}`; // URL base
+    
     // Cambiar el título y el botón según la tabla
     if (nameTable === 'parcelacion') {
         crudTitle.textContent = 'Gestión de Parcelaciones';
         addButton.textContent = 'Agregar Parcelación';
+        addButton.onclick = () => openModal('parcelacion');
+        loadOptionsFilter(nameTable);
+        filters.innerHTML = `
+        <button id="filterButton">Filtrar</button>
+        <select name="filter_sector" id="filter_sector" multiple>
+            <option value="">Seleccione un Sector</option>
+            <!-- Opciones dinámicas -->
+        </select>
+        <select name="filter_fase" id="filter_fase" multiple>
+            <option value="">Seleccione una Fase</option>
+            <!-- Opciones dinámicas -->
+        </select>
+        <select name="filter_cultivo" id="filter_cultivo" multiple>
+            <option value="">Seleccione un Cultivo</option>
+            <!-- Opciones dinámicas -->
+        </select>
+        <select name="filter_registrada" id="filter_registrada" multiple>
+            <option value="">Seleccione si está registrada</option>
+            <option value="No Registrada">No Registrada</option>
+            <option value="Registrada">Registrada</option>
+        </select>
+        `
+
+        // Añadir el event listener al botón de filtrar
+        const filterButton = document.getElementById('filterButton');
+        filterButton.addEventListener('click', () => {
+            const selectedSectors = Array.from(document.getElementById('filter_sector').selectedOptions).map(option => option.value);
+            const selectedPhases = Array.from(document.getElementById('filter_fase').selectedOptions).map(option => option.value);
+            const selectedCrops = Array.from(document.getElementById('filter_cultivo').selectedOptions).map(option => option.value);
+            const selectedRegistered = Array.from(document.getElementById('filter_registrada').selectedOptions).map(option => option.value);
+            
+            // Loguear los valores seleccionados
+            console.log('Filtros seleccionados:', {
+                sectors: selectedSectors,
+                phases: selectedPhases,
+                crops: selectedCrops,
+                registered: selectedRegistered
+            });
+
+
+
+            // Llamar a la función para cargar ítems filtrados
+            loadItems('parcelacion', selectedSectors, selectedPhases, selectedCrops, selectedRegistered);
+        });
         addButton.onclick = () => openModal('parcelacion'); // Asigna función al botón
     } else if (nameTable === 'region') {
         crudTitle.textContent = 'Gestión de Regiones';
         addButton.textContent = 'Agregar Región';
+        filters.innerHTML = ``;
         addButton.onclick = () => openModal('region');
     } else if (nameTable === 'provincia') {
         crudTitle.textContent = 'Gestión de Provincia';
         addButton.textContent = 'Agregar provincia';
         addButton.onclick = () => openModal('provincia');
+        loadOptionsRegionFilter();
+        filters.innerHTML = `
+        <button id="filterButton">Filtrar</button>
+        <select name="filter_sector" id="filter_region" multiple>
+            <option value="">Seleccione una Region</option>
+            <!-- Opciones dinámicas -->
+        </select>
+        `
+
+        // Añadir el event listener al botón de filtrar
+        const filterButton = document.getElementById('filterButton');
+        filterButton.addEventListener('click', () => {
+            const selectedRegiones = Array.from(document.getElementById('filter_region').selectedOptions).map(option => option.value);
+
+            // Loguear los valores seleccionados
+            console.log('Filtros seleccionados:', {
+                regiones : selectedRegiones
+            });
+
+
+
+            // Llamar a la función para cargar ítems filtrados
+            loadItems('provincia', undefined, undefined, undefined, undefined, selectedRegiones);
+        });
     } else if (nameTable === 'sector') {
         crudTitle.textContent = 'Gestión de Sector';
         addButton.textContent = 'Agregar Sector';
         addButton.onclick = () => openModal('sector');
+        loadOptionsSectorFilter();
+        filters.innerHTML = `
+        <button id="filterButton">Filtrar</button>
+        <select name="filter_sector" id="filter_provincia" multiple>
+            <option value="">Seleccione una Region</option>
+            <!-- Opciones dinámicas -->
+        </select>
+        `
+        addButton.onclick = () => openModal('provincia');
+
+        // Añadir el event listener al botón de filtrar
+        const filterButton = document.getElementById('filterButton');
+        filterButton.addEventListener('click', () => {
+            const selectedProvincia = Array.from(document.getElementById('filter_provincia').selectedOptions).map(option => option.value);
+
+            // Loguear los valores seleccionados
+            console.log('Filtros seleccionados:', {
+                provincias : selectedProvincia
+            });
+
+
+
+            // Llamar a la función para cargar ítems filtrados
+            loadItems('sector', undefined, undefined, undefined, undefined, undefined, selectedProvincia);
+        });
+
     } else if (nameTable === 'cuarentena') {
         crudTitle.textContent = 'Gestión de Cuarentena';
         addButton.textContent = 'Agregar Cuarentena';
         addButton.onclick = () => openModal('cuarentena');
+        loadOptionsFilter(nameTable);
+        filters.innerHTML = `
+        <button id="filterButton">Filtrar</button>
+        <select name="filter_sector" id="filter_sector" multiple>
+            <option value="">Seleccione un Sector</option>
+            <!-- Opciones dinámicas -->
+        </select>
+        <select name="filter_sector" id="filter_radio">
+            <option value="">Todas las opciones</option>
+            <option value="Valores">Radio</option>
+            <option value="Trazado">Trazado</option>
+            <!-- Opciones dinámicas -->
+        </select>
+        `
+
+        // Añadir el event listener al botón de filtrar
+        const filterButton = document.getElementById('filterButton');
+        filterButton.addEventListener('click', () => {
+            const selectedSectors = Array.from(document.getElementById('filter_sector').selectedOptions).map(option => option.value);
+            const selectedRadio = Array.from(document.getElementById('filter_radio').selectedOptions).map(option => option.value);
+            
+            // Loguear los valores seleccionados
+            console.log('Filtros seleccionados:', {
+                sectors: selectedSectors,
+                radio: selectedRadio
+            });
+
+
+
+            // Llamar a la función para cargar ítems filtrados
+            loadItems('cuarentena', selectedSectors, undefined, undefined, undefined, undefined, undefined, selectedRadio);
+        });
     } else if (nameTable === 'cultivo') {
         crudTitle.textContent = 'Gestión de Cultivo';
         addButton.textContent = 'Agregar Cultivo';
+        filters.innerHTML = ``;
         addButton.onclick = () => openModal('cultivo');
     } else if (nameTable === 'fase') {
         crudTitle.textContent = 'Gestión de Fase';
         addButton.textContent = 'Agregar Fase';
+        filters.innerHTML = ``;
         addButton.onclick = () => openModal('fase');
     } else if (nameTable === 'usuario') {
         crudTitle.textContent = 'Gestión de Usurio';
         addButton.textContent = 'Agregar Usuario';
         addButton.onclick = () => openModal('usuario');
+
+        filters.innerHTML = `
+        <button id="filterButton">Filtrar</button>
+        <select name="filter_sector" id="filter_rol">
+            <option value="">Todos los roles</option>
+            <option value="Admin">Administrador</option>
+            <option value="User">Usuario</option>
+            <!-- Opciones dinámicas -->
+        </select>
+        `
+
+        // Añadir el event listener al botón de filtrar
+        const filterButton = document.getElementById('filterButton');
+        filterButton.addEventListener('click', () => {
+            const selectedRol = Array.from(document.getElementById('filter_rol').selectedOptions).map(option => option.value);
+            
+            // Loguear los valores seleccionados
+            console.log('Filtros seleccionados:', {
+                roles: selectedRol
+            });
+
+
+
+            // Llamar a la función para cargar ítems filtrados
+            loadItems('usuario', undefined, undefined, undefined, undefined, undefined, undefined, undefined, selectedRol);
+        });
     } else if (nameTable === 'historial') {
         crudTitle.textContent = 'Gestión de Historial';
+        filters.innerHTML = ``;
         addButton.style.display = 'none'; // Oculta el botón de agregar para historial
         //addButton.textContent = 'Agregar Historial';
         //addButton.onclick = () => openModal('historial');
     }
+
+    // Si hay filtros, construir la URL con parámetros
+    if (sectors.length || phases.length || crops.length || registered.length || regiones.length || provincias.length || radio.length || roles.length) {
+        const params = new URLSearchParams();
+        if (sectors.length) params.append('sectors', sectors.join(','));
+        if (phases.length) params.append('phases', phases.join(','));
+        if (crops.length) params.append('crops', crops.join(','));
+        if (regiones.length) params.append('regiones', regiones.join(','));
+        if (provincias.length) params.append('provincias', provincias.join(';'));
+        if (radio.length) params.append('radio', radio.join(','));
+        if (roles.length) params.append('roles', roles.join(','));
+        if (registered.length) params.append('registered', registered.join(','));
+        console.log(params);
+        url = `api/${nameTable}/filter?${params.toString()}`; // Usar la nueva ruta
+        console.log('URL con parámetros de filtrado:', url); // Loguear la URL
+    }
     
     try {
-        const response = await fetch(`api/${nameTable}`); // Realiza la solicitud para cargar ítems
+        const response = await fetch(url); // Realiza la solicitud para cargar ítems
         if (!response.ok) {
             throw new Error('Error al cargar los datos');
         }
@@ -440,6 +615,11 @@ document.getElementById('itemForm').addEventListener('submit', async (e) => {
         const rutInput = document.getElementById('rut').value;
         const dvInput = document.getElementById('dv_rut').value;
 
+        // Validar longitud mínima del RUT
+        if (rutInput.replace(/\./g, '').length < 7) {
+            alert('El RUT debe tener al menos 7 dígitos.');
+            return; // Salir de la función si la longitud no es válida
+        }
         // Validar el RUT
         if (!validarRUT(rutInput, dvInput)) {
             alert('El dígito verificador del RUT es incorrecto.'); // Alerta si el dv no es inválido
@@ -768,3 +948,137 @@ async function loadOptionsSector() {
 
 
 /******************************************************************************/
+
+
+
+
+async function loadOptionsFilter(nameTable) {
+    try {
+        // Realiza una solicitud para obtener las opciones
+        const response = await fetch(`/api/parcelacion/opciones`);
+
+        // Verifica si la respuesta fue exitosa
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`); // Manejo de errores HTTP
+        }
+
+        const data = await response.json(); // Parsea la respuesta JSON
+
+        // Verifica que la estructura de datos sea la esperada
+        if (!data.sectores || !data.fases || !data.cultivos) {
+            throw new Error('Estructura de datos inesperada');
+        }
+        
+        console.log(data); // Para depuración
+
+        // Llenar el dropdown de sectores
+        const sectorSelect = document.getElementById('filter_sector');
+        sectorSelect.innerHTML = ''; // Limpiar el dropdown antes de llenarlo
+
+        // Solo llenar sectores si nameTable es 'cuarentena'
+        if (nameTable === 'cuarentena') {
+            data.sectores.forEach(sector => {
+                const option = document.createElement('option');
+                option.value = sector.sector.split(", ")[1]; // Valor del ID del sector
+                
+                // Extraer solo el nombre de la comuna
+                const nombreComuna = sector.sector.split(", ")[1]; // Toma la parte después de ", "
+                option.textContent = nombreComuna; // Texto que se mostrará en el dropdown
+                
+                sectorSelect.appendChild(option); // Agrega la opción al dropdown
+            });
+        }
+
+        // Si nameTable es 'parcelacion', llenar los dropdowns de sectores, fases y cultivos
+        if (nameTable === 'parcelacion') {
+            // Llenar el dropdown de sectores
+            data.sectores.forEach(sector => {
+                const option = document.createElement('option');
+                option.value = sector.sector.split(", ")[1]; // Valor del ID del sector
+                
+                // Extraer solo el nombre de la comuna
+                const nombreComuna = sector.sector.split(", ")[1]; // Toma la parte después de ", "
+                option.textContent = nombreComuna; // Texto que se mostrará en el dropdown
+                
+                sectorSelect.appendChild(option); // Agrega la opción al dropdown
+            });
+
+            // Llenar el dropdown de fases
+            const faseSelect = document.getElementById('filter_fase');
+            faseSelect.innerHTML = ''; // Limpiar el dropdown antes de llenarlo
+
+            data.fases.forEach(fase => {
+                const option = document.createElement('option');
+                option.value = fase.nombre; // Valor del ID de la fase
+                option.textContent = fase.nombre; // Texto que se mostrará en el dropdown
+                faseSelect.appendChild(option); // Agrega la opción al dropdown
+            });
+
+            // Llenar el dropdown de cultivos
+            const cultivoSelect = document.getElementById('filter_cultivo');
+            cultivoSelect.innerHTML = ''; // Limpiar el dropdown antes de llenarlo
+
+            data.cultivos.forEach(cultivo => {
+                const option = document.createElement('option');
+                option.value = cultivo.nombre; // Valor del ID del cultivo
+                option.textContent = cultivo.nombre; // Texto que se mostrará en el dropdown
+                cultivoSelect.appendChild(option); // Agrega la opción al dropdown
+            });
+        }
+    } catch (error) {
+        // Manejo de errores
+        console.error('Error al cargar las opciones:', error);
+    }
+}
+
+
+// Función para cargar opciones de regiones en un dropdown
+async function loadOptionsRegionFilter() {
+    try {
+        // Realiza una solicitud para obtener las regiones
+        const response = await fetch('/api/region');
+
+
+        const data = await response.json(); // Parsea la respuesta JSON
+        console.log('data region opciones: ',data)
+        // Llenar el dropdown de sectores
+        const filterRegion = document.getElementById('filter_region'); // Asegúrate de que este ID sea correcto
+
+        data.forEach(result => {
+            const filterOption = document.createElement('option');
+            filterOption.value = result.nombre; // Valor del ID de la región
+            filterOption.textContent = result.nombre; // Texto que se mostrará en el dropdown
+            filterRegion.appendChild(filterOption); // Agrega la opción al dropdown
+        });
+    } catch (error) {
+        // Manejo de errores
+        console.error('Error al cargar de la region:', error);
+    }};
+
+
+
+    async function loadOptionsSectorFilter() {
+        try {
+            const response = await fetch('/api/sector/');
+            const data = await response.json(); // Parsea la respuesta JSON
+            console.log('data Region y provincia opciones: ', data);
+    
+            // Llenar el dropdown de sectores
+            const sectorSelect = document.getElementById('filter_provincia');
+            const uniqueProvincias = new Set(); // Usar un Set para evitar duplicados
+    
+            data.forEach(result => {
+                const provincia = result.provincia;
+                if (!uniqueProvincias.has(provincia)) { // Verifica si ya se ha agregado
+                    uniqueProvincias.add(provincia); // Agrega la provincia al Set
+                    const option = document.createElement('option');
+                    option.value = provincia; // Valor del ID de la provincia
+                    option.textContent = provincia; // Texto que se mostrará en el dropdown
+                    sectorSelect.appendChild(option); // Agrega la opción al dropdown
+                }
+            });
+        } catch (error) {
+            console.error('Error al cargar de la provincia:', error);
+        }
+    }
+    

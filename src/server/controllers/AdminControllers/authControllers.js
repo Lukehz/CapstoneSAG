@@ -25,9 +25,9 @@ const login = async (req, res) => {
       req.session.usuario = { username: usuario.usuario, role: usuario.rol };
   
       // Redirigir según el rol
-      if (usuario.rol === 'admin') {
+      if (usuario.rol === 'Admin') {
         return res.json({ message: 'Sesión iniciada correctamente', redirect: '/crud' });
-      } else if (usuario.rol === 'user') {
+      } else if (usuario.rol === 'User') {
         return res.json({ message: 'Sesión iniciada correctamente', redirect: '/index' });
       } else {
         return res.status(403).json({ message: 'Rol de usuario no autorizado' });

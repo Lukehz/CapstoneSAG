@@ -6,6 +6,7 @@ const sectorController = require('../../controllers/AdminControllers/sectorContr
 const upload = multer(); // Configurar multer para manejo de archivos
 
 // Rutas para las operaciones CRUD
+router.get('/filter', sectorController.getFilteredSector);
 router.get('/', sectorController.getSector);                   // Leer todos los sectores
 router.post('/', upload.none(), sectorController.createSector);                 // Crear nuevo sector
 router.get('/opciones', sectorController.getOpcionesSector);          // Opciones para el formulario de sector

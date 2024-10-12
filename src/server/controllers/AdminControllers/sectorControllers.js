@@ -131,11 +131,40 @@ const getOpcionesSector = async (req, res) => {
     }
 };
 
+const getFilteredSector = async (req, res) => {
+    const { provincias } = req.query; // Obtiene los nombres de las provincias desde la consulta
+
+    let sqlQuery = 'SELECT id, provincia, comuna FROM vw_sector_completo WHERE 1=1';
+    const params = [];
+
+    // Filtrar por provincias si se proporciona
+    if (provincias) {
+        const provinciaArray = provincias.split(';').map(prov => prov.trim()); // Usa el punto y coma como delimitador
+        sqlQuery += ` AND provincia IN (${provinciaArray.map((_, index) => `@provincia${index}`).join(', ')})`;
+        provinciaArray.forEach((prov, index) => {
+            params.push({ name: `provincia${index}`, type: sql.VarChar, value: prov });
+        });
+    }
+
+    // Agregar logs para depuración
+    console.log('SQL Query:', sqlQuery);
+    console.log('Parameters:', params);
+
+    try {
+        const result = await query(sqlQuery, params); // Ejecuta la consulta
+        res.json(result); // Devuelve el resultado
+    } catch (error) {
+        console.error('Error executing query:', error); // Log del error
+        res.status(500).json({ error: error.message }); // Manejo de errores
+    }
+};
+
 module.exports = {
     getSector,
     createSector,
     getSectorById,
     updateSector,
     deleteSector,
-    getOpcionesSector
+    getOpcionesSector,
+    getFilteredSector
 };
