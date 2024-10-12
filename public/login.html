@@ -4,22 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
+    <link href="./tailwind/output.css" rel="stylesheet">
+    <link rel="stylesheet" href="./tailwind/Main_styles.css">
 </head>
 <body>
-    <!-- Formulario de Login -->
-    <div>
-        <h2>Iniciar Sesión</h2>
-        <form id="loginForm" action="/api/auth/login" method="POST">
-            <label for="username">Usuario:</label>
-            <input type="text" id="username" name="username" required>
-
-            <label for="password">Contraseña:</label>
-            <input type="password" id="password" name="password" required>
-
-            <input type="submit" value="Iniciar sesión">
-        </form>
-        <p id="mensajeError"></p>
+<!-- component -->
+<div class="bg-blue-200 flex justify-center items-center h-screen">
+    <!-- Left: Image -->
+<div class="w-1/2 h-screen hidden lg:block">
+  <img src="./logo empresa.jpeg" alt="Placeholder Image" class="object-cover w-full h-full">
+</div>
+<!-- Right: Login Form -->
+<div class= "lg:p-36 md:p-52 sm:20 p-8 w-full lg:w-1/2">
+  <h1 class="text-2xl font-semibold mb-4">Login</h1>
+  <form id="loginForm" action="/api/auth/login" method="POST">
+    <!-- Username Input -->
+    <div class="mb-4" "bg-sky-100">
+      <label for="username" class="block text-gray-600">Usuario</label>
+      <input type="text" id="username" name="username" required class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-green-600">
     </div>
+    <!-- Password Input -->
+    <div class="mb-4">
+      <label for="password" class="block text-gray-800">Contraseña</label>
+      <input type="password" id="password" name="password" required class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-green-600">
+    </div>
+    <!-- Login Button -->
+    <div>
+    <button type="submit" class="bg-green-700 hover:bg-green-950 text-white font-semibold rounded-md py-2 px-4 w-full" value="Iniciar sesión">Ingresar</button>
+    </div>
+  </form>
+</div>
+</div>
     <script>
   function _0x3926(){const _0x555921=['14jUkCwJ','579208aWCbVH','value','Script\x20de\x20login\x20cargado','innerText','addEventListener','submit','redirect','error','mensajeError','10jDynVE','preventDefault','5gACRKV','application/json','Ocurrió\x20un\x20error\x20al\x20iniciar\x20sesión.','Error:','2150RDTNTL','getElementById','username','loginForm','120859UOCzYe','then','log','343964qjhuQr','1501621AlcQrT','http://localhost:3000/api/auth/login','message','3411HTsqdU','94293wKEoPQ','604830rsQpMf','stringify','password','POST'];_0x3926=function(){return _0x555921;};return _0x3926();}function _0x35f4(_0x9f0d41,_0x4ceaa8){const _0x3926c4=_0x3926();return _0x35f4=function(_0x35f434,_0x530b88){_0x35f434=_0x35f434-0x1d2;let _0x159da2=_0x3926c4[_0x35f434];return _0x159da2;},_0x35f4(_0x9f0d41,_0x4ceaa8);}const _0x22375e=_0x35f4;(function(_0x92ad4b,_0x50e695){const _0x403601=_0x35f4,_0x35d95b=_0x92ad4b();while(!![]){try{const _0x10978d=parseInt(_0x403601(0x1d8))/0x1+parseInt(_0x403601(0x1ef))/0x2*(parseInt(_0x403601(0x1e0))/0x3)+parseInt(_0x403601(0x1db))/0x4*(-parseInt(_0x403601(0x1f1))/0x5)+-parseInt(_0x403601(0x1e1))/0x6*(-parseInt(_0x403601(0x1e5))/0x7)+-parseInt(_0x403601(0x1e6))/0x8+-parseInt(_0x403601(0x1df))/0x9*(parseInt(_0x403601(0x1d4))/0xa)+-parseInt(_0x403601(0x1dc))/0xb;if(_0x10978d===_0x50e695)break;else _0x35d95b['push'](_0x35d95b['shift']());}catch(_0x2b78e0){_0x35d95b['push'](_0x35d95b['shift']());}}}(_0x3926,0x19344),document[_0x22375e(0x1ea)]('DOMContentLoaded',()=>{const _0x373c62=_0x22375e;console[_0x373c62(0x1da)](_0x373c62(0x1e8)),document[_0x373c62(0x1d5)](_0x373c62(0x1d7))[_0x373c62(0x1ea)](_0x373c62(0x1eb),function(_0x1c8e7d){const _0x2efc90=_0x373c62;_0x1c8e7d[_0x2efc90(0x1f0)]();const _0x2ee7d3=document[_0x2efc90(0x1d5)](_0x2efc90(0x1d6))[_0x2efc90(0x1e7)],_0x141bbc=document[_0x2efc90(0x1d5)](_0x2efc90(0x1e3))[_0x2efc90(0x1e7)];fetch(_0x2efc90(0x1dd),{'method':_0x2efc90(0x1e4),'headers':{'Content-Type':_0x2efc90(0x1f2)},'body':JSON[_0x2efc90(0x1e2)]({'username':_0x2ee7d3,'password':_0x141bbc})})[_0x2efc90(0x1d9)](_0x2a0386=>_0x2a0386['json']())[_0x2efc90(0x1d9)](_0x292118=>{const _0x500eda=_0x2efc90;_0x292118[_0x500eda(0x1de)]==='Sesión\x20iniciada\x20correctamente'?window['location']['href']=_0x292118[_0x500eda(0x1ec)]:document[_0x500eda(0x1d5)](_0x500eda(0x1ee))[_0x500eda(0x1e9)]=_0x292118['message'];})['catch'](_0x1a9498=>{const _0x27b41f=_0x2efc90;console[_0x27b41f(0x1ed)](_0x27b41f(0x1d3),_0x1a9498),document[_0x27b41f(0x1d5)](_0x27b41f(0x1ee))[_0x27b41f(0x1e9)]=_0x27b41f(0x1d2);});});}));
     </script>
