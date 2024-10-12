@@ -6,6 +6,7 @@ const usuarioController = require('../../controllers/AdminControllers/usuarioCon
 const upload = multer(); // Configurar multer para manejo de archivos
 
 // Definir las rutas
+router.get('/filter', usuarioController.getFilteredUsuario);
 router.get('/', usuarioController.getUsuario);                 // Leer todos los usuarios
 router.post('/', upload.none(), usuarioController.createUsuario);              // Crear nuevo usuario
 router.get('/:id', usuarioController.getUsuarioById);           // Leer usuario por ID

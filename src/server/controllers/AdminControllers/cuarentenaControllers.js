@@ -125,10 +125,48 @@ const deleteCuarentena = async (req, res) => {
     }
 };
 
+const getFilteredCuarentenas = async (req, res) => {
+    const { sectors, radio } = req.query;
+
+    let sqlQuery = 'SELECT id, sector, latitud, longitud, [radio(Metros)], motivo FROM vw_cuarentena WHERE 1=1';
+    const params = [];
+
+    // Filtrar por sectores si se proporciona
+    if (sectors) {
+        const sectorArray = sectors.split(',').map(sector => sector.trim());
+        sqlQuery += ` AND sector IN (${sectorArray.map((_, index) => `@sector${index}`).join(', ')})`;
+        sectorArray.forEach((sector, index) => {
+            params.push({ name: `sector${index}`, type: sql.VarChar, value: sector });
+        });
+    }
+
+    // Filtrar por radio si se proporciona
+    if (radio) {
+        if (radio === 'Trazado') {
+            sqlQuery += ` AND [radio(Metros)] = 'Trazado'`;
+        } else if (radio === 'Valores') {
+            sqlQuery += ` AND [radio(Metros)] != 'Trazado'`;
+        }
+    }
+
+    // Agregar logs para depuración
+    console.log('SQL Query:', sqlQuery);
+    console.log('Parameters:', params);
+
+    try {
+        const result = await query(sqlQuery, params);
+        res.json(result);
+    } catch (error) {
+        console.error('Error executing query:', error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
 module.exports = {
     getCuarentenas,
     createCuarentena,
     getCuarentenaById,
     updateCuarentena,
-    deleteCuarentena
+    deleteCuarentena,
+    getFilteredCuarentenas
 };

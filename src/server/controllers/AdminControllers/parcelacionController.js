@@ -198,6 +198,63 @@ const getOpciones = async (req, res) => {
     }
 };
 
+
+// Leer ítems filtrados
+// Función para obtener parcelaciones filtradas
+// Función para obtener parcelaciones filtradas
+const getFilteredParcelaciones = async (req, res) => {
+    const { sectors, phases, crops, registered } = req.query;
+
+    let sqlQuery = 'SELECT id, latitud, longitud, Comuna, Fase, Cultivo, registrada FROM VW_parcelacion WHERE 1=1';
+    const params = [];
+
+    // Agregar filtros si están presentes
+    if (sectors) {
+        const sectorArray = sectors.split(',').map(sector => sector.trim());
+        sqlQuery += ` AND Comuna IN (${sectorArray.map((_, index) => `@sector${index}`).join(', ')})`;
+        sectorArray.forEach((sector, index) => {
+            params.push({ name: `sector${index}`, type: sql.VarChar, value: sector });
+        });
+    }
+
+    if (phases) {
+        const phaseArray = phases.split(',').map(phase => phase.trim());
+        sqlQuery += ` AND Fase IN (${phaseArray.map((_, index) => `@phase${index}`).join(', ')})`;
+        phaseArray.forEach((phase, index) => {
+            params.push({ name: `phase${index}`, type: sql.VarChar, value: phase });
+        });
+    }
+
+    if (crops) {
+        const cropArray = crops.split(',').map(crop => crop.trim());
+        sqlQuery += ` AND Cultivo IN (${cropArray.map((_, index) => `@crop${index}`).join(', ')})`;
+        cropArray.forEach((crop, index) => {
+            params.push({ name: `crop${index}`, type: sql.VarChar, value: crop });
+        });
+    }
+
+    if (registered) {
+        const registeredArray = registered.split(',').map(reg => reg.trim());
+        sqlQuery += ` AND registrada IN (${registeredArray.map((_, index) => `@registered${index}`).join(', ')})`;
+        registeredArray.forEach((reg, index) => {
+            params.push({ name: `registered${index}`, type: sql.VarChar, value: reg });
+        });
+    }
+
+    // Agregar logs para depuración
+    console.log('SQL Query:', sqlQuery);
+    console.log('Parameters:', params);
+
+    try {
+        const result = await query(sqlQuery, params);
+        res.json(result);
+    } catch (error) {
+        console.error('Error executing query:', error); // Log del error
+        res.status(500).json({ error: error.message });
+    }
+};
+
+
 module.exports = {
     getParcelaciones,
     getImage,
@@ -205,5 +262,6 @@ module.exports = {
     getParcelacionById,
     updateParcelacion,
     deleteParcelacion,
-    getOpciones
+    getOpciones,
+    getFilteredParcelaciones
 };
