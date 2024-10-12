@@ -75,10 +75,6 @@ const updateSector = async (req, res) => {
     const id_provincia = req.body.id_provincia; // Verifica que este valor no sea undefined
     const comuna = req.body.comuna; // Verifica que este valor no sea undefined
 
-    console.log('Recibiendo id:', id);
-    console.log('Recibiendo id_provincia:', id_provincia);
-    console.log('Recibiendo comuna:', comuna);
-
     const sqlQuery = `
         UPDATE sector 
         SET comuna = @comuna, 

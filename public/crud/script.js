@@ -152,7 +152,7 @@ function closeModalImg() {
 
 /**************** MODAL PARA FORMULARIO DE CREAR Y EDITAR *********************/
 // Función para abrir el modal y cargar los campos correspondientes según la tabla seleccionada
-function openModal(nameTable, item = null) {
+async function openModal(nameTable, item = null) {
     const modal = document.getElementById('myModal'); // Obtiene el elemento del modal
     const title = document.getElementById('modalTitle'); // Obtiene el título del modal
     const formFields = document.getElementById('formFields'); // Obtiene el contenedor de los campos del formulario
@@ -165,8 +165,6 @@ function openModal(nameTable, item = null) {
     if (nameTable === 'parcelacion') {
         title.textContent = item ? 'Editar Parcelación' : 'Agregar Parcelación';
         
-        loadOptions(nameTable);
-    // Llenar opciones dinámicamente
     
         // Campos para Parcelación
         formFields.innerHTML = `
@@ -192,6 +190,13 @@ function openModal(nameTable, item = null) {
                 <option value="1">Registrada</option>
             </select>
         `;
+        // Solo cargar opciones si es 'parcelacion'
+        try {
+            await loadOptions(nameTable);
+        } catch (error) {
+            console.error('Error al cargar opciones en el modal:', error);
+        }
+
     } else if (nameTable === 'region') {
         title.textContent = item ? 'Editar Región' : 'Agregar Región';
         
@@ -203,7 +208,7 @@ function openModal(nameTable, item = null) {
         `;
     } else if (nameTable === 'provincia') {
         title.textContent = item ? 'Editar Provincia' : 'Agregar Provincia';
-        loadOptionsRegion();
+
         // Campos para Provincia
         formFields.innerHTML = `
             <input type="hidden" id="itemId"> <!-- Campo oculto para el ID -->
@@ -213,9 +218,15 @@ function openModal(nameTable, item = null) {
             </select>
             <input type="text" id="nombre" placeholder="Nombre" name="nombre" required>
         `;
+
+        try {
+            await loadOptionsRegion();
+        } catch (error) {
+            console.error('Error al cargar opciones en el modal:', error);
+        }
     } else if (nameTable === 'sector') {
         title.textContent = item ? 'Editar Sector' : 'Agregar Sector';
-        loadOptionsSector();
+
         // Campos para Sector
         formFields.innerHTML = `
             <input type="hidden" id="itemId"> <!-- Campo oculto para el ID -->
@@ -225,9 +236,15 @@ function openModal(nameTable, item = null) {
             </select>
             <input type="text" id="comuna" placeholder="Comuna" name="comuna" required>
         `;
+
+        try {
+            await loadOptionsSector();
+        } catch (error) {
+            console.error('Error al cargar opciones en el modal:', error);
+        }
     } else if (nameTable === 'cuarentena') {
         title.textContent = item ? 'Editar Cuarentena' : 'Agregar Cuarentena';
-        loadOptions(nameTable);
+
         // Campos para Cuarentena
         formFields.innerHTML = `
             <input type="hidden" id="itemId"> <!-- Campo oculto para el ID -->
@@ -240,6 +257,12 @@ function openModal(nameTable, item = null) {
             <input type="number" id="radio" placeholder="Radio (Opcional)" name="radio" step="any">
             <input type="text" id="comentario" placeholder="Motivo" name="comentario" required>
         `;
+
+        try {
+            await loadOptions(nameTable);
+        } catch (error) {
+            console.error('Error al cargar opciones en el modal:', error);
+        }
     } else if (nameTable === 'cultivo') {
         title.textContent = item ? 'Editar Cultivo' : 'Agregar Cultivo';
         
@@ -290,11 +313,11 @@ function openModal(nameTable, item = null) {
             
 
             // Asigna valores a los select después de un retardo para asegurarse de que las opciones se hayan cargado
-            setTimeout(() => {
+            
                 document.getElementById('id_sector').value = item.id_sector || '';
                 document.getElementById('id_fase').value = item.id_fase || '';
                 document.getElementById('id_cultivo').value = item.id_cultivo || '';
-            }, 1250); 
+            
 
             const registradaSelect = document.getElementById('registrada');
             registradaSelect.value = item.registrada ? '1' : '0';  // Asignar valor a "registrada"
@@ -310,9 +333,9 @@ function openModal(nameTable, item = null) {
             console.log('ID del ítem:', document.getElementById('itemId').value); // Verificación del ID
 
             // Asigna valores después de un retardo para asegurar que las opciones se hayan cargado
-            setTimeout(() => {
+            
             document.getElementById('id_region').value = item.id_region;
-            }, 400);
+            
             document.getElementById('nombre').value = item.nombre;
 
         } else if (nameTable === 'sector') {
@@ -320,17 +343,17 @@ function openModal(nameTable, item = null) {
             console.log('ID del ítem:', document.getElementById('itemId').value); // Verificación del ID
 
             // Asigna valores después de un retardo para asegurar que las opciones se hayan cargado
-            setTimeout(() => {
+            
             document.getElementById('id_provincia').value = item.id_provincia;
-            }, 400); 
+             
             document.getElementById('comuna').value = item.comuna;
 
         } else if (nameTable === 'cuarentena') {
             document.getElementById('itemId').value = item.id_cuarentena; // Ajustar según el ID
             console.log('ID del ítem:', document.getElementById('itemId').value); // Verificación del ID
-            setTimeout(() => {
+            
             document.getElementById('id_sector').value = item.id_sector;
-            }, 1000); // Retardo para asegurarse de que las opciones se hayan cargado
+             // Retardo para asegurarse de que las opciones se hayan cargado
             document.getElementById('latitud').value = item.latitud; // Llenar latitud
             document.getElementById('longitud').value = item.longitud; // Llenar longitud
             document.getElementById('radio').value = item.radio; // Llenar radio
