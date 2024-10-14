@@ -20,28 +20,34 @@ async function loadItems(Table, sectors = [], phases = [], crops = [], registere
     // Cambiar el título y el botón según la tabla
     if (nameTable === 'parcelacion') {
         crudTitle.textContent = 'Gestión de Parcelaciones';
+        crudTitle.className = 'text-5xl font-bold';
         addButton.textContent = 'Agregar Parcelación';
+        addButton.className = 'text-white font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded';
         addButton.onclick = () => openModal('parcelacion');
         loadOptionsFilter(nameTable);
         filters.innerHTML = `
-        <button id="filterButton">Filtrar</button>
-        <select name="filter_sector" id="filter_sector" multiple>
-            <option value="">Seleccione un Sector</option>
-            <!-- Opciones dinámicas -->
-        </select>
-        <select name="filter_fase" id="filter_fase" multiple>
-            <option value="">Seleccione una Fase</option>
-            <!-- Opciones dinámicas -->
-        </select>
-        <select name="filter_cultivo" id="filter_cultivo" multiple>
-            <option value="">Seleccione un Cultivo</option>
-            <!-- Opciones dinámicas -->
-        </select>
-        <select name="filter_registrada" id="filter_registrada" multiple>
-            <option value="">Seleccione si está registrada</option>
-            <option value="No Registrada">No Registrada</option>
-            <option value="Registrada">Registrada</option>
-        </select>
+        <button class="text-white font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded" id="filterButton">Filtrar</button>
+    
+        <h2 class="text-lg font-semibold mb-2">Seleccione la zona de interés</h2>
+    <select name="filter_sector" id="filter_sector" class="border rounded-md p-2 w-full" multiple>
+        <!-- Opciones dinámicas -->
+    </select>
+
+    <h2 class="text-lg font-semibold mb-2 mt-4">Seleccione una fase</h2>
+    <select name="filter_fase" id="filter_fase" class="border rounded-md p-2 w-full" multiple>
+        <!-- Opciones dinámicas -->
+    </select>
+
+    <h2 class="text-lg font-semibold mb-2 mt-4">Selecciona el tipo de cultivo</h2>
+    <select name="filter_cultivo" id="filter_cultivo" class="border rounded-md p-2 w-full" multiple>
+        <!-- Opciones dinámicas -->
+    </select>
+
+    <h2 class="text-lg font-semibold mb-2 mt-4">Seleccione si está registrada</h2>
+    <select name="filter_registrada" id="filter_registrada" class="border rounded-md p-2 w-full" multiple>
+        <option value="No Registrada">No Registrada</option>
+        <option value="Registrada">Registrada</option>
+    </select>
         `
 
         // Añadir el event listener al botón de filtrar
@@ -77,9 +83,9 @@ async function loadItems(Table, sectors = [], phases = [], crops = [], registere
         addButton.onclick = () => openModal('provincia');
         loadOptionsRegionFilter();
         filters.innerHTML = `
-        <button id="filterButton">Filtrar</button>
+        <button class="text-white font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded" id="filterButton">Filtrar</button>
+        <h2 class="text-lg font-semibold mb-2 mt-4">Seleccione una Region</h2>
         <select name="filter_sector" id="filter_region" multiple>
-            <option value="">Seleccione una Region</option>
             <!-- Opciones dinámicas -->
         </select>
         `
@@ -105,9 +111,9 @@ async function loadItems(Table, sectors = [], phases = [], crops = [], registere
         addButton.onclick = () => openModal('sector');
         loadOptionsSectorFilter();
         filters.innerHTML = `
-        <button id="filterButton">Filtrar</button>
+        <button class="text-white font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded" id="filterButton">Filtrar</button>
+        <h2 class="text-lg font-semibold mb-2 mt-4">Seleccione una provincia</h2>
         <select name="filter_sector" id="filter_provincia" multiple>
-            <option value="">Seleccione una Region</option>
             <!-- Opciones dinámicas -->
         </select>
         `
@@ -135,7 +141,8 @@ async function loadItems(Table, sectors = [], phases = [], crops = [], registere
         addButton.onclick = () => openModal('cuarentena');
         loadOptionsFilter(nameTable);
         filters.innerHTML = `
-        <button id="filterButton">Filtrar</button>
+        <button class="text-white font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded" id="filterButton">Filtrar</button>
+        <h2 class="text-lg font-semibold mb-2 mt-4">Seleccione un sector</h2>
         <select name="filter_sector" id="filter_sector" multiple>
             <option value="">Seleccione un Sector</option>
             <!-- Opciones dinámicas -->
@@ -181,7 +188,7 @@ async function loadItems(Table, sectors = [], phases = [], crops = [], registere
         addButton.onclick = () => openModal('usuario');
 
         filters.innerHTML = `
-        <button id="filterButton">Filtrar</button>
+        <button class="text-white font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded" id="filterButton">Filtrar</button>
         <select name="filter_sector" id="filter_rol">
             <option value="">Todos los roles</option>
             <option value="Admin">Administrador</option>
@@ -278,6 +285,7 @@ async function loadItems(Table, sectors = [], phases = [], crops = [], registere
                         const imagenTd = document.createElement('td');
                         const verImagenBtn = document.createElement('button'); // Crear botón para ver imagen
                         verImagenBtn.textContent = 'Ver Imagen'; // Texto del botón
+                        verImagenBtn.className='text-white-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded'; // Clase del boton 
                         verImagenBtn.onclick = () => viewImage(item.id); // Llamar a la función viewImage
                         imagenTd.appendChild(verImagenBtn); // Agregar botón a la celda
                         row.appendChild(imagenTd); // Agregar celda de imagen a la fila
@@ -286,8 +294,8 @@ async function loadItems(Table, sectors = [], phases = [], crops = [], registere
                 if (nameTable !== 'historial') {
                 const actionsTd = document.createElement('td'); // Crear celda de acciones
                 actionsTd.innerHTML = `
-                    <button onclick="editItem(${item.id})">Editar</button>
-                    <button onclick="deleteItem(${item.id})">Eliminar</button>
+                    <button class="text-white-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded" onclick="editItem(${item.id})">Editar</button>
+                    <button class="text-white-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded" onclick="deleteItem(${item.id})">Eliminar</button>
                 `;
                 row.appendChild(actionsTd); // Agregar celda de acciones a la fila
                 }

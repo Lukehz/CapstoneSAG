@@ -58,27 +58,9 @@ body {
 /* Título */
 h1 {
     text-align: center;
-    color: #007BFF;
     margin-bottom: 20px;
 }
 
-/* Botón Agregar */
-#addButton {
-    display: block;
-    margin: 0 auto 20px auto;
-    padding: 10px 20px;
-    background-color: #007BFF;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.3s ease;
-}
-
-#addButton:hover {
-    background-color: #0056b3;
-}
 
 /* Estilos de la tabla */
 table {
@@ -218,7 +200,6 @@ button {
     color: white;
     cursor: pointer;
     font-size: 14px;
-    transition: background-color 0.3s ease;
 }
 
 button:nth-child(1) { /* Editar */
@@ -233,6 +214,10 @@ button:nth-child(2) { /* Eliminar */
     background-color: #dc3545;
 }
 
-button:nth-child(2):hover {
-    background-color: #c82333;
+select {
+    height: auto; /* Asegúrate de que el height sea adecuado */
+}
+
+select[multiple] {
+    height: 100px; /* Ajusta el tamaño de las listas múltiples */
 }
