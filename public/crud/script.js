@@ -49,7 +49,7 @@ async function loadItems(Table, sectors = [], phases = [], crops = [], registere
         <option value="Registrada">Registrada</option>
     </select>
         `
-
+        
         // Añadir el event listener al botón de filtrar
         const filterButton = document.getElementById('filterButton');
         filterButton.addEventListener('click', () => {
