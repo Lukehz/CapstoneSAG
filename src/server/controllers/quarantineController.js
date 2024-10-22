@@ -132,113 +132,138 @@ const getAllQuarantines = async (req, res) => {
   }
 };
 
-let isDeleting = false; // Flag para evitar duplicación de la acción
+const getAllRadiusQuarantines = async (req, res) => {
+  try {
+    const result = await sql.query(`
+      SELECT id_cuarentena, latitud, longitud, radio, comentario
+      FROM dbo.cuarentena
+      WHERE radio IS NOT NULL
+      ORDER BY id_cuarentena
+    `);
 
-const deleteQuarantine = async (req, res) => {
-  const { id } = req.params;
-  console.log(`Recibida solicitud para eliminar cuarentena con ID: ${id}`);
+    const radiusQuarantines = result.recordset.map(row => ({
+      id: row.id_cuarentena,
+      latitud: row.latitud,
+      longitud: row.longitud,
+      radio: row.radio,
+      comentario: row.comentario
+    }));
 
-  if (!id) {
-    console.log('ID de cuarentena no proporcionado');
-    return res.status(400).json({ success: false, message: 'ID de cuarentena no proporcionado' });
+    res.json(radiusQuarantines);
+  } catch (error) {
+    console.error('Error al obtener cuarentenas de radio:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
-
-  // Verificar si ya hay una operación de eliminación en curso
-  if (isDeleting) {
-    console.log('Eliminación de cuarentena ya en curso, rechazando solicitud duplicada.');
-    return res.status(429).json({ success: false, message: 'Eliminación ya en proceso, por favor espere.' });
-  }
-
-// Marcar el proceso de eliminación como iniciado
-  isDeleting = true;
-
-  let pool;
-  let transaction; 
-  let attempt = 0;
-  const maxAttempts = 5; // Máximo de reintentos por deadlock
-
-  while (attempt < maxAttempts) {
-    try {
-      attempt++;
-      pool = await connectDB();
-      console.log('Conexión a la base de datos establecida');
-      transaction = new sql.Transaction(pool);
-      await transaction.begin();
-      console.log('Transacción iniciada');
-
-      const checkResult = await transaction.request()
-        .input('id_cuarentena', sql.Int, id)
-        .query('SELECT * FROM dbo.cuarentena WHERE id_cuarentena = @id_cuarentena');
-
-      if (checkResult.recordset.length === 0) {
-        console.log(`Cuarentena con ID ${id} no encontrada`);
-        await transaction.rollback();
-        return res.status(404).json({ success: false, message: 'Cuarentena no encontrada' });
-      }
-
-      console.log(`Cuarentena con ID ${id} encontrada, procediendo a eliminar`);
-
-      // Eliminar conexiones relacionadas
-      await transaction.request()
-        .input('id_cuarentena', sql.Int, id)
-        .query('DELETE FROM dbo.conexion WHERE verticeInicial_id IN (SELECT id_vertice FROM dbo.vertice WHERE id_cuarentena = @id_cuarentena)');
-      console.log(`Conexiones eliminadas para la cuarentena ID: ${id}`);
-
-      // Eliminar vértices
-      await transaction.request()
-        .input('id_cuarentena', sql.Int, id)
-        .query('DELETE FROM dbo.vertice WHERE id_cuarentena = @id_cuarentena');
-      console.log(`Vértices eliminados para la cuarentena ID: ${id}`);
-
-      // Finalmente, eliminar la cuarentena
-      const deleteResult = await transaction.request()
-        .input('id_cuarentena', sql.Int, id)
-        .query('DELETE FROM dbo.cuarentena WHERE id_cuarentena = @id_cuarentena');
-
-      if (deleteResult.rowsAffected[0] === 0) {
-        console.log(`No se pudo eliminar la cuarentena con ID: ${id}`);
-        await transaction.rollback();
-        return res.status(500).json({ success: false, message: 'No se pudo eliminar la cuarentena' });
-      }
-
-      await transaction.commit();
-      console.log(`Cuarentena con ID ${id} eliminada exitosamente`);
-      // Reiniciar el flag tras eliminar correctamente
-      isDeleting = false;
-
-      res.status(200).json({ success: true, message: 'Cuarentena eliminada exitosamente' });
-      return; // Salir de la función si todo va bien
-      
-
-    } catch (error) {
-      if (error.number === 1205) { // Deadlock
-        console.warn(`Deadlock detectado. Intentando de nuevo... (${attempt}/${maxAttempts})`);
-        if (transaction) await transaction.rollback();
-        continue; // Volver a intentar
-      }
-
-      console.error('Error al eliminar cuarentena:', error);
-      if (transaction) await transaction.rollback();
-      // Reiniciar el flag si ocurre un error
-      isDeleting = false;
-      res.status(500).json({ 
-        success: false, 
-        message: 'Error al eliminar la cuarentena',
-        error: error.message 
-      });
-      return; // Salir de la función ante un error no relacionado con deadlock
-    } finally {
-      if (pool) {
-        await pool.close();
-        console.log('Conexión a la base de datos cerrada');
-      }
-    }
-  }
-
-  // Si se alcanzó el número máximo de intentos
-  res.status(500).json({ success: false, message: 'Se alcanzó el número máximo de intentos para eliminar la cuarentena debido a un deadlock.' });
 };
 
+
+
+let isDeleting = false; // Flag para evitar duplicación de la acción
+
+
+
+      // eliminar la cuarentena
+      const deleteQuarantine = async (req, res) => {
+        const { id } = req.params;
+        let pool;
+        let transaction;
+        const maxAttempts = 3;
+        
+      
+        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+          try {
+            // Crear nueva conexión para cada intento
+            pool = await connectDB();
+            transaction = new sql.Transaction(pool);
+            await transaction.begin();
+      
+            // Primero verificar si la cuarentena existe
+            const checkResult = await transaction.request()
+              .input('id_cuarentena', sql.Int, id)
+              .query('SELECT id_cuarentena FROM dbo.cuarentena WHERE id_cuarentena = @id_cuarentena');
+      
+            if (checkResult.recordset.length === 0) {
+              await transaction.rollback();
+              return res.status(404).json({
+                success: false,
+                message: `No se encontró la cuarentena con ID: ${id}`
+              });
+            }
+      
+            // Eliminar primero las conexiones relacionadas (si existen)
+            await transaction.request()
+              .input('id_cuarentena', sql.Int, id)
+              .query('DELETE FROM dbo.conexion WHERE id_cuarentena = @id_cuarentena');
+      
+            // Luego eliminar la cuarentena
+            const deleteResult = await transaction.request()
+              .input('id_cuarentena', sql.Int, id)
+              .query('DELETE FROM dbo.cuarentena WHERE id_cuarentena = @id_cuarentena');
+      
+            if (deleteResult.rowsAffected[0] === 0) {
+              await transaction.rollback();
+              return res.status(500).json({
+                success: false,
+                message: 'No se pudo eliminar la cuarentena'
+              });
+            }
+      
+            // Commit de la transacción
+            await transaction.commit();
+            
+            console.log(`Cuarentena con ID ${id} eliminada exitosamente`);
+            
+            return res.status(200).json({
+              success: true,
+              message: 'Cuarentena eliminada exitosamente'
+            });
+      
+          } catch (error) {
+            // Manejar deadlock
+            if (error.number === 1205) {
+              console.warn(`Deadlock detectado. Intento ${attempt} de ${maxAttempts}`);
+              if (transaction) {
+                await transaction.rollback();
+              }
+              // Si no es el último intento, continuar con el siguiente
+              if (attempt < maxAttempts) {
+                await new Promise(resolve => setTimeout(resolve, 1000 * attempt)); // Espera exponencial
+                continue;
+              }
+            }
+      
+            // Para cualquier otro error o si se agotaron los intentos de deadlock
+            console.error('Error al eliminar cuarentena:', error);
+            if (transaction) {
+              await transaction.rollback();
+            }
+            
+            return res.status(500).json({
+              success: false,
+              message: 'Error al eliminar la cuarentena',
+              error: error.message
+            });
+      
+          } finally {
+            if (pool) {
+              try {
+                await pool.close();
+                console.log('Conexión a la base de datos cerrada');
+              } catch (err) {
+                console.error('Error al cerrar la conexión:', err);
+              }
+            }
+          }
+        }
+      
+        // Si se llega aquí, significa que se agotaron todos los intentos
+        return res.status(500).json({
+          success: false,
+          message: 'Se alcanzó el número máximo de intentos para eliminar la cuarentena'
+        });
+      };
+    
+    
 const getComentario = async (req, res) => {
   console.log('Obteniendo comentarios');
   
@@ -264,10 +289,13 @@ const getComentario = async (req, res) => {
     res.status(500).json({ error: 'Error al obtener información: ' + err.message });
   }
 };
+  
       
 module.exports = {
   saveQuarantine,
   getAllQuarantines,
+  getAllRadiusQuarantines,
   deleteQuarantine,
   getComentario
 };
+    
