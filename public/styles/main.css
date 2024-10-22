@@ -43,8 +43,8 @@ input {
 
 .sidenav {
   position: fixed;
-  top: 20px;
-  left: 20px;
+  top: 350px;
+  right: 20px; 
   width: 250px;
   max-height: calc(100vh - 40px); /* Limita la altura del sidebar */
   overflow-y: auto; /* Permite scroll vertical */
@@ -53,6 +53,7 @@ input {
   border-radius: 5px;
   box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2);
   z-index: 3;
+  
 }
 
 #controls {
