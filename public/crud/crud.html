@@ -26,28 +26,46 @@
 </head>
 <body>
     <button class="logout-button" onclick="logout()">Cerrar Sesión</button>
-    <aside class="sidebar">
-        <h2>Tablas</h2>
-        <ul>
-            <li><button class="nav-button" data-table="region" onclick="loadItems('region')">Región</button></li>
-            <li><button class="nav-button" data-table="provincia" onclick="loadItems('provincia')">Provincia</button></li>
-            <li><button class="nav-button" data-table="sector" onclick="loadItems('sector')">Sector</button></li>
-            <li><button class="nav-button" data-table="cuarentena" onclick="loadItems('cuarentena')">Cuarentena</button></li>
-           <!-- <li><button class="nav-button" data-table="vertice">Vértice</button></li>
-            <li><button class="nav-button" data-table="conexion">Conexión</button></li>-->
-            <li><button class="nav-button" data-table="cultivo" onclick="loadItems('cultivo')">Cultivo</button></li>
-            <li><button class="nav-button" data-table="fase" onclick="loadItems('fase')">Fase</button></li> 
-            <li><button class="nav-button" data-table="parcelacion" onclick="loadItems('parcelacion')">Parcelación</button></li>
-            <li><button class="nav-button" data-table="historial" onclick="loadItems('historial')">Historial</button></li>
-            <li><button class="nav-button" data-table="usuario" onclick="loadItems('usuario')">Usuario</button></li>
-        </ul>
-    </aside>
-
-    <div class="container">
-        <main class="main-content">
+    <div class="container">        
+        <main class="main-content<<">
             <h1 id="crud-title"></h1>
             <button id="addButton"></button>
             <div id="filters"></div>
+                        
+            <h2 class="text-lg font-semibold">Tablas</h2>
+            <nav>
+            <aside class="sidebar flex flex-wrap justify-center bg-gray-100 p-4">
+                <ul class="flex flex-wrap justify-center">
+                  <li class="mr-4 mb-4">
+                    <button class="nav-button bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" data-table="region" onclick="loadItems('region')">Región</button>
+                  </li>
+                  <li class="mr-4 mb-4">
+                    <button class="nav-button bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" data-table="provincia" onclick="loadItems('provincia')">Provincia</button>
+                  </li>
+                  <li class="mr-4 mb-4">
+                    <button class="nav-button bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" data-table="sector" onclick="loadItems('sector')">Sector</button>
+                  </li>
+                  <li class="mr-4 mb-4">
+                    <button class="nav-button bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" data-table="cuarentena" onclick="loadItems('cuarentena')">Cuarentena</button>
+                  </li>
+                  <li class="mr-4 mb-4">
+                    <button class="nav-button bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" data-table="cultivo" onclick="loadItems('cultivo')">Cultivo</button>
+                  </li>
+                  <li class="mr-4 mb-4">
+                    <button class="nav-button bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" data-table="fase" onclick="loadItems('fase')">Fase</button>
+                  </li>
+                  <li class="mr-4 mb-4">
+                    <button class="nav-button bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" data-table="parcelacion" onclick="loadItems('parcelacion')">Parcelación</button>
+                  </li>
+                  <li class="mr-4 mb-4">
+                    <button class="nav-button bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" data-table="historial" onclick="loadItems('historial')">Historial</button>
+                  </li>
+                  <li class="mr-4 mb-4">
+                    <button class="nav-button bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" data-table="usuario" onclick="loadItems('usuario')">Usuario</button>
+                  </li>
+                </ul>
+              </aside>
+        </nav>
             <table id="itemsTable">
                 <thead>
                     <tr id="tableHeaders">
@@ -57,11 +75,9 @@
                 <tbody id="itemList">
                     <!-- Aquí se agregarán las filas -->
                 </tbody>
-            </table>
-            
+            </table>   
         </main>
     </div>
-
     <!-- Modal para mostrar la imagen -->
     <div id="imageModal" class="modal">
         <div class="modal-content">
@@ -69,7 +85,6 @@
             <img id="modalImage" style="max-width: 100%; height: auto;" />
         </div>
     </div>
-
 
     <!-- Modal para agregar/actualizar parcelación -->
     <div id="myModal" class="modal">
@@ -85,6 +100,8 @@
             </form>
         </div>
     </div>
+
+    
 
     <script src="script.js"></script>
 </body>
