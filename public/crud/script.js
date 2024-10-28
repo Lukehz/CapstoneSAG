@@ -845,8 +845,8 @@ async function logout() {
             throw new Error('Error al cerrar sesión');
         }
 
-        // Si la sesión se cerró correctamente, recarga la página
-        window.location.reload();
+        // Si la sesión se cerró correctamente, redirige a la página de login
+        window.location.href = '/login';
     } catch (error) {
         console.error('Error:', error);
         alert('No se pudo cerrar la sesión. Intenta nuevamente.');
