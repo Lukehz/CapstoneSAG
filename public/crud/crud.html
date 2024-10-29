@@ -34,38 +34,39 @@
                         
             <h2 class="text-lg font-semibold">Tablas</h2>
             <nav>
-            <aside class="sidebar flex flex-wrap justify-center bg-gray-100 p-4">
-                <ul class="flex flex-wrap justify-center">
-                  <li class="mr-4 mb-4">
-                    <button class="nav-button bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" data-table="region" onclick="loadItems('region')">Región</button>
-                  </li>
-                  <li class="mr-4 mb-4">
-                    <button class="nav-button bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" data-table="provincia" onclick="loadItems('provincia')">Provincia</button>
-                  </li>
-                  <li class="mr-4 mb-4">
-                    <button class="nav-button bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" data-table="sector" onclick="loadItems('sector')">Sector</button>
-                  </li>
-                  <li class="mr-4 mb-4">
-                    <button class="nav-button bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" data-table="cuarentena" onclick="loadItems('cuarentena')">Cuarentena</button>
-                  </li>
-                  <li class="mr-4 mb-4">
-                    <button class="nav-button bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" data-table="cultivo" onclick="loadItems('cultivo')">Cultivo</button>
-                  </li>
-                  <li class="mr-4 mb-4">
-                    <button class="nav-button bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" data-table="fase" onclick="loadItems('fase')">Fase</button>
-                  </li>
-                  <li class="mr-4 mb-4">
-                    <button class="nav-button bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" data-table="parcelacion" onclick="loadItems('parcelacion')">Parcelación</button>
-                  </li>
-                  <li class="mr-4 mb-4">
-                    <button class="nav-button bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" data-table="historial" onclick="loadItems('historial')">Historial</button>
-                  </li>
-                  <li class="mr-4 mb-4">
-                    <button class="nav-button bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" data-table="usuario" onclick="loadItems('usuario')">Usuario</button>
-                  </li>
-                </ul>
-              </aside>
-        </nav>
+                <aside class="sidebar flex flex-wrap justify-center bg-gray-100 p-4">
+                    <ul class="flex flex-wrap justify-center">
+                        <li class="mr-6 mb-6"> <!-- Aumentar el margen derecho y el margen inferior -->
+                            <button class="nav-button bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" data-table="region" onclick="loadItems('region')">Región</button>
+                        </li>
+                        <li class="mr-6 mb-6">
+                            <button class="nav-button bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" data-table="provincia" onclick="loadItems('provincia')">Provincia</button>
+                        </li>
+                        <li class="mr-6 mb-6">
+                            <button class="nav-button bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" data-table="sector" onclick="loadItems('sector')">Sector</button>
+                        </li>
+                        <li class="mr-6 mb-6">
+                            <button class="nav-button bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" data-table="cuarentena" onclick="loadItems('cuarentena')">Cuarentena</button>
+                        </li>
+                        <li class="mr-6 mb-6">
+                            <button class="nav-button bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" data-table="cultivo" onclick="loadItems('cultivo')">Cultivo</button>
+                        </li>
+                        <li class="mr-6 mb-6">
+                            <button class="nav-button bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" data-table="fase" onclick="loadItems('fase')">Fase</button>
+                        </li>
+                        <li class="mr-6 mb-6">
+                            <button class="nav-button bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" data-table="parcelacion" onclick="loadItems('parcelacion')">Parcelación</button>
+                        </li>
+                        <li class="mr-6 mb-6">
+                            <button class="nav-button bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" data-table="historial" onclick="loadItems('historial')">Historial</button>
+                        </li>
+                        <li class="mr-6 mb-6">
+                            <button class="nav-button bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" data-table="usuario" onclick="loadItems('usuario')">Usuario</button>
+                        </li>
+                    </ul>
+                </aside>
+            </nav>
+            
             <table id="itemsTable">
                 <thead>
                     <tr id="tableHeaders">
