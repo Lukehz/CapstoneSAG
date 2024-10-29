@@ -14,7 +14,6 @@ const cultivoRoutes = require('./Routes/AdminRoutes/cultivoRoutes');
 const usuarioRoutes = require('./Routes/AdminRoutes/usuarioRoutes');
 const historialRoutes = require('./Routes/AdminRoutes/historialRoutes');
 const authRoutes = require('./Routes/AdminRoutes/authRoutes'); // Importar rutas de autenticación
-const crudRoutes = require('./Routes/AdminRoutes/crudRoutes'); // Asegúrate de requerir tus rutas de CRUD
 const { verificarAutenticacion } = require('./Middlewares/authMiddleware');
 //Rutas nicol
 const parcelasRoutes = require('./Routes/parcelasRoutes');
@@ -56,7 +55,7 @@ app.get('/', (req, res) => {
     res.redirect('/login'); // Redirige a la página de login
 });
 
-app.get('/Index', (req, res) => {
+app.get('/Index', verificarAutenticacion(['Admin','User']), (req, res) => {
     res.sendFile(path.join(__dirname, '../../public', 'index.html'));
 });
 
