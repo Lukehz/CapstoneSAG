@@ -1003,16 +1003,19 @@ async function loadOptionsFilter(nameTable) {
         const sectorSelect = document.getElementById('filter_sector');
         sectorSelect.innerHTML = ''; // Limpiar el dropdown antes de llenarlo
 
+        // Agregar la opción "Seleccione una opción"
+        const defaultSectorOption = document.createElement('option');
+        defaultSectorOption.value = ''; // Valor vacío
+        defaultSectorOption.textContent = 'Seleccione una opción'; // Texto de la opción
+        sectorSelect.appendChild(defaultSectorOption); // Agregar al dropdown
+
         // Solo llenar sectores si nameTable es 'cuarentena'
         if (nameTable === 'cuarentena') {
             data.sectores.forEach(sector => {
                 const option = document.createElement('option');
                 option.value = sector.sector.split(", ")[1]; // Valor del ID del sector
-                
-                // Extraer solo el nombre de la comuna
                 const nombreComuna = sector.sector.split(", ")[1]; // Toma la parte después de ", "
                 option.textContent = nombreComuna; // Texto que se mostrará en el dropdown
-                
                 sectorSelect.appendChild(option); // Agrega la opción al dropdown
             });
         }
@@ -1023,17 +1026,20 @@ async function loadOptionsFilter(nameTable) {
             data.sectores.forEach(sector => {
                 const option = document.createElement('option');
                 option.value = sector.sector.split(", ")[1]; // Valor del ID del sector
-                
-                // Extraer solo el nombre de la comuna
                 const nombreComuna = sector.sector.split(", ")[1]; // Toma la parte después de ", "
                 option.textContent = nombreComuna; // Texto que se mostrará en el dropdown
-                
                 sectorSelect.appendChild(option); // Agrega la opción al dropdown
             });
 
             // Llenar el dropdown de fases
             const faseSelect = document.getElementById('filter_fase');
             faseSelect.innerHTML = ''; // Limpiar el dropdown antes de llenarlo
+
+            // Agregar la opción "Seleccione una opción"
+            const defaultFaseOption = document.createElement('option');
+            defaultFaseOption.value = ''; // Valor vacío
+            defaultFaseOption.textContent = 'Seleccione una opción'; // Texto de la opción
+            faseSelect.appendChild(defaultFaseOption); // Agregar al dropdown
 
             data.fases.forEach(fase => {
                 const option = document.createElement('option');
@@ -1045,6 +1051,12 @@ async function loadOptionsFilter(nameTable) {
             // Llenar el dropdown de cultivos
             const cultivoSelect = document.getElementById('filter_cultivo');
             cultivoSelect.innerHTML = ''; // Limpiar el dropdown antes de llenarlo
+
+            // Agregar la opción "Seleccione una opción"
+            const defaultCultivoOption = document.createElement('option');
+            defaultCultivoOption.value = ''; // Valor vacío
+            defaultCultivoOption.textContent = 'Seleccione una opción'; // Texto de la opción
+            cultivoSelect.appendChild(defaultCultivoOption); // Agregar al dropdown
 
             data.cultivos.forEach(cultivo => {
                 const option = document.createElement('option');

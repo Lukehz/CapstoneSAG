@@ -587,24 +587,12 @@ video {
   position: absolute;
 }
 
-.relative {
-  position: relative;
-}
-
-.mb-2 {
-  margin-bottom: 0.5rem;
-}
-
 .mb-4 {
   margin-bottom: 1rem;
 }
 
 .block {
   display: block;
-}
-
-.inline-block {
-  display: inline-block;
 }
 
 .flex {
@@ -730,10 +718,6 @@ video {
   padding-bottom: 0.5rem;
 }
 
-.pr-8 {
-  padding-right: 2rem;
-}
-
 .text-2xl {
   font-size: 1.5rem;
   line-height: 2rem;
@@ -742,11 +726,6 @@ video {
 .text-5xl {
   font-size: 3rem;
   line-height: 1;
-}
-
-.text-lg {
-  font-size: 1.125rem;
-  line-height: 1.75rem;
 }
 
 .font-bold {
