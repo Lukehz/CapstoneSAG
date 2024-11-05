@@ -117,7 +117,7 @@ async function loadItems(Table, sectors = [], phases = [], crops = [], registere
             <!-- Opciones dinámicas -->
         </select>
         `
-        addButton.onclick = () => openModal('provincia');
+        addButton.onclick = () => openModal('sector');
 
         // Añadir el event listener al botón de filtrar
         const filterButton = document.getElementById('filterButton');

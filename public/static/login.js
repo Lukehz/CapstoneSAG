@@ -1,32 +1,35 @@
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('Script de login cargado'); // Confirmar que el script se carga correctamente
+  console.log('Script de login cargado');
   
   document.getElementById('loginForm').addEventListener('submit', function(e) {
-    e.preventDefault(); // Prevenir el comportamiento por defecto del formulario
+      e.preventDefault();
 
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
 
-    // Hacer una solicitud POST con fetch para enviar las credenciales al backend
-    fetch('/api/auth/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ username, password })  // Serializar los datos como JSON
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.message === 'Sesión iniciada correctamente') {
-        // Redirigir según el rol del usuario
-        window.location.href = data.redirect;
-      } else {
-        document.getElementById('mensajeError').innerText = data.message;
-      }
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      document.getElementById('mensajeError').innerText = 'Ocurrió un error al iniciar sesión xdddddddddd.';
-    });
+      fetch('/api/auth/login', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ username, password })
+      })
+      .then(response => response.json())
+      .then(data => {
+          if (data.message === 'Sesión iniciada correctamente') {
+              // Guardar el ID del usuario en localStorage
+              localStorage.setItem('userId', data.userId);
+              // Opcional: guardar también el rol si lo necesitas
+              localStorage.setItem('userRole', data.rol);
+              // Redirigir según el rol del usuario
+              window.location.href = data.redirect;
+          } else {
+              document.getElementById('mensajeError').innerText = data.message;
+          }
+      })
+      .catch(error => {
+          console.error('Error:', error);
+          document.getElementById('mensajeError').innerText = 'Ocurrió un error al iniciar sesión';
+      });
   });
 });

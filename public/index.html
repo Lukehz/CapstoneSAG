@@ -11,17 +11,25 @@
   <link rel="stylesheet" href="styles/main.css">
 </head>
 <body>
+
+
     <div id="map" style="width: 100%; height: 100vh;"></div>
 
   
     <div id="cuarentena">
       <h2>Crear Cuarentena</h2>
       <select id="quarantine-type">
-        <option value="seleccionar">Seleccionar</option>
+        <option value="seleccionar">Seleccionar modo dibujo</option>
         <option value="trazado">Por Trazado</option>
         <option value="radio">Por Radio</option>
       </select>
-      <button id="create-quarantine">Crear cuarentena</button>
+      <div class="form-group">
+        <label for="sector-select">Sector:</label>
+        <select id="sector-select" class="form-control" required>
+          <option value="">Seleccionar</option>
+        </select>
+      </div>
+      <button id="cancel-quarantine" class="btn-quarantine">Cancelar cuarentena</button>
       <textarea id="quarantine-comment" placeholder="Escriba un comentario"></textarea>
       <input type="number" id="quarantine-radius" placeholder="Radio en metros" min="0" style="display: none;">
       <button id="save-quarantine">Guardar cuarentena</button>
@@ -52,7 +60,7 @@
  
 </div>
  <!--ola-->
-<button id="center-map" style="position: absolute; top: 5 00px; right: 20px; z-index: 5; padding: 10px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+<button id="center-map">
   Centrar Mapa
 </button>
 

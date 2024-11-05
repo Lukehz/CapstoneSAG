@@ -43,8 +43,8 @@ input {
 
 .sidenav {
   position: fixed;
-  top: 350px;
-  right: 20px; 
+  top: 30px;
+  left: 20px; 
   width: 250px;
   max-height: calc(100vh - 40px); /* Limita la altura del sidebar */
   overflow-y: auto; /* Permite scroll vertical */
@@ -132,4 +132,18 @@ input {
 
 .active + .panel {
   display: block;
+}
+
+
+#center-map {
+  position: absolute; 
+  top: 450px; 
+  right: 20px; 
+  z-index: 5; 
+  padding: 10px; 
+  background-color: #007bff; 
+  color: white; 
+  border: none; 
+  border-radius: 5px; 
+  cursor: pointer;
 }

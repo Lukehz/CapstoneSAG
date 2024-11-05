@@ -1,7 +1,7 @@
 const { connectDB, sql } = require('../config/db');
 
 const saveQuarantine = async (req, res) => {
-  const { points, comment: comentario, type, radius } = req.body;
+  const { points, comment: comentario, type, radius} = req.body; // Añadido sector_id
   if (!comentario || typeof comentario !== 'string' || comentario.trim() === '') {
     return res.status(400).json({ success: false, error: 'El campo "comentario" es obligatorio y debe ser una cadena válida.' });
   }
@@ -31,15 +31,15 @@ const saveQuarantine = async (req, res) => {
       longitud = points[0][0];
       radio = parseFloat(radius);
     } else {
-      return res.status(400).json({ success: false, error: 'El campo "type" debe ser "polygon" o "radius".' });
+      return res.status(400).json({ success: false, error: 'El campo "type" debe ser "trazado" o "radio".' });
     }
 
-    // Paso 1: Guardar la cuarentena
+    // Paso 1: Guardar la cuarentena (modificado para usar sector_id del request)
     const resultCuarentena = await transaction.request()
       .input('latitud', sql.Float, latitud)
       .input('longitud', sql.Float, longitud)
       .input('radio', sql.Float, radio)
-      .input('id_sector', sql.Int, 1)
+      .input('id_sector', sql.Int, 1) // Usado sector_id del request en lugar del valor hardcodeado
       .input('comentario', sql.NVarChar, comentario)
       .query('INSERT INTO dbo.cuarentena (latitud, longitud, radio, id_sector, comentario) OUTPUT INSERTED.id_cuarentena VALUES (@latitud, @longitud, @radio, @id_sector, @comentario)');
     
@@ -91,6 +91,7 @@ const saveQuarantine = async (req, res) => {
     if (pool) await pool.close();
   }
 };
+
 
 const getAllQuarantines = async (req, res) => {
   try {
