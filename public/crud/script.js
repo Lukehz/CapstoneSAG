@@ -27,28 +27,32 @@ async function loadItems(Table, sectors = [], phases = [], crops = [], registere
         loadOptionsFilter(nameTable);
         filters.innerHTML = `
         <button class="text-white font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded" id="filterButton">Filtrar</button>
-    
-        <h2 class="text-lg font-semibold mb-2">Seleccione la zona de interés</h2>
-    <select name="filter_sector" id="filter_sector" class="border rounded-md p-2 w-full" multiple>
-        <!-- Opciones dinámicas -->
-    </select>
-
-    <h2 class="text-lg font-semibold mb-2 mt-4">Seleccione una fase</h2>
-    <select name="filter_fase" id="filter_fase" class="border rounded-md p-2 w-full" multiple>
-        <!-- Opciones dinámicas -->
-    </select>
-
-    <h2 class="text-lg font-semibold mb-2 mt-4">Selecciona el tipo de cultivo</h2>
-    <select name="filter_cultivo" id="filter_cultivo" class="border rounded-md p-2 w-full" multiple>
-        <!-- Opciones dinámicas -->
-    </select>
-
-    <h2 class="text-lg font-semibold mb-2 mt-4">Seleccione si está registrada</h2>
-    <select name="filter_registrada" id="filter_registrada" class="border rounded-md p-2 w-full" multiple>
-        <option value="No Registrada">No Registrada</option>
-        <option value="Registrada">Registrada</option>
-    </select>
-        `
+        <div id="filters" class="flex flex-wrap gap-10 justify-center items-center">
+            <div class="flex flex-col w-60">
+                <select name="filter_sector" id="filter_sector" class="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-1 px-2 rounded leading-tight focus:outline-none focus:bg-white focus:border-blue-500">
+                    <option value="">Seleccione la zona de interés</option>
+                </select>
+            </div>
+            <div class="flex flex-col w-60">
+                <select name="filter_fase" id="filter_fase" class="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-1 px-2 rounded leading-tight focus:outline-none focus:bg-white focus:border-blue-500">
+                    <option value="">Seleccione una fase</option>
+                </select>
+            </div>
+            <div class="flex flex-col w-60">
+                <select name="filter_cultivo" id="filter_cultivo" class="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-1 px-2 rounded leading-tight focus:outline-none focus:bg-white focus:border-blue-500">
+                    <option value="">Selecciona el tipo de cultivo</option>
+                </select>
+            </div>
+            <div class="flex flex-col w-70">
+                <select name="filter_registrada" id="filter_registrada" class="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-1 px-2 rounded leading-tight focus:outline-none focus:bg-white focus:border-blue-500">
+                    <option value="">Seleccione si está registrada</option>
+                    <option value="No Registrada">No Registrada</option>
+                    <option value="Registrada">Registrada</option>
+                </select>
+            </div>
+        </div>
+        `;
+        ///fin test kosmi
         
         // Añadir el event listener al botón de filtrar
         const filterButton = document.getElementById('filterButton');
@@ -83,12 +87,15 @@ async function loadItems(Table, sectors = [], phases = [], crops = [], registere
         addButton.onclick = () => openModal('provincia');
         loadOptionsRegionFilter();
         filters.innerHTML = `
-        <button class="text-white font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded" id="filterButton">Filtrar</button>
-        <h2 class="text-lg font-semibold mb-2 mt-4">Seleccione una Region</h2>
-        <select name="filter_sector" id="filter_region" multiple>
-            <!-- Opciones dinámicas -->
-        </select>
-        `
+        <button class="text-white font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded" id="filterButton">Filtrar</button>    
+            <div id="filters" class="flex flex-wrap gap-10 justify-center items-center">
+            <div class="flex flex-col w-60">
+                <select name="filter_sector" id="filter_region" class="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-1 px-2 rounded leading-tight focus:outline-none focus:bg-white focus:border-blue-500">
+                    <option value="">Seleccione la zona de interés</option>
+                </select>
+            </div>
+            </div>
+            `
 
         // Añadir el event listener al botón de filtrar
         const filterButton = document.getElementById('filterButton');
@@ -112,10 +119,15 @@ async function loadItems(Table, sectors = [], phases = [], crops = [], registere
         loadOptionsSectorFilter();
         filters.innerHTML = `
         <button class="text-white font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded" id="filterButton">Filtrar</button>
-        <h2 class="text-lg font-semibold mb-2 mt-4">Seleccione una provincia</h2>
-        <select name="filter_sector" id="filter_provincia" multiple>
-            <!-- Opciones dinámicas -->
-        </select>
+    
+        <div id="filters" class="flex flex-wrap gap-10 justify-center items-center">
+            <div class="flex flex-col w-60">
+                <select name="filter_sector" id="filter_provincia" class="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-1 px-2 rounded leading-tight focus:outline-none focus:bg-white focus:border-blue-500">
+                    <option value="">Seleccione la zona de interés</option>
+                </select>
+            </div>
+        </div>
+        
         `
         addButton.onclick = () => openModal('sector');
 
@@ -141,18 +153,23 @@ async function loadItems(Table, sectors = [], phases = [], crops = [], registere
         addButton.onclick = () => openModal('cuarentena');
         loadOptionsFilter(nameTable);
         filters.innerHTML = `
+
         <button class="text-white font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded" id="filterButton">Filtrar</button>
-        <h2 class="text-lg font-semibold mb-2 mt-4">Seleccione un sector</h2>
-        <select name="filter_sector" id="filter_sector" multiple>
-            <option value="">Seleccione un Sector</option>
-            <!-- Opciones dinámicas -->
-        </select>
-        <select name="filter_sector" id="filter_radio">
-            <option value="">Todas las opciones</option>
-            <option value="Valores">Radio</option>
-            <option value="Trazado">Trazado</option>
-            <!-- Opciones dinámicas -->
-        </select>
+        <div id="filters" class="flex flex-wrap gap-10 justify-center items-center">
+            <div class="flex flex-col w-60">
+                <select name="filter_sector" id="filter_sector" class="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-1 px-2 rounded leading-tight focus:outline-none focus:bg-white focus:border-blue-500">
+                    <option value="">Seleccione la zona de interés</option>
+                </select>
+            </div>    
+            <div class="flex flex-col w-70">
+                <select name="filter_sector" id="filter_radio" class="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-1 px-2 rounded leading-tight focus:outline-none focus:bg-white focus:border-blue-500">
+                    <option value="">Todas las opciones</option>
+                    <option value="Valores">Radio</option>
+                    <option value="Trazado">Trazado</option>
+                </select>
+            </div>
+        </div>
+        
         `
 
         // Añadir el event listener al botón de filtrar
@@ -189,12 +206,15 @@ async function loadItems(Table, sectors = [], phases = [], crops = [], registere
 
         filters.innerHTML = `
         <button class="text-white font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded" id="filterButton">Filtrar</button>
-        <select name="filter_sector" id="filter_rol">
-            <option value="">Todos los roles</option>
-            <option value="Admin">Administrador</option>
-            <option value="User">Usuario</option>
-            <!-- Opciones dinámicas -->
-        </select>
+                <div id="filters" class="flex flex-wrap gap-10 justify-center items-center">
+                <div class="flex flex-col w-70">
+                <select name="filter_sector" id="filter_rol" class="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-1 px-2 rounded leading-tight focus:outline-none focus:bg-white focus:border-blue-500">
+                    <option value="">Todos los roles</option>
+                    <option value="Admin">Administrador</option>
+                    <option value="User">Usuario</option>
+                </select>
+            </div>
+        </div>
         `
 
         // Añadir el event listener al botón de filtrar
@@ -845,8 +865,8 @@ async function logout() {
             throw new Error('Error al cerrar sesión');
         }
 
-        // Si la sesión se cerró correctamente, recarga la página
-        window.location.reload();
+        // Si la sesión se cerró correctamente, redirige a la página de login
+        window.location.href = '/login';
     } catch (error) {
         console.error('Error:', error);
         alert('No se pudo cerrar la sesión. Intenta nuevamente.');
@@ -983,16 +1003,19 @@ async function loadOptionsFilter(nameTable) {
         const sectorSelect = document.getElementById('filter_sector');
         sectorSelect.innerHTML = ''; // Limpiar el dropdown antes de llenarlo
 
+        // Agregar la opción "Seleccione una opción"
+        const defaultSectorOption = document.createElement('option');
+        defaultSectorOption.value = ''; // Valor vacío
+        defaultSectorOption.textContent = 'Seleccione una opción'; // Texto de la opción
+        sectorSelect.appendChild(defaultSectorOption); // Agregar al dropdown
+
         // Solo llenar sectores si nameTable es 'cuarentena'
         if (nameTable === 'cuarentena') {
             data.sectores.forEach(sector => {
                 const option = document.createElement('option');
                 option.value = sector.sector.split(", ")[1]; // Valor del ID del sector
-                
-                // Extraer solo el nombre de la comuna
                 const nombreComuna = sector.sector.split(", ")[1]; // Toma la parte después de ", "
                 option.textContent = nombreComuna; // Texto que se mostrará en el dropdown
-                
                 sectorSelect.appendChild(option); // Agrega la opción al dropdown
             });
         }
@@ -1003,17 +1026,20 @@ async function loadOptionsFilter(nameTable) {
             data.sectores.forEach(sector => {
                 const option = document.createElement('option');
                 option.value = sector.sector.split(", ")[1]; // Valor del ID del sector
-                
-                // Extraer solo el nombre de la comuna
                 const nombreComuna = sector.sector.split(", ")[1]; // Toma la parte después de ", "
                 option.textContent = nombreComuna; // Texto que se mostrará en el dropdown
-                
                 sectorSelect.appendChild(option); // Agrega la opción al dropdown
             });
 
             // Llenar el dropdown de fases
             const faseSelect = document.getElementById('filter_fase');
             faseSelect.innerHTML = ''; // Limpiar el dropdown antes de llenarlo
+
+            // Agregar la opción "Seleccione una opción"
+            const defaultFaseOption = document.createElement('option');
+            defaultFaseOption.value = ''; // Valor vacío
+            defaultFaseOption.textContent = 'Seleccione una opción'; // Texto de la opción
+            faseSelect.appendChild(defaultFaseOption); // Agregar al dropdown
 
             data.fases.forEach(fase => {
                 const option = document.createElement('option');
@@ -1025,6 +1051,12 @@ async function loadOptionsFilter(nameTable) {
             // Llenar el dropdown de cultivos
             const cultivoSelect = document.getElementById('filter_cultivo');
             cultivoSelect.innerHTML = ''; // Limpiar el dropdown antes de llenarlo
+
+            // Agregar la opción "Seleccione una opción"
+            const defaultCultivoOption = document.createElement('option');
+            defaultCultivoOption.value = ''; // Valor vacío
+            defaultCultivoOption.textContent = 'Seleccione una opción'; // Texto de la opción
+            cultivoSelect.appendChild(defaultCultivoOption); // Agregar al dropdown
 
             data.cultivos.forEach(cultivo => {
                 const option = document.createElement('option');
@@ -1090,3 +1122,4 @@ async function loadOptionsRegionFilter() {
         }
     }
     
+
