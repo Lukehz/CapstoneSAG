@@ -4,7 +4,7 @@ const { sql, query } = require('../../config/db'); // Importa la funciónes pra 
 ***** CUARENTENA ******
  *************************/
 const getCuarentenas = async (req, res) => {
-    const sqlQuery = 'SELECT id, sector, latitud, longitud, [radio(Metros)] , motivo from vw_cuarentena ;';
+    const sqlQuery = 'SELECT id, sector, latitud, longitud, [radio(Metros)] , motivo, activa from vw_cuarentena ;';
     try {
         const result = await query(sqlQuery);
         res.json(result);
@@ -16,15 +16,15 @@ const getCuarentenas = async (req, res) => {
 // Crear un nuevo ítem
 const createCuarentena = async (req, res) => {
     // Extraer datos del cuerpo de la solicitud
-    const { latitud, longitud, radio, id_sector, comentario } = req.body;
+    const { latitud, longitud, radio, id_sector, comentario, activa } = req.body;
     
     //Si llega como contenido 'null' o vacio lo trasforma en null
     const radioValue = (radio === 'null' || radio === '') ? null : Number(radio);
 
     console.log('fuera de la condicion', req.body);
     const sqlQuery = `
-        INSERT INTO cuarentena (latitud, longitud, radio, id_sector, comentario) 
-        VALUES (@latitud, @longitud, @radio, @id_sector, @comentario)
+        INSERT INTO cuarentena (latitud, longitud, radio, id_sector, comentario, activa) 
+        VALUES (@latitud, @longitud, @radio, @id_sector, @comentario, @activa)
     `;
 
     try {
@@ -34,7 +34,8 @@ const createCuarentena = async (req, res) => {
             { name: 'longitud', type: sql.Float, value: longitud },
             { name: 'radio', type: sql.Int, value: radioValue },
             { name: 'id_sector', type: sql.Int, value: id_sector },
-            { name: 'comentario', type: sql.VarChar, value: comentario }
+            { name: 'comentario', type: sql.VarChar, value: comentario },
+            { name: 'activa', type: sql.Int, value: activa },
         ]);
 
         // Responder con el resultado de la inserción y código 201 (creado)
@@ -52,7 +53,7 @@ const getCuarentenaById = async (req, res) => {
 
     try {
         const sqlQuery = `
-            SELECT id_cuarentena, latitud, longitud, radio, id_sector, comentario 
+            SELECT id_cuarentena, latitud, longitud, radio, id_sector, comentario , activa
             FROM cuarentena 
             WHERE id_cuarentena = @id
         `;
@@ -78,7 +79,7 @@ const getCuarentenaById = async (req, res) => {
 // Actualizar un ítem
 const updateCuarentena = async (req, res) => {
     const { id } = req.params; // Obtiene el ID del ítem desde la URL
-    const { latitud, longitud, radio, id_sector, comentario } = req.body;
+    const { latitud, longitud, radio, id_sector, comentario, activa } = req.body;
 
 const radioValue = (radio === 'null' || radio === '') ? null : Number(radio);
     const sqlQuery = `
@@ -87,7 +88,8 @@ const radioValue = (radio === 'null' || radio === '') ? null : Number(radio);
             longitud = @longitud,
             radio = @radio,
             id_sector = @id_sector,
-            comentario = @comentario
+            comentario = @comentario,
+            activa = @activa
         WHERE id_cuarentena = @id
     `;
 
@@ -99,6 +101,7 @@ const radioValue = (radio === 'null' || radio === '') ? null : Number(radio);
             { name: 'radio', type: sql.Int, value: radioValue },
             { name: 'id_sector', type: sql.Int, value: id_sector },
             { name: 'comentario', type: sql.VarChar, value: comentario },
+            { name: 'activa', type: sql.Int, value: activa },
             { name: 'id', type: sql.Int, value: id }
         ]);
 

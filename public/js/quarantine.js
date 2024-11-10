@@ -68,6 +68,7 @@ document.getElementById('cancel-quarantine').addEventListener('click', cancelDra
 
 const saveQuarantine = async () => {
   const comment = getComment();
+  const idSector = document.getElementById("SelectComuna").value; // Obtener el id_sector desde el dropdown
   const type = quarantineCircle ? 'radius' : 'polygon';
   let points = [];
 
@@ -92,7 +93,8 @@ const saveQuarantine = async () => {
     points,
     comment,
     type,
-    radius: radius !== null ? radius : 0
+    radius: radius !== null ? radius : 0,
+    idSector // Usar idSector para guardar el id de la comuna en la base de datos
   };
 
   try {
@@ -910,6 +912,37 @@ window.addEventListener('beforeunload', () => {
   initializeQuarantineState();
 });
 
+document.addEventListener("DOMContentLoaded", function() {
+  console.log('DOM completamente cargado');
+  
+  const Select = document.getElementById("SelectComuna"); 
+  console.log('Elemento select encontrado:', Select);
+
+  if (Select) { 
+      fetch('/quarantines/comuna')  // Asegúrate de que esta URL coincida con la configuración en tu servidor
+          .then(response => {
+              console.log('Respuesta recibida:', response);
+              return response.json();
+          })
+          .then(data => {
+              console.log('Datos recibidos:', data);
+              if (data.success) {
+                  data.comunas.forEach(comuna => {
+                      const option = document.createElement("option");
+                      option.value = comuna.id_sector;
+                      option.textContent = comuna.comuna;
+                      Select.appendChild(option);
+                      console.log('Opción agregada:', comuna.comuna);
+                  });
+              } else {
+                  console.error("Error en los datos:", data.error);
+              }
+          })
+          .catch(error => console.error("Error al cargar las comunas:", error));
+  } else {
+      console.error("No se encontró el elemento SelectComuna");
+  }
+});
 
 
 
