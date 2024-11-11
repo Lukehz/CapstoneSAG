@@ -61,6 +61,10 @@ app.get('/Index', verificarAutenticacion(['Admin','User']), (req, res) => {
     res.sendFile(path.join(__dirname, '../../public', 'index.html'));
 });
 
+app.get('/xd', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../public', 'xd.html'));
+});
+
 // Middleware para servir archivos estáticos
 app.use(express.static(path.join(__dirname, '../../public')));
 
