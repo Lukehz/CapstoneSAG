@@ -2,10 +2,10 @@ const sql = require('mssql');
 
 // Configuración de conexión
 const config = {
-    user: 'Luc_hernandez_SQLLogin_1',
-    password: 'nus1f946z7',
-    server: 'ProyectoCapstone.mssql.somee.com',
-    database: 'ProyectoCapstone',
+    user: 'luchernandez',
+    password: 'Capstone-sag',
+    server: 'capstone-sag.database.windows.net',
+    database: 'capstone-sag',
     options: {
         encrypt: true,
         trustServerCertificate: true

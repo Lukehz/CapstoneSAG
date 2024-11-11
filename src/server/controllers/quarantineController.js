@@ -1,7 +1,7 @@
 const { connectDB, sql } = require('../config/db');
 
 const saveQuarantine = async (req, res) => {
-  const { points, comment: comentario, type, radius } = req.body;
+  const { points, comment: comentario, type, radius, idSector } = req.body;
   if (!comentario || typeof comentario !== 'string' || comentario.trim() === '') {
     return res.status(400).json({ success: false, error: 'El campo "comentario" es obligatorio y debe ser una cadena válida.' });
   }
@@ -34,14 +34,18 @@ const saveQuarantine = async (req, res) => {
       return res.status(400).json({ success: false, error: 'El campo "type" debe ser "polygon" o "radius".' });
     }
 
-    // Paso 1: Guardar la cuarentena
+    // Paso 1: Guardar la cuarentena con id_sector (comuna seleccionada)
     const resultCuarentena = await transaction.request()
       .input('latitud', sql.Float, latitud)
       .input('longitud', sql.Float, longitud)
       .input('radio', sql.Float, radio)
-      .input('id_sector', sql.Int, 1)
+      .input('id_sector', sql.Int, idSector) // Usar el idSector de la comuna seleccionada
       .input('comentario', sql.NVarChar, comentario)
-      .query('INSERT INTO dbo.cuarentena (latitud, longitud, radio, id_sector, comentario) OUTPUT INSERTED.id_cuarentena VALUES (@latitud, @longitud, @radio, @id_sector, @comentario)');
+      .query(`
+        INSERT INTO dbo.cuarentena (latitud, longitud, radio, id_sector, comentario)
+        OUTPUT INSERTED.id_cuarentena
+        VALUES (@latitud, @longitud, @radio, @id_sector, @comentario)
+      `);
     
     idCuarentena = resultCuarentena.recordset[0].id_cuarentena;
     console.log(`Cuarentena guardada con ID: ${idCuarentena}`);
@@ -91,6 +95,7 @@ const saveQuarantine = async (req, res) => {
     if (pool) await pool.close();
   }
 };
+
 
 const getAllQuarantines = async (req, res) => {
   try {
@@ -289,6 +294,37 @@ const getComentario = async (req, res) => {
     res.status(500).json({ error: 'Error al obtener información: ' + err.message });
   }
 };
+
+const getComuna = async (req, res) => {
+  console.log('Obteniendo comunas');
+  
+  try {
+    // Ejecutar la consulta SQL directamente con sql.query
+    const result = await sql.query(`
+      SELECT id_sector, comuna
+      FROM sector
+      ORDER BY comuna
+    `);
+
+    if (result.recordset.length > 0) {
+      res.json({
+        success: true,
+        comunas: result.recordset // Enviar las comunas como `recordset`
+      });
+    } else {
+      res.json({
+        success: false,
+        error: 'No se encontraron comunas'
+      });
+    }
+  } catch (error) {
+    console.error('Error al obtener comunas:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Error al obtener las comunas'
+    });
+  }
+};
   
       
 module.exports = {
@@ -296,6 +332,7 @@ module.exports = {
   getAllQuarantines,
   getAllRadiusQuarantines,
   deleteQuarantine,
-  getComentario
+  getComentario,
+  getComuna
 };
     

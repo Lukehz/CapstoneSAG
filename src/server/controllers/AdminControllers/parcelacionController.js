@@ -120,30 +120,48 @@ const updateParcelacion = async (req, res) => {
 
     const imagenBuffer = req.file ? req.file.buffer : null; // Convertir el buffer de la imagen a un formato adecuado, si es que se ha subido una imagen
 
-    const sqlQuery = `
+    // Crear la consulta SQL base, sin la columna de imagen
+    let sqlQuery = `
         UPDATE parcelacion 
         SET latitud = @latitud, 
             longitud = @longitud,
             id_sector = @id_sector, 
             id_fase = @id_fase, 
             id_cultivo = @id_cultivo, 
-            registrada = @registrada, 
-            imagen = @image_data 
+            registrada = @registrada
+    `;
+
+    // Si se recibe una imagen, se añade la columna imagen
+    if (imagenBuffer) {
+        sqlQuery += `,
+            imagen = @image_data
+        `;
+    }
+
+    // Añadir la condición WHERE
+    sqlQuery += `
         WHERE id_parcelacion = @id
     `;
 
     try {
-        // Crea los parámetros para la consulta
-        await query(sqlQuery, [
+        // Crea los parámetros para la consulta, incluyendo la columna imagen solo si se recibe imagen
+        const queryParams = [
             { name: 'latitud', type: sql.Float, value: latitud },
             { name: 'longitud', type: sql.Float, value: longitud },
             { name: 'id_sector', type: sql.Int, value: id_sector },
             { name: 'id_fase', type: sql.Int, value: id_fase },
             { name: 'id_cultivo', type: sql.Int, value: id_cultivo },
             { name: 'registrada', type: sql.Int, value: registrada },
-            { name: 'id', type: sql.Int, value: id }, // Añadir el ID a los parámetros
-            { name: 'image_data', type: sql.VarBinary, value: imagenBuffer ? imagenBuffer : null } // Asigna null si no hay imagen
-        ]);
+            { name: 'id', type: sql.Int, value: id } // Añadir el ID a los parámetros
+        ];
+
+        // Si se recibe una imagen, también añadir el parámetro de imagen
+        if (imagenBuffer) {
+            queryParams.push({ name: 'image_data', type: sql.VarBinary, value: imagenBuffer });
+        }
+
+        // Ejecutar la consulta
+        await query(sqlQuery, queryParams);
 
         res.sendStatus(204); // Responder con código 204 (sin contenido) si la actualización fue exitosa
     } catch (error) {

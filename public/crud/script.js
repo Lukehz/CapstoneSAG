@@ -126,7 +126,7 @@ async function loadItems(Table, sectors = [], phases = [], crops = [], registere
         </div>
         
         `
-        addButton.onclick = () => openModal('provincia');
+        addButton.onclick = () => openModal('sector');
 
         // Añadir el event listener al botón de filtrar
         const filterButton = document.getElementById('filterButton');
@@ -454,6 +454,11 @@ async function openModal(nameTable, item = null) {
             <input type="number" id="longitud" placeholder="Longitud" step="any" min="-180" max="180" required>
             <input type="number" id="radio" placeholder="Radio (Opcional)" name="radio" step="any">
             <input type="text" id="comentario" placeholder="Motivo" name="comentario" required>
+            <select name="activa" id="activa" required>
+                <option value="">Seleccione si está activa</option>
+                <option value="1">True</option>
+                <option value="0">False</option>
+            </select>
         `;
 
         try {
@@ -556,6 +561,8 @@ async function openModal(nameTable, item = null) {
             document.getElementById('longitud').value = item.longitud; // Llenar longitud
             document.getElementById('radio').value = item.radio; // Llenar radio
             document.getElementById('comentario').value = item.comentario; // Llenar comentario
+            const activaSelect = document.getElementById('activa');
+            activaSelect.value = item.activa ? '1' : '0';  // Asignar valor a "activa"
 
         } else if (nameTable === 'cultivo') {
             document.getElementById('itemId').value = item.id_cultivo; // Ajustar según el ID
@@ -682,6 +689,7 @@ document.getElementById('itemForm').addEventListener('submit', async (e) => {
         const radioValue = radio === '' ? null : Number(radio);
         formData.append('radio', radioValue);
         formData.append('comentario', document.getElementById('comentario').value);
+        formData.append('activa', document.getElementById('activa').value);
     } else if (nameTable === 'cultivo') {
         formData.append('nombre', document.getElementById('nombre').value);
     } else if (nameTable === 'fase') {

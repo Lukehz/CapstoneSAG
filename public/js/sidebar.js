@@ -113,7 +113,7 @@ let cuarentenaActiva = null; // Para mantener un registro de la cuarentena actua
 // Función para obtener cuarentenas desde la API
 async function obtenerCuarentenas() {
   try {
-    const response = await fetch('/api/get-comentario/quarantines');
+    const response = await fetch('/quarantines/get-comentario');
     console.log('Respuesta de la API:', response);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);

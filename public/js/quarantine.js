@@ -17,43 +17,58 @@ function getComment() {
 }
 
 const cancelDrawing = () => {
-  // Limpiar los puntos de cuarentena
-  quarantinePoints = [];
+   // Guardar el estado actual de los toggles
+   const radiusToggle = document.getElementById('quarantine-circle-toggle');
+   const polygonToggle = document.getElementById('quarantine-toggle');
+   const wasRadiusActive = radiusToggle && radiusToggle.checked;
+   const wasPolygonActive = polygonToggle && polygonToggle.checked;
+ 
+   clearQuarantineForm();
+   // Limpiar los puntos de cuarentena
+   quarantinePoints = [];
+ 
+   // Si hay un círculo de dibujo temporal, lo eliminamos
+   if (quarantineCircle && quarantineCircle.id === 'temp-quarantine-circle') {
+     map.removeLayer(quarantineCircle.id);
+     map.removeSource(quarantineCircle.id);
+     quarantineCircle = null;
+   }
+ 
+   // Eliminar los puntos y la línea del polígono temporal
+   if (map.getSource('quarantine-points')) {
+     map.removeLayer('quarantine-points');
+     map.removeSource('quarantine-points');
+   }
+   
+   if (map.getSource('quarantine-line')) {
+     map.removeLayer('quarantine-line');
+     map.removeSource('quarantine-line');
+   }
+   
+   if (map.getSource('quarantine-polygon')) {
+     map.removeLayer('quarantine-polygon');
+     map.removeSource('quarantine-polygon');
+   }
+ 
+   // Reiniciar el modo de dibujo
+   endDrawing();
+ 
+   // Restaurar el estado de visualización previo
+   if (wasRadiusActive) {
+     fetchAndDisplayQuarantines('radio');
+   } else if (wasPolygonActive) {
+     fetchAndDisplayQuarantines('trazado');
+   }
+ };
 
-  // Si hay un círculo de dibujo temporal, lo eliminamos
-  if (quarantineCircle && quarantineCircle.id === 'temp-quarantine-circle') {
-    map.removeLayer(quarantineCircle.id);
-    map.removeSource(quarantineCircle.id);
-    quarantineCircle = null;
-  }
+ // Asignar el evento al botón para cancelar el dibujo en proceso
+document.getElementById('cancel-quarantine').addEventListener('click', cancelDrawing);
 
-  // No reiniciamos quarantineCenter aquí
 
-  // Eliminar los puntos y la línea del polígono temporal
-  if (map.getSource('quarantine-points')) {
-    map.removeLayer('quarantine-points');
-    map.removeSource('quarantine-points');
-  }
-  
-  if (map.getSource('quarantine-line')) {
-    map.removeLayer('quarantine-line');
-    map.removeSource('quarantine-line');
-  }
-  
-  if (map.getSource('quarantine-polygon')) {
-    map.removeLayer('quarantine-polygon');
-    map.removeSource('quarantine-polygon');
-  }
-
-  // Reiniciar el modo de dibujo
-  endDrawing();
-
-  // Volver a mostrar las cuarentenas existentes
-  fetchAndDisplayQuarantines();
-};
 
 const saveQuarantine = async () => {
   const comment = getComment();
+  const idSector = document.getElementById("SelectComuna").value; // Obtener el id_sector desde el dropdown
   const type = quarantineCircle ? 'radius' : 'polygon';
   let points = [];
 
@@ -78,7 +93,8 @@ const saveQuarantine = async () => {
     points,
     comment,
     type,
-    radius: radius !== null ? radius : 0
+    radius: radius !== null ? radius : 0,
+    idSector // Usar idSector para guardar el id de la comuna en la base de datos
   };
 
   try {
@@ -93,7 +109,44 @@ const saveQuarantine = async () => {
     if (response.ok) {
       const result = await response.json();
       alert('Cuarentena guardada con éxito con ID: ' + result.id_cuarentena);
-      fetchAndDisplayQuarantines();
+      
+      document.getElementById('quarantine-type').value = 'seleccionar';
+      clearQuarantineForm();
+
+      // Activar el toggle correspondiente según el tipo de cuarentena
+      const radiusToggle = document.getElementById('quarantine-circle-toggle');
+      const polygonToggle = document.getElementById('quarantine-toggle');
+      
+      if (type === 'radius') {
+        if (radiusToggle) {
+          radiusToggle.checked = true;
+          // Desactivar el toggle de polígonos si está activo
+          if (polygonToggle) {
+            polygonToggle.checked = false;
+          }
+          // Ocultar la capa de polígonos si existe
+          if (map.getLayer('quarantine-layer')) {
+            map.setLayoutProperty('quarantine-layer', 'visibility', 'none');
+          }
+          fetchAndDisplayQuarantines('radio');
+        }
+      } else {
+        if (polygonToggle) {
+          polygonToggle.checked = true;
+          // Desactivar el toggle de radio si está activo
+          if (radiusToggle) {
+            radiusToggle.checked = false;
+          }
+          // Ocultar la capa de círculos si existe
+          if (map.getLayer('quarantine-circle-layer')) {
+            map.setLayoutProperty('quarantine-circle-layer', 'visibility', 'none');
+          }
+          fetchAndDisplayQuarantines('trazado');
+        }
+      }
+
+
+
       cancelDrawing(); // Cancelar el dibujo tras guardar
     } else {
       const errorData = await response.json();
@@ -107,6 +160,48 @@ const saveQuarantine = async () => {
 };
 
 document.getElementById('save-quarantine').addEventListener('click', saveQuarantine);
+
+// Nueva función para limpiar el formulario
+function clearQuarantineForm() {
+  // Limpiar el campo de comentario
+  const commentElement = document.getElementById('quarantine-comment');
+  if (commentElement) {
+    commentElement.value = '';
+  }
+
+  // Limpiar el campo de radio
+  const radiusElement = document.getElementById('quarantine-radius');
+  if (radiusElement) {
+    radiusElement.value = '';
+  }
+
+  // Resetear el tipo de cuarentena al valor por defecto
+  const typeElement = document.getElementById('quarantine-type');
+  if (typeElement) {
+    typeElement.value = ''; // O el valor por defecto que prefieras
+  }
+
+  // Limpiar variables globales
+  quarantinePoints = [];
+  quarantineCenter = null;
+  
+  // Si hay un círculo temporal, eliminarlo
+  if (quarantineCircle && quarantineCircle.id === 'temp-quarantine-circle') {
+    map.removeLayer(quarantineCircle.id);
+    map.removeSource(quarantineCircle.id);
+    quarantineCircle = null;
+  }
+
+  // Limpiar capas temporales del mapa
+  ['quarantine-points', 'quarantine-line', 'quarantine-polygon'].forEach(layerId => {
+    if (map.getLayer(layerId)) {
+      map.removeLayer(layerId);
+    }
+    if (map.getSource(layerId)) {
+      map.removeSource(layerId);
+    }
+  });
+}
 
 // Función para actualizar los puntos de cuarentena en el mapa
 const updateQuarantinePoints = () => {
@@ -224,25 +319,6 @@ function createQuarantineByRadius() {
   saveQuarantine(quarantineData);
 }
 
-// Update the create quarantine button event listener
-document.getElementById('create-quarantine').addEventListener('click', () => {
-  console.log("Botón de crear cuarentena clickeado");
-  const quarantineType = document.getElementById('quarantine-type').value;
-  const comment = document.getElementById('quarantine-comment').value.trim();
-
-  if (!comment) {
-    alert("Por favor, ingrese un comentario para la cuarentena.");
-    return;
-  }
-
-  if (quarantineType === 'trazado') {
-    createQuarantineByPolygon();
-  } else if (quarantineType === 'radio') {
-    createQuarantineByRadius();
-  } else {
-    alert("Por favor, seleccione un tipo de cuarentena válido.");
-  }
-});
 
 // Asegúrate de que esta función esté definida correctamente
 function generateCircle(center, radius) {
@@ -283,6 +359,16 @@ function startDrawing(mode) {
     map.removeSource(quarantineCircle.id);
     quarantineCircle = null;
   }
+  // Deshabilitar la interactividad de las capas durante el dibujo
+  if (map.getLayer('quarantine-circle-layer')) {
+    map.setLayoutProperty('quarantine-circle-layer', 'visibility', 'visible');
+    map.setFilter('quzarantine-circle-layer', ['==', 'id', '']);
+  }
+  if (map.getLayer('quarantine-layer')) {
+    map.setLayoutProperty('quarantine-layer', 'visibility', 'visible');
+    map.setFilter('quarantine-layer', ['==', 'id', '']);
+  }
+
   console.log(`Modo de dibujo activado: ${mode}`);
 }
 
@@ -292,7 +378,35 @@ function startDrawing(mode) {
 function endDrawing() {
   drawingMode = false;
   console.log("Modo de dibujo desactivado");
+  // Restaurar la interactividad de las capas
+  if (map.getLayer('quarantine-circle-layer')) {
+    map.setFilter('quarantine-circle-layer', null);
+  }
+  if (map.getLayer('quarantine-layer')) {
+    map.setFilter('quarantine-layer', null);
+  }
+
+  console.log("Modo de dibujo desactivado");
 }
+
+// Actualizar el manejador de eventos del mapa
+map.on('click', (e) => {
+  if (!drawingMode) return;
+
+  // Si estamos en modo dibujo, prevenir que se propague el evento a otras capas
+  e.originalEvent.stopPropagation();
+  
+  const quarantineType = document.getElementById('quarantine-type').value;
+  if (quarantineType === 'radio') {
+    quarantineCenter = [e.lngLat.lng, e.lngLat.lat];
+    updateQuarantineCircle();
+  } else if (quarantineType === 'trazado') {
+    quarantinePoints.push({ coords: [e.lngLat.lng, e.lngLat.lat] });
+    updateQuarantinePoints();
+    updateQuarantinePolygon();
+  }
+});
+
 
 function updateQuarantineCircle() {
   if (!quarantineCenter) return;
@@ -330,17 +444,6 @@ function updateQuarantineCircle() {
 map.on('click', 'quarantine-points', (e) => {
   const feature = e.features[0];
   const coordinates = feature.geometry.coordinates.slice();
-  
-  // Pop up con la información de la cuarentena
-  const popup = new mapboxgl.Popup()
-    .setLngLat(coordinates)
-    .setHTML(`
-      <h4>Información de la Cuarentena</h4>
-      <p>Tipo: ${feature.properties.type}</p>
-      <p>Comentario: ${feature.properties.comment}</p>
-      <button id="delete-quarantine-${feature.properties.id}">Eliminar Cuarentena</button>
-    `)
-    .addTo(map);
 
   // Manejador de evento para eliminar la cuarentena
   document.getElementById(`delete-quarantine-${feature.properties.id}`).addEventListener('click', async () => {
@@ -360,8 +463,8 @@ map.on('click', 'quarantine-points', (e) => {
       }
       popup.remove();
     }
-  });
-});
+  }); 
+}); 
 
 document.getElementById('quarantine-type').addEventListener('change', function() {
   const radiusInput = document.getElementById('quarantine-radius');
@@ -379,7 +482,6 @@ document.getElementById('quarantine-type').addEventListener('change', function()
 
 document.getElementById('quarantine-radius').addEventListener('input', updateQuarantineCircle);
 
-document.getElementById('create-quarantine').addEventListener('click', saveQuarantine);
 
 map.on('click', (e) => {
   if (!drawingMode) return;
@@ -524,13 +626,14 @@ function fetchAndDisplayQuarantines(type = null) {
     });
 
     map.on('click', 'quarantine-circle-layer', (e) => {
+      if (drawingMode) return;
       if (!e.features.length) return;
     
       const feature = e.features[0];
       const properties = feature.properties;
     
       // Cerrar el popup anterior si existe
-      if (currentPopup) {
+       if (currentPopup) {
         currentPopup.remove();
       }
     
@@ -558,6 +661,7 @@ function fetchAndDisplayQuarantines(type = null) {
         .addTo(map);
     });
     map.on('click', 'quarantine-layer', (e) => {
+      if (drawingMode) return;
       if (!e.features.length) return;
     
       const feature = e.features[0];
@@ -588,7 +692,7 @@ function fetchAndDisplayQuarantines(type = null) {
       currentPopup = new mapboxgl.Popup()
         .setLngLat(e.lngLat)
         .setDOMContent(popupContent)
-        .addTo(map);
+        .addTo(map); 
     });
     
   }    
@@ -618,8 +722,24 @@ function fetchAndDisplayQuarantines(type = null) {
         if (currentPopup) {
           currentPopup.remove();
         }
-        // Actualizar el mapa
-        fetchAndDisplayQuarantines();
+
+        const radiusToggle = document.getElementById('quarantine-circle-toggle');
+        const polygonToggle = document.getElementById('quarantine-toggle');
+
+        if (radiusToggle && radiusToggle.checked) {
+          fetchAndDisplayQuarantines('radio');
+        } else if (polygonToggle && polygonToggle.checked) {
+          fetchAndDisplayQuarantines('trazado');
+        } else {
+          // Si ningún toggle está activo, no mostramos nada
+          if (map.getLayer('quarantine-circle-layer')) {
+            map.setLayoutProperty('quarantine-circle-layer', 'visibility', 'none');
+          }
+          if (map.getLayer('quarantine-layer')) {
+            map.setLayoutProperty('quarantine-layer', 'visibility', 'none');
+          }
+        }
+        
         alert('Cuarentena eliminada con éxito');
       } else {
         throw new Error(data.message || 'Error al eliminar la cuarentena');
@@ -636,27 +756,34 @@ function fetchAndDisplayQuarantines(type = null) {
 
 
 function toggleQuarantines() {
-  const isVisible = this.checked;
-  map.setLayoutProperty('quarantine-layer', 'visibility', isVisible ? 'visible' : 'none');
-  console.log(isVisible ? 'Cuarentenas mostradas en el mapa.' : 'Cuarentenas ocultadas del mapa.');
+  const quarantineCheckbox = document.getElementById('quarantine-toggle');
+  const isChecked = quarantineCheckbox.checked;
+
+  if (isChecked) {
+    console.log('Mostrando trazados de cuarentena');
+    fetchAndDisplayQuarantines(); // Muestra solo las cuarentenas con radio
+  } else {
+    console.log('Ocultando trazados de cuarentena');
+    if (map.getLayer('quarantine-layer')) {
+      map.setLayoutProperty('quarantine-layer', 'visibility', 'none'); // Oculta la capa
+    }
+  }
 }
 
+// Asignar el evento al checkbox
 document.addEventListener('DOMContentLoaded', () => {
   const quarantineCheckbox = document.getElementById('quarantine-toggle');
   
-  // Verifica si el checkbox existe antes de agregar el evento
   if (quarantineCheckbox) {
-    quarantineCheckbox.checked = false; // Establece el estado inicial
     quarantineCheckbox.addEventListener('change', toggleQuarantines);
   } else {
     console.error('El checkbox con id "quarantine-toggle" no fue encontrado.');
   }
-  
-  // Cargar las cuarentenas al iniciar
-  fetchAndDisplayQuarantines();
-
-
 });
+
+
+
+
 
 // Modificación de la función toggleQuarantineCircle
 // Modificación de la función toggleQuarantineCircle
@@ -686,6 +813,140 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+// Función auxiliar para activar un toggle y actualizar la visualización
+function activateToggle(type) {
+  const radiusToggle = document.getElementById('quarantine-circle-toggle');
+  const polygonToggle = document.getElementById('quarantine-toggle');
+  
+  if (type === 'radio') {
+    if (radiusToggle) {
+      radiusToggle.checked = true;
+      if (polygonToggle) {
+        polygonToggle.checked = false;
+      }
+      toggleQuarantineCircle();
+    }
+  } else {
+    if (polygonToggle) {
+      polygonToggle.checked = true;
+      if (radiusToggle) {
+        radiusToggle.checked = false;
+      }
+      toggleQuarantines();
+    }
+  }
+}
+
+// Nueva función de inicialización
+function initializeQuarantineState() {
+  // Resetear variables globales
+  drawingMode = false;
+  quarantinePoints = [];
+  quarantineCircle = null;
+  quarantineCenter = null;
+  isDeleting = false;
+  currentPopup = null;
+
+  // Resetear formularios
+  const commentElement = document.getElementById('quarantine-comment');
+  if (commentElement) {
+    commentElement.value = '';
+  }
+
+  const radiusElement = document.getElementById('quarantine-radius');
+  if (radiusElement) {
+    radiusElement.value = '';
+    radiusElement.style.display = 'none';
+  }
+
+  const typeElement = document.getElementById('quarantine-type');
+  if (typeElement) {
+    typeElement.value = 'seleccionar';
+  }
+
+  // Resetear toggles
+  const radiusToggle = document.getElementById('quarantine-circle-toggle');
+  const polygonToggle = document.getElementById('quarantine-toggle');
+  
+  if (radiusToggle) {
+    radiusToggle.checked = false;
+  }
+  
+  if (polygonToggle) {
+    polygonToggle.checked = false;
+  }
+
+  // Limpiar capas del mapa
+  const layersToRemove = [
+    'quarantine-points',
+    'quarantine-line',
+    'quarantine-polygon',
+    'temp-quarantine-circle'
+  ];
+
+  layersToRemove.forEach(layerId => {
+    if (map.getLayer(layerId)) {
+      map.removeLayer(layerId);
+    }
+    if (map.getSource(layerId)) {
+      map.removeSource(layerId);
+    }
+  });
+
+  // Ocultar capas de cuarentena
+  if (map.getLayer('quarantine-circle-layer')) {
+    map.setLayoutProperty('quarantine-circle-layer', 'visibility', 'none');
+  }
+  
+  if (map.getLayer('quarantine-layer')) {
+    map.setLayoutProperty('quarantine-layer', 'visibility', 'none');
+  }
+}
 
 
-export { quarantinePoints, saveQuarantine, startDrawing, endDrawing };
+// Agregar evento para cuando se carga la página
+document.addEventListener('DOMContentLoaded', initializeQuarantineState);
+
+// Agregar evento para cuando se recarga la página
+window.addEventListener('beforeunload', () => {
+  initializeQuarantineState();
+});
+
+document.addEventListener("DOMContentLoaded", function() {
+  console.log('DOM completamente cargado');
+  
+  const Select = document.getElementById("SelectComuna"); 
+  console.log('Elemento select encontrado:', Select);
+
+  if (Select) { 
+      fetch('/quarantines/comuna')  // Asegúrate de que esta URL coincida con la configuración en tu servidor
+          .then(response => {
+              console.log('Respuesta recibida:', response);
+              return response.json();
+          })
+          .then(data => {
+              console.log('Datos recibidos:', data);
+              if (data.success) {
+                  data.comunas.forEach(comuna => {
+                      const option = document.createElement("option");
+                      option.value = comuna.id_sector;
+                      option.textContent = comuna.comuna;
+                      Select.appendChild(option);
+                      console.log('Opción agregada:', comuna.comuna);
+                  });
+              } else {
+                  console.error("Error en los datos:", data.error);
+              }
+          })
+          .catch(error => console.error("Error al cargar las comunas:", error));
+  } else {
+      console.error("No se encontró el elemento SelectComuna");
+  }
+});
+
+
+
+
+
+
+export { quarantinePoints, saveQuarantine, startDrawing, endDrawing, initializeQuarantineState};

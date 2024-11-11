@@ -18,6 +18,8 @@ const { verificarAutenticacion } = require('./Middlewares/authMiddleware');
 //Rutas nicol
 const parcelasRoutes = require('./Routes/parcelasRoutes');
 const quarantineRoutes = require('./Routes/quarantineRoutes');
+//Rutas perfil
+const perfilRoutes = require('./Routes/AdminRoutes/perfilRoutes');
 
 // Inicializar la aplicación Express
 const app = express();
@@ -87,7 +89,12 @@ app.use('/api/auth', authRoutes);
 //app.use('/api/crud', crudRoutes); // Aquí añades tus rutas de CRUD
 // Exportar la aplicación para su uso en server.js
 
+// Ruta para servir perfil.html
+app.get('/perfil', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../public','perfil.html'));
+});
 
+app.use('/perfil', perfilRoutes);
 
 // Rutas Nicole
 app.use('/api', parcelasRoutes);
