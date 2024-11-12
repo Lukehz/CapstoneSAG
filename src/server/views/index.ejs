@@ -1,0 +1,76 @@
+<!-- Contenedor del mapa -->
+<div id="map" style="width: 100%; height: 100vh;"></div>
+
+<!-- Panel de Cuarentena -->
+<div id="cuarentena" class="absolute top-4 left-4 bg-white p-4 rounded-lg shadow-lg w-72 z-10">
+  <h2 class="text-lg font-bold mb-2">Crear Cuarentena</h2>
+  <select id="quarantine-type" class="w-full mb-2 p-2 border rounded bg-white">
+      <option value="seleccionar">Seleccionar</option>
+      <option value="trazado">Por Trazado</option>
+      <option value="radio">Por Radio</option>
+  </select>
+  <button id="create-quarantine" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded mb-2 w-full transition-colors">
+      Crear cuarentena
+  </button>
+  <textarea 
+      id="quarantine-comment" 
+      class="w-full p-2 border rounded mb-2 resize-none" 
+      placeholder="Escriba un comentario"
+      rows="3"
+  ></textarea>
+  <input 
+      type="number" 
+      id="quarantine-radius" 
+      class="w-full p-2 border rounded mb-2 hidden" 
+      placeholder="Radio en metros" 
+      min="0"
+  >
+  <button id="save-quarantine" class="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded w-full transition-colors">
+      Guardar cuarentena
+  </button>
+</div>
+
+<!-- Sidebar de Filtros -->
+<div class="sidenav absolute top-4 right-4 bg-white p-4 rounded-lg shadow-lg w-72 z-10">
+  <h2 class="text-lg font-bold mb-4">Filtros</h2>
+  <div id="controls" class="space-y-2">
+      <label class="flex items-center space-x-2">
+          <input type="checkbox" id="quarantine-toggle" class="rounded border-gray-300 text-blue-500 focus:ring-blue-500">
+          <span>Mostrar trazado de cuarentena</span>
+      </label>
+      <label class="flex items-center space-x-2">
+          <input type="checkbox" id="quarantine-circle-toggle" class="rounded border-gray-300 text-blue-500 focus:ring-blue-500">
+          <span>Mostrar Círculo de Cuarentena</span>
+      </label>
+      <label class="flex items-center space-x-2">
+          <input type="checkbox" id="parcela-toggle" class="rounded border-gray-300 text-blue-500 focus:ring-blue-500">
+          <span>Mostrar parcelas</span>
+      </label>
+  </div>
+
+  <h2 class="text-lg font-bold mt-6 mb-2">Información</h2>
+  <div id="parcelacion-panel" class="mb-4 max-h-48 overflow-y-auto">
+      <!-- Aquí se cargarán las parcelas dinámicamente -->
+  </div>
+  <div id="cuarentena-panel" class="max-h-48 overflow-y-auto">
+      <!-- Aquí se cargarán las cuarentenas dinámicamente -->
+  </div>
+</div>
+
+<!-- Botón Centrar Mapa -->
+<button 
+  id="center-map" 
+  class="absolute top-20 right-80 z-10 py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded-lg shadow-lg transition-colors"
+>
+  Centrar Mapa
+</button>
+</div>
+
+<!-- Scripts del mapa -->
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.12.0/mapbox-gl.js"></script>
+<script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.2/mapbox-gl-geocoder.min.js"></script>
+<script type="module" src="js/map.js"></script>
+<script type="module" src="js/quarantine.js"></script>
+<script type="module" src="js/parcelas.js"></script>
+<script type="module" src="js/api.js"></script>
+<script type="module" src="js/sidebar.js"></script>
