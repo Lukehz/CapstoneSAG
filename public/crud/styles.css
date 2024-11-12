@@ -1,0 +1,20 @@
+.nav-button {
+    min-height: 2.5rem;
+}
+.tabs-height {
+    height: 6rem;
+}
+.table-height {
+    height: 24rem;
+}
+#fix_tamano{
+    min-height: 2.5rem;
+}
+.modal {
+background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-container {
+max-height: 90vh;
+overflow-y: auto;
+}
