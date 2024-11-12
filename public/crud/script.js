@@ -331,7 +331,8 @@ function viewImage(itemId) {
     const modalImage = document.getElementById('modalImage');
     if (modalImage) { // Verifica que el elemento existe
         modalImage.src = imageUrl; // Asigna la URL de la imagen al modal
-        document.getElementById('imageModal').style.display = 'block'; // Muestra el modal
+        document.getElementById('imageModal').style.display = 'flex'; // Muestra el modal
+        document.getElementById('imageModal').style.backgroundColor = 'rgb(0, 0, 0, 0.5)'; // Muestra el modal
     } else {
         console.error('El elemento modalImage no se encuentra en el DOM.');
     }
@@ -593,7 +594,8 @@ async function openModal(nameTable, item = null) {
         }
     }
 
-    modal.style.display = 'block'; // Mostrar modal
+    modal.style.display = 'flex'; // Mostrar modal
+    modal.style.backgroundColor = 'rgb(0, 0, 0, 0.5)';
 }
 
 // Función para cerrar el modal y reiniciar el formulario

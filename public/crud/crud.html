@@ -25,6 +25,19 @@
                     </div>
                 </div>
 
+                <div>
+                    <a href="/perfil">
+                      <button class="text-black-700 font-semibold hover:text-black py-2 px-4 border border-blue-500 hover:border-black rounded">
+                          Ir al Perfil
+                      </button>
+                  </a>
+                  <a href="/index.html">
+                      <button class="text-black-700 font-semibold hover:text-black py-2 px-4 border border-blue-500 hover:border-black rounded">
+                        Ir al Mapa
+                      </button>
+                    </a>
+                    </div>
+
                 <div class="block w-full overflow-x-auto">
                     <div class="px-4 py-3">
                         <div class="flex justify-end mb-4">
@@ -111,39 +124,33 @@
             </div>
         </div>
     </div>
-    
+
+
 <!-- Modal para agregar/actualizar parcelación -->
 <div id="myModal" class="modal fixed w-full h-full top-0 left-0 flex items-center justify-center hidden">
-    <div class="modal-overlay absolute w-full h-full "></div>
+    <div class="modal-overlay absolute w-full h-full opacity-50"></div>
+    
     <div class="modal-container bg-white w-11/12 md:max-w-md mx-auto rounded shadow-lg z-50 overflow-y-auto">
         <div class="modal-content py-4 text-left px-6">
             <div class="flex justify-between items-center pb-3">
-                <p id="modalTitle" class="text-2xl font-bold">Agregar Item</p>
-                <button class="modal-close cursor-pointer z-50 right-4 top-4" onclick="closeModal()">
+                <h2 id="modalTitle" class="text-2xl font-bold">Agregar Item</h2>
+                <button class="modal-close cursor-pointer z-50" onclick="closeModal()">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
+
             <form id="itemForm">
-                <input type="hidden" id="itemId">
-                <div id="formFields">
-                    <!-- Los campos del formulario se llenarán aquí dinámicamente -->
+                <div id="formFields" class="space-y-4">
+                    <!-- Los campos del formulario se llenarán aquí -->
                 </div>
-                <button type="submit" id="submitButton" class="bg-indigo-500 text-white text-xs font-bold uppercase px-3 py-1 rounded outline-none focus:outline-none mr-1 mb-1 mt-4 w-full no-hover">Agregar Item</button>
+                <button type="submit" id="submitButton" class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full">
+                    Agregar Item
+                </button>
             </form>
         </div>
     </div>
-
-    <a href="/perfil">
-      <button style="padding: 10px 20px; background-color: #4CAF50; color: white; border: none; cursor: pointer;">
-          Ir al Perfil
-      </button>
-  </a>
-  <a href="/index.html">
-      <button style="padding: 10px 20px; background-color: #4CAF50; color: white; border: none; cursor: pointer; right: 20px;">
-        Ir al Mapa
-      </button>
-    </a>
-
+</div>
+    
     <script src="script.js"></script>
 </body>
 </html>
