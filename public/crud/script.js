@@ -274,6 +274,11 @@ async function loadItems(Table, sectors = [], phases = [], crops = [], registere
             // Definir encabezados según los datos
             const headers = Object.keys(items[0]); // Obtener claves del primer objeto
             headers.forEach((header, index) => {
+                /*
+                // Si estamos trabajando con la tabla de usuarios, omitimos la columna 'password'
+            if (nameTable === 'usuario' && header === 'password') {
+                return; // Salir de la iteración sin agregar esta columna
+            }    */
                 const th = document.createElement('th'); // Crear un nuevo encabezado
                 th.textContent = header.charAt(0).toUpperCase() + header.slice(1); // Capitalizar
                 tableHeaders.appendChild(th); // Agregar encabezado a la tabla
@@ -292,13 +297,27 @@ async function loadItems(Table, sectors = [], phases = [], crops = [], registere
             thAcciones.textContent = 'Acciones';
             tableHeaders.appendChild(thAcciones);
             }
-            // Poblamos las filas
-            items.forEach(item => {
-                const row = document.createElement('tr'); // Crear una nueva fila
-                headers.forEach((header, index) => {
-                    const td = document.createElement('td'); // Crear una nueva celda
-                    td.textContent = item[header]; // Asignar valor del item
-                    row.appendChild(td); // Agregar celda a la fila
+  // Poblamos las filas
+  items.forEach(item => {
+    const row = document.createElement('tr'); // Crear una nueva fila
+
+    // Crear celdas para cada encabezado
+    headers.forEach((header, index) => {
+        // Evitar incluir la columna 'password' en la tabla de 'usuarios'
+        if (nameTable === 'usuarios' && header === 'password') {
+            return; // Salir de la iteración sin crear una celda para 'password'
+        }
+
+        const td = document.createElement('td'); // Crear una nueva celda
+
+        // Si la columna es 'password', reemplazar su valor por '************'
+        if (header === 'password') {
+            td.textContent = '************'; // Reemplazar con asteriscos
+        } else {
+            td.textContent = item[header]; // Asignar valor del item
+        }
+
+        row.appendChild(td); // Agregar celda a la fila
                     if (nameTable === 'parcelacion') {
                     // Si estamos en la tercera columna, añadimos la celda de imagen después
                     if (index === 2) {
@@ -489,7 +508,11 @@ async function openModal(nameTable, item = null) {
         `;
     } else if (nameTable === 'usuario') {
         title.textContent = item ? 'Editar Usuario' : 'Agregar Usuario';
-        
+            // Campos para Usuario
+        let passwordField = '';
+        if (!item) {  // Solo mostrar el campo de contraseña si es creación (item es null)
+            passwordField = `<input type="password" id="password" placeholder="Password" name="password" required>`;
+        }
         // Campos para Usuario
         formFields.innerHTML = `
             <input type="hidden" id="itemId"> <!-- Campo oculto para el ID -->
@@ -504,7 +527,7 @@ async function openModal(nameTable, item = null) {
                 <option value="User">Usuario</option>
             </select>
             <input type="text" id="usuario" placeholder="Nombre de usuario" name="usuario" required>
-            <input type="password" id="password" placeholder="Password" name="password" required> <!-- CON ESTA LINEA DA UNA ADVERTENSIA DE ItemId duplicado, Pero solo con esta linea -->
+            ${passwordField}  <!-- Solo se incluirá el campo de password si es creación -->
         `;
     }
     
@@ -586,7 +609,7 @@ async function openModal(nameTable, item = null) {
             console.log('ID del ítem:', document.getElementById('itemId').value); // Verificación del ID
 
             document.getElementById('correo').value = item.correo;
-            document.getElementById('password').value = item.password;
+            //document.getElementById('password').value = item.password;
             document.getElementById('usuario').value = item.usuario;
             document.getElementById('rut').value = item.rut;
             document.getElementById('dv_rut').value = item.dv_rut;
@@ -702,7 +725,7 @@ document.getElementById('itemForm').addEventListener('submit', async (e) => {
     } else if (nameTable === 'usuario') {
         formData.append('correo', document.getElementById('correo').value);
         formData.append('usuario', document.getElementById('usuario').value);
-        formData.append('password', document.getElementById('password').value);
+        //formData.append('password', document.getElementById('password').value);
         formData.append('rut', document.getElementById('rut').value);
         formData.append('dv_rut', document.getElementById('dv_rut').value);
         formData.append('nombre', document.getElementById('nombre').value);

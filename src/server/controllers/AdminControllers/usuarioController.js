@@ -1,4 +1,5 @@
 const { sql, query } = require('../../config/db'); // Importa la funciónes pra consultas y sql para trabar con SQL Server
+const bcrypt = require('bcryptjs');
 
 /************************   
 ***** USUARIO ******
@@ -20,6 +21,9 @@ const createUsuario = async (req, res) => {
 
     console.log(req.body);
 
+    const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
     // Primero, verificar si el RUT ya existe en la base de datos
     const checkRutQuery = `
         SELECT COUNT(*) AS count FROM USUARIO WHERE rut = @rut
@@ -37,6 +41,10 @@ const createUsuario = async (req, res) => {
             return res.status(400).json({ error: errorMessage });
         }
 
+    // 2. Hashear la contraseña
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
     const sqlQuery = `
         INSERT INTO USUARIO (correo, password, usuario, rut, dv_rut, nombre, apellido, rol) 
         VALUES (@correo, @password, @usuario, @rut, @dv_rut, @nombre, @apellido, @rol)
@@ -45,7 +53,7 @@ const createUsuario = async (req, res) => {
         // Ejecutar la consulta SQL con los parámetros correspondientes
         const result = await query(sqlQuery, [
             { name: 'correo', type: sql.VarChar, value: correo },
-            { name: 'password', type: sql.VarChar, value: password },
+            { name: 'password', type: sql.VarChar, value: hashedPassword }, // Usar la contraseña hasheada
             { name: 'usuario', type: sql.VarChar, value: usuario },
             { name: 'rut', type: sql.Int, value: rut }, // Asegúrate de convertirlo al tipo correcto
             { name: 'dv_rut', type: sql.Char, value: dv_rut },
@@ -96,14 +104,13 @@ const getUsuarioById = async (req, res) => {
 // Actualizar un ítem
 const updateUsuario = async (req, res) => {
     const { id } = req.params; // Obtiene el ID del ítem desde la URL
-    const { correo, password, usuario, rut, dv_rut, nombre, apellido, rol } = req.body;
+    const { correo, usuario, rut, dv_rut, nombre, apellido, rol } = req.body;
     
     console.log(req.body);
 
     const sqlQuery = `
         UPDATE usuario 
         SET correo = @correo,
-            password =  @password,
             usuario = @usuario,
             rut = @rut,
             dv_rut = @dv_rut,
@@ -117,7 +124,7 @@ const updateUsuario = async (req, res) => {
         // Crea los parámetros para la consulta
         await query(sqlQuery, [
             { name: 'correo', type: sql.VarChar, value: correo },
-            { name: 'password', type: sql.VarChar, value: password },
+            //{ name: 'password', type: sql.VarChar, value: password },
             { name: 'usuario', type: sql.VarChar, value: usuario },
             { name: 'rut', type: sql.Int, value: rut }, // Asegúrate de convertirlo al tipo correcto
             { name: 'dv_rut', type: sql.Char, value: dv_rut },
