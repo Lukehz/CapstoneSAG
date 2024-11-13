@@ -33,8 +33,3 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-// Opcional: Añadir función para cerrar sesión
-function cerrarSesion() {
-    localStorage.removeItem('userId');
-    window.location.href = '/login';
-}

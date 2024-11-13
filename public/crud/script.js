@@ -21,7 +21,7 @@ async function loadItems(Table, sectors = [], phases = [], crops = [], registere
     if (nameTable === 'parcelacion') {
         crudTitle.textContent = 'Gestión de Parcelaciones';
         crudTitle.className = 'text-5xl font-bold';
-        addButton.textContent = 'Agregar Parcelación';
+        addButton.textContent = '+';
         addButton.className = 'text-black font-semibold hover:text-black py-2 px-4 border border-blue-500 hover:border-black rounded';
         addButton.onclick = () => openModal('parcelacion');
         loadOptionsFilter(nameTable);
@@ -362,7 +362,7 @@ async function openModal(nameTable, item = null) {
 
     // Configuración de campos y título según la tabla seleccionada
     if (nameTable === 'parcelacion') {
-        title.textContent = item ? 'Editar Parcelación' : 'Agregar Parcelación';
+        title.textContent = item ? 'Editar Parcelación' : '+';
         
     
         // Campos para Parcelación
