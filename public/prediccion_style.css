@@ -1,0 +1,99 @@
+/* prediccion_styles.css */
+
+/* Estilos generales */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+/* Contenedor principal */
+.prediction-wrapper {
+    max-width: 900px;
+    margin: 2rem auto;
+    display: flex;
+    padding: 2rem;
+}
+
+/* Sección de carga de imagen */
+.image-upload {
+    width: 45%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+/* Input de archivo */
+.input-file {
+    padding: 0.5rem;
+    border: 1px solid #cbd5e0;
+    border-radius: 0.375rem;
+    width: 100%;
+    text-align: center;
+}
+
+/* Botón de envío */
+.submit-button {
+    background-color: #5a67d8;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.375rem;
+    margin-top: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.submit-button:hover {
+    background-color: #434190;
+}
+
+/* Vista previa de la imagen */
+.image-preview {
+    width: 100%;
+    height: auto;
+    border: 1px solid #cbd5e0;
+    border-radius: 0.375rem;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 1rem;
+}
+
+.image-preview img {
+    max-width: 100%;
+    max-height: 250px;
+    object-fit: cover;
+}
+
+/* Animación de carga */
+.loading {
+    margin-top: 1rem;
+    font-size: 1.1rem;
+    color: #5a67d8;
+}
+
+/* Sección de resultados */
+.prediction-results {
+    width: 45%;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+}
+
+.results-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.result-content {
+    font-size: 1rem;
+    color: #2d3748;
+}

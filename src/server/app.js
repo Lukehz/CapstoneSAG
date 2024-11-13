@@ -20,7 +20,6 @@ const parcelasRoutes = require('./Routes/parcelasRoutes');
 const quarantineRoutes = require('./Routes/quarantineRoutes');
 //Rutas perfil
 const perfilRoutes = require('./Routes/AdminRoutes/perfilRoutes');
-
 // Inicializar la aplicación Express
 const app = express();
 
@@ -74,6 +73,10 @@ app.use((req, res, next) => {
     next();
 });
 
+// Rutas página prediccion
+app.get('/prediccion', verificarAutenticacion('Admin'), (req, res) => {
+  res.sendFile(path.join(__dirname, '../../public/prediccion', 'prediccion.html'));
+});
 
 // Rutas Crud
 app.use('/api/parcelacion', parcelacionRoutes);
