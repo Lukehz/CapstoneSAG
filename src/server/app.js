@@ -105,6 +105,29 @@ app.use('/parcelas', parcelasRoutes);
 app.use('/api', quarantineRoutes);
 app.use('/quarantines', quarantineRoutes);
 
+const { predictImage } = require('./controllers/prediccionController');
+const multer = require('multer');
+
+const predictionStorage = multer.diskStorage({
+  destination: 'uploads/',
+  filename: (req, file, cb) => {
+      const ext = path.extname(file.originalname);
+      cb(null, `${Date.now()}${ext}`);
+  }
+});
+
+const uploadPrediction = multer({
+  storage: predictionStorage,
+  fileFilter: (req, file, cb) => {
+      const allowedExtensions = /jpeg|jpg|png|bmp|tiff|webp|gif/;
+      const ext = path.extname(file.originalname).toLowerCase();
+      allowedExtensions.test(ext) ? cb(null, true) : cb(new Error('Formato de archivo no soportado'));
+  }
+});
+
+// Ruta para predicción
+app.post('/api/prediccion', uploadPrediction.single('image'), predictImage);
+
 // Middleware para manejar errores
 const errorHandler = (err, req, res, next) => {
     console.error('Error:', err);
