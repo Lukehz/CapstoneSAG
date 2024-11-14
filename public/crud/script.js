@@ -269,6 +269,11 @@ async function loadItems(Table, sectors = [], phases = [], crops = [], registere
             // Definir encabezados según los datos
             const headers = Object.keys(items[0]); // Obtener claves del primer objeto
             headers.forEach((header, index) => {
+                /*
+                // Si estamos trabajando con la tabla de usuarios, omitimos la columna 'password'
+            if (nameTable === 'usuario' && header === 'password') {
+                return; // Salir de la iteración sin agregar esta columna
+            }    */
                 const th = document.createElement('th'); // Crear un nuevo encabezado
                 th.textContent = header.charAt(0).toUpperCase() + header.slice(1); // Capitalizar
                 tableHeaders.appendChild(th); // Agregar encabezado a la tabla
@@ -290,29 +295,44 @@ async function loadItems(Table, sectors = [], phases = [], crops = [], registere
             // Poblamos las filas
             items.forEach(item => {
                 const row = document.createElement('tr'); // Crear una nueva fila
+                
+                // Crear celdas para cada encabezado
                 headers.forEach((header, index) => {
+                    // Evitar incluir la columna 'password' en la tabla de 'usuarios'
+                    if (nameTable === 'usuarios' && header === 'password') {
+                        return; // Salir de la iteración sin crear una celda para 'password'
+                    }
+
                     const td = document.createElement('td'); // Crear una nueva celda
-                    td.textContent = item[header]; // Asignar valor del item
+
+                    // Si la columna es 'password', reemplazar su valor por '************'
+                    if (header === 'password') {
+                        td.textContent = '************'; // Reemplazar con asteriscos
+                    } else {
+                        td.textContent = item[header]; // Asignar valor del item
+                    }
                     row.appendChild(td); // Agregar celda a la fila
+
+                    // Si estamos en la tabla 'parcelacion', añadimos una celda especial
                     if (nameTable === 'parcelacion') {
                     // Si estamos en la tercera columna, añadimos la celda de imagen después
-                    if (index === 2) {
-                        const imagenTd = document.createElement('td');
-                        const verImagenBtn = document.createElement('button'); // Crear botón para ver imagen
-                        verImagenBtn.textContent = 'Ver Imagen'; // Texto del botón
+                        if (index === 2) {
+                            const imagenTd = document.createElement('td');
+                            const verImagenBtn = document.createElement('button'); // Crear botón para ver imagen
+                            verImagenBtn.textContent = 'Ver Imagen'; // Texto del botón
                         verImagenBtn.className='text-black-700 font-semibold hover:text-black py-2 px-4 border border-blue-500 hover:border-black rounded'; // Clase del boton 
-                        verImagenBtn.onclick = () => viewImage(item.id); // Llamar a la función viewImage
-                        imagenTd.appendChild(verImagenBtn); // Agregar botón a la celda
-                        row.appendChild(imagenTd); // Agregar celda de imagen a la fila
-                    }
+                            verImagenBtn.onclick = () => viewImage(item.id); // Llamar a la función viewImage
+                            imagenTd.appendChild(verImagenBtn); // Agregar botón a la celda
+                            row.appendChild(imagenTd); // Agregar celda de imagen a la fila
+                        }
                 }});
                 if (nameTable !== 'historial') {
-                const actionsTd = document.createElement('td'); // Crear celda de acciones
-                actionsTd.innerHTML = `
-                    <button class="text-black-700 font-semibold hover:text-black py-2 px-4 border border-blue-500 hover:border-black rounded" onclick="editItem(${item.id})">Editar</button>
-                    <button class="text-black-700 font-semibold hover:text-black py-2 px-4 border border-blue-500 hover:border-black rounded" onclick="deleteItem(${item.id})">Eliminar</button>
-                `;
-                row.appendChild(actionsTd); // Agregar celda de acciones a la fila
+                    const actionsTd = document.createElement('td'); // Crear celda de acciones
+                    actionsTd.innerHTML = `
+                        <button class="text-black-700 font-semibold hover:text-black py-2 px-4 border border-blue-500 hover:border-black rounded" onclick="editItem(${item.id})">Editar</button>
+                        <button class="text-black-700 font-semibold hover:text-black py-2 px-4 border border-blue-500 hover:border-black rounded" onclick="deleteItem(${item.id})">Eliminar</button>
+                    `;
+                    row.appendChild(actionsTd); // Agregar celda de acciones a la fila
                 }
                 itemList.appendChild(row); // Agregar fila a la lista de ítems
             });
@@ -485,7 +505,11 @@ async function openModal(nameTable, item = null) {
         `;
     } else if (nameTable === 'usuario') {
         title.textContent = item ? 'Editar Usuario' : 'Agregar Usuario';
-        
+        // Campos para Usuario
+        let passwordField = '';
+        if (!item) {  // Solo mostrar el campo de contraseña si es creación (item es null)
+            passwordField = `<input type="password" id="password" placeholder="Password" name="password" required>`;
+        }
         // Campos para Usuario
         formFields.innerHTML = `
             <input type="hidden" id="itemId"> <!-- Campo oculto para el ID -->
@@ -500,7 +524,7 @@ async function openModal(nameTable, item = null) {
                 <option value="User">Usuario</option>
             </select>
             <input type="text" id="usuario" placeholder="Nombre de usuario" name="usuario" required>
-            <input type="password" id="password" placeholder="Password" name="password" required> <!-- CON ESTA LINEA DA UNA ADVERTENSIA DE ItemId duplicado, Pero solo con esta linea -->
+            ${passwordField}  <!-- Solo se incluirá el campo de password si es creación -->
         `;
     }
     
@@ -583,7 +607,7 @@ async function openModal(nameTable, item = null) {
 
             document.getElementById('correo').value = item.correo;
             document.getElementById('password').value = item.password;
-            document.getElementById('usuario').value = item.usuario;
+            //document.getElementById('usuario').value = item.usuario;
             document.getElementById('rut').value = item.rut;
             document.getElementById('dv_rut').value = item.dv_rut;
             document.getElementById('nombre').value = item.nombre;
@@ -699,7 +723,7 @@ document.getElementById('itemForm').addEventListener('submit', async (e) => {
     } else if (nameTable === 'usuario') {
         formData.append('correo', document.getElementById('correo').value);
         formData.append('usuario', document.getElementById('usuario').value);
-        formData.append('password', document.getElementById('password').value);
+        //formData.append('password', document.getElementById('password').value);
         formData.append('rut', document.getElementById('rut').value);
         formData.append('dv_rut', document.getElementById('dv_rut').value);
         formData.append('nombre', document.getElementById('nombre').value);
