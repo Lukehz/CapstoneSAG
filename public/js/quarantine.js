@@ -69,6 +69,7 @@ document.getElementById('cancel-quarantine').addEventListener('click', cancelDra
 const saveQuarantine = async () => {
   const comment = getComment();
   const idSector = document.getElementById("SelectComuna").value; // Obtener el id_sector desde el dropdown
+  const activa = 1;
   const type = quarantineCircle ? 'radius' : 'polygon';
   let points = [];
 
@@ -89,12 +90,18 @@ const saveQuarantine = async () => {
   const radiusInput = document.getElementById('quarantine-radius');
   const radius = radiusInput.value ? parseFloat(radiusInput.value) : null;
 
+  if (radius !== null && radius <= 0) {
+    alert('El radio debe ser un valor positivo.');
+    return;
+  }
+
   const quarantineData = {
     points,
     comment,
     type,
     radius: radius !== null ? radius : 0,
-    idSector // Usar idSector para guardar el id de la comuna en la base de datos
+    idSector, // Usar idSector para guardar el id de la comuna en la base de datos
+    activa: activa
   };
 
   try {
@@ -297,6 +304,8 @@ function createQuarantineByPolygon() {
 }
 
 
+
+
 function createQuarantineByRadius() {
   if (!quarantineCenter) {
     alert("Por favor, seleccione un centro para la cuarentena por radio.");
@@ -351,9 +360,11 @@ function generateCircle(center, radius) {
 
 // Update the startDrawing function
 function startDrawing(mode) {
+
   drawingMode = mode;
   quarantinePoints = [];
   quarantineCenter = null;
+
   if (quarantineCircle) {
     map.removeLayer(quarantineCircle.id);
     map.removeSource(quarantineCircle.id);
@@ -362,7 +373,7 @@ function startDrawing(mode) {
   // Deshabilitar la interactividad de las capas durante el dibujo
   if (map.getLayer('quarantine-circle-layer')) {
     map.setLayoutProperty('quarantine-circle-layer', 'visibility', 'visible');
-    map.setFilter('quzarantine-circle-layer', ['==', 'id', '']);
+    map.setFilter('quarantine-circle-layer', ['==', 'id', '']);
   }
   if (map.getLayer('quarantine-layer')) {
     map.setLayoutProperty('quarantine-layer', 'visibility', 'visible');
@@ -633,7 +644,7 @@ function fetchAndDisplayQuarantines(type = null) {
       const properties = feature.properties;
     
       // Cerrar el popup anterior si existe
-       if (currentPopup) {
+      if (currentPopup) {
         currentPopup.remove();
       }
     
@@ -643,14 +654,14 @@ function fetchAndDisplayQuarantines(type = null) {
         <h3>Cuarentena ID: ${properties.id}</h3>
         <p>Comentario: ${properties.comentario || 'Sin comentario'}</p>
         <p>Radio: ${properties.radio} metros</p>
-        <button class="delete-button" data-id="${properties.id}">Eliminar</button>
+        <button class="deactivate-button" data-id="${properties.id}">Desactivar</button>
       `;
     
-      // Agregar el evento click al botón de eliminar
-      const deleteButton = popupContent.querySelector('.delete-button');
-      deleteButton.addEventListener('click', () => {
-        if (confirm('¿Estás seguro de eliminar esta cuarentena?')) {
-          eliminarCuarentena(properties.id);
+      // Agregar el evento click al botón de desactivar
+      const deactivateButton = popupContent.querySelector('.deactivate-button');
+      deactivateButton.addEventListener('click', () => {
+        if (confirm('¿Estás seguro de desactivar esta cuarentena?')) {
+          deactivateQuarantine(properties.id);
         }
       });
     
@@ -660,6 +671,8 @@ function fetchAndDisplayQuarantines(type = null) {
         .setDOMContent(popupContent)
         .addTo(map);
     });
+
+
     map.on('click', 'quarantine-layer', (e) => {
       if (drawingMode) return;
       if (!e.features.length) return;
@@ -677,14 +690,14 @@ function fetchAndDisplayQuarantines(type = null) {
       popupContent.innerHTML = `
         <h3>Cuarentena ID: ${properties.id}</h3>
         <p>Comentario: ${properties.comentario || 'Sin comentario'}</p>
-        <button class="delete-button" data-id="${properties.id}">Eliminar</button>
+        <button class="deactivate-button" data-id="${properties.id}">Inhabilitar</button>
       `;
     
       // Agregar el evento click al botón de eliminar
-      const deleteButton = popupContent.querySelector('.delete-button');
-      deleteButton.addEventListener('click', () => {
-        if (confirm('¿Estás seguro de eliminar esta cuarentena?')) {
-          eliminarCuarentena(properties.id);
+      const deactivateButton = popupContent.querySelector('.deactivate-button');
+      deactivateButton.addEventListener('click', () => {
+        if (confirm('¿Estás seguro de desactivar esta cuarentena?')) {
+          deactivateQuarantine(properties.id);
         }
       });
     
@@ -695,66 +708,27 @@ function fetchAndDisplayQuarantines(type = null) {
         .addTo(map); 
     });
     
-  }    
-  function eliminarCuarentena(id) {
-    if (isDeleting) return;
-    isDeleting = true;
-    
-    console.log('Intentando eliminar cuarentena con ID:', id);
-    
-    // Usar la ruta correcta
-    fetch(`/quarantines/delete-quarantine/${id}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      return response.json();
-    })
-    .then(data => {
-      console.log('Respuesta del servidor:', data);
-      if (data.success) {
-        // Cerrar el popup si existe
-        if (currentPopup) {
-          currentPopup.remove();
-        }
-
-        const radiusToggle = document.getElementById('quarantine-circle-toggle');
-        const polygonToggle = document.getElementById('quarantine-toggle');
-
-        if (radiusToggle && radiusToggle.checked) {
-          fetchAndDisplayQuarantines('radio');
-        } else if (polygonToggle && polygonToggle.checked) {
-          fetchAndDisplayQuarantines('trazado');
+  }   
+  
+  function deactivateQuarantine(id) {
+    fetch(`/quarantines/deactivate-quarantine/${id}`, { method: 'PUT' })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert(`Cuarentena ${id} desactivada exitosamente.`);
+          fetchAndDisplayQuarantines(); // Refresca las cuarentenas en el mapa
         } else {
-          // Si ningún toggle está activo, no mostramos nada
-          if (map.getLayer('quarantine-circle-layer')) {
-            map.setLayoutProperty('quarantine-circle-layer', 'visibility', 'none');
-          }
-          if (map.getLayer('quarantine-layer')) {
-            map.setLayoutProperty('quarantine-layer', 'visibility', 'none');
-          }
+          alert(`Error al desactivar cuarentena: ${data.error}`);
         }
-        
-        alert('Cuarentena eliminada con éxito');
-      } else {
-        throw new Error(data.message || 'Error al eliminar la cuarentena');
-      }
-    })
-    .catch(error => {
-      console.error('Error al eliminar cuarentena:', error);
-      alert(`Error al eliminar la cuarentena: ${error.message}`);
-    })
-    .finally(() => {
-      isDeleting = false;
-    });
+      })
+      .catch(error => {
+        console.error('Error al desactivar cuarentena:', error);
+        alert(`Hubo un error al desactivar la cuarentena: ${error.message}`);
+      });
   }
-
-
+  
+  
+  
 function toggleQuarantines() {
   const quarantineCheckbox = document.getElementById('quarantine-toggle');
   const isChecked = quarantineCheckbox.checked;
@@ -781,11 +755,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-
-
-
-
-// Modificación de la función toggleQuarantineCircle
 // Modificación de la función toggleQuarantineCircle
 function toggleQuarantineCircle() {
   const quarantineCheckbox = document.getElementById('quarantine-circle-toggle');
@@ -793,6 +762,7 @@ function toggleQuarantineCircle() {
 
   if (isChecked) {
     console.log('Mostrando círculos de cuarentena');
+    
     fetchAndDisplayQuarantines('radio'); // Muestra solo las cuarentenas con radio
   } else {
     console.log('Ocultando círculos de cuarentena');
@@ -818,6 +788,8 @@ function activateToggle(type) {
   const radiusToggle = document.getElementById('quarantine-circle-toggle');
   const polygonToggle = document.getElementById('quarantine-toggle');
   
+  cancelDrawing();
+
   if (type === 'radio') {
     if (radiusToggle) {
       radiusToggle.checked = true;
@@ -943,10 +915,5 @@ document.addEventListener("DOMContentLoaded", function() {
       console.error("No se encontró el elemento SelectComuna");
   }
 });
-
-
-
-
-
 
 export { quarantinePoints, saveQuarantine, startDrawing, endDrawing, initializeQuarantineState};
