@@ -23,4 +23,24 @@ document.addEventListener("DOMContentLoaded", () => {
       filterPanel.classList.add("hidden");
     });
   });
+
+  function setupSidebarLinks() {
+    const sidebarLinks = document.querySelectorAll("a[data-load-table]");
+    sidebarLinks.forEach((link) => {
+        link.addEventListener("click", (event) => {
+            event.preventDefault();
+            const tableName = link.getAttribute("data-load-table");
+            loadItems(tableName);
+            history.pushState(null, "", link.href); // Actualiza la URL sin recargar
+        });
+    });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    setupSidebarLinks();
+    const currentTable = getTableNameFromUrl(); // Obtén la tabla inicial
+    if (currentTable) {
+        loadItems(currentTable); // Carga la tabla inicial
+    }
+});
   

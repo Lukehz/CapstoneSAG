@@ -1,7 +1,18 @@
-// Al cargar la página, carga la tabla parcelacion por defecto
-document.addEventListener("DOMContentLoaded", () => loadItems('parcelacion')); // Cambia a la tabla por defecto
+function getTableNameFromUrl() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const table = urlParams.get('table');
+    return table ? table : null; // Devuelve null si no hay parámetro 'table'
+}
 
-let nameTable = 'parcelacion'; // Valor predeterminado
+document.addEventListener("DOMContentLoaded", () => {
+    const tableName = getTableNameFromUrl();
+    if (tableName) {
+        loadItems(tableName); // Solo carga la tabla si hay un parámetro 'table'
+    }
+});
+
+// Inicializar `nameTable` de forma dinámica basado en la URL
+let nameTable = getTableNameFromUrl(); // Valor dinámico basado en la URL
 
 /********************************** READ ********************************/
 /****** LEE TODOS LOS ITEMS, CREA LA TABLA Y RELLENA CON LOS ITEMS ******/

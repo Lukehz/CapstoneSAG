@@ -56,23 +56,14 @@ app.use(expressLayouts);
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Rutas protegidas (CRUD dinámico)
-app.get('/crud/:table', (req, res) => {
-  const { table } = req.params;
-  const tableTitles = {
-      parcelacion: 'Parcelaciones',
-      region: 'Regiones',
-      provincia: 'Provincias',
-      sector: 'Sectores',
-      cuarentena: 'Cuarentenas',
-      fase: 'Fases',
-      cultivo: 'Cultivos',
-      usuario: 'Usuarios',
-      historial: 'Historial'
-  };
+app.get('/crud', (req, res) => {
+  const table = req.query.table; // Extrae el parámetro 'table'
+  if (!table) {
+      return res.status(400).send('Falta el parámetro table');
+  }
 
-  res.render('crud', {
-      title: `Gestión de ${tableTitles[table] || table.charAt(0).toUpperCase() + table.slice(1)}`,
-  });
+  // Renderiza la vista CRUD con el nombre de la tabla
+  res.render('crud', { title: `Gestión de ${table}` });
 });
 
 // Redirigir la ruta raíz al login
