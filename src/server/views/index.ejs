@@ -1,5 +1,59 @@
 <!-- Contenedor del mapa -->
+ 
 <div id="map" style="width: 100%; height: 100vh;"></div>
+
+<!-- Botón de Filtro y Buscador -->
+<div class="absolute top-4 right-4 flex flex-row space-x-2 z-10">
+    <!-- Contenedor del buscador -->
+    <div id="map-search" class="flex-1"></div>
+    
+    <!-- Botón Filtro -->
+    <button 
+      id="filter-button" 
+      class="py-2 px-4 bg-green-500 hover:bg-green-600 text-white rounded-lg shadow-lg transition-colors"
+    >
+      Filtro
+    </button>
+
+    
+  </div>
+
+  
+  <!-- Panel de Filtros -->
+  <div id="filter-panel" class="absolute top-20 right-4 bg-white p-4 rounded-lg shadow-lg w-72 z-10 hidden">
+    <h2 class="text-lg font-bold mb-4">Filtros</h2>
+    <div id="controls" class="space-y-2">
+        <label class="flex items-center space-x-2">
+            <input type="checkbox" id="quarantine-toggle" class="rounded border-gray-300 text-blue-500 focus:ring-blue-500">
+            <span>Mostrar trazado de cuarentena</span>
+        </label>
+        <label class="flex items-center space-x-2">
+            <input type="checkbox" id="quarantine-circle-toggle" class="rounded border-gray-300 text-blue-500 focus:ring-blue-500">
+            <span>Mostrar Círculo de Cuarentena</span>
+        </label>
+        <label class="flex items-center space-x-2">
+            <input type="checkbox" id="parcela-toggle" class="rounded border-gray-300 text-blue-500 focus:ring-blue-500">
+            <span>Mostrar parcelas</span>
+        </label>
+    </div>
+
+    <!-- Dropdown Parcelas -->
+    <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700">Parcelas</label>
+        <select id="parcelas-dropdown" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+        <option value="">Seleccione una parcela</option>
+        </select>
+    </div>
+
+    <!-- Dropdown Cuarentenas -->
+    <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700">Cuarentenas</label>
+        <select id="cuarentenas-dropdown" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+        <option value="">Seleccione una cuarentena</option>
+        </select>
+    </div>
+  </div>
+  
 
 <!-- Panel de Cuarentena -->
 <div id="cuarentena" class="absolute top-4 left-4 bg-white p-4 rounded-lg shadow-lg w-72 z-10">
@@ -30,32 +84,6 @@
   </button>
 </div>
 
-<!-- Sidebar de Filtros -->
-<div class="sidenav absolute top-4 right-4 bg-white p-4 rounded-lg shadow-lg w-72 z-10">
-  <h2 class="text-lg font-bold mb-4">Filtros</h2>
-  <div id="controls" class="space-y-2">
-      <label class="flex items-center space-x-2">
-          <input type="checkbox" id="quarantine-toggle" class="rounded border-gray-300 text-blue-500 focus:ring-blue-500">
-          <span>Mostrar trazado de cuarentena</span>
-      </label>
-      <label class="flex items-center space-x-2">
-          <input type="checkbox" id="quarantine-circle-toggle" class="rounded border-gray-300 text-blue-500 focus:ring-blue-500">
-          <span>Mostrar Círculo de Cuarentena</span>
-      </label>
-      <label class="flex items-center space-x-2">
-          <input type="checkbox" id="parcela-toggle" class="rounded border-gray-300 text-blue-500 focus:ring-blue-500">
-          <span>Mostrar parcelas</span>
-      </label>
-  </div>
-
-  <h2 class="text-lg font-bold mt-6 mb-2">Información</h2>
-  <div id="parcelacion-panel" class="mb-4 max-h-48 overflow-y-auto">
-      <!-- Aquí se cargarán las parcelas dinámicamente -->
-  </div>
-  <div id="cuarentena-panel" class="max-h-48 overflow-y-auto">
-      <!-- Aquí se cargarán las cuarentenas dinámicamente -->
-  </div>
-</div>
 
 <!-- Botón Centrar Mapa -->
 <button 
@@ -74,3 +102,4 @@
 <script type="module" src="js/parcelas.js"></script>
 <script type="module" src="js/api.js"></script>
 <script type="module" src="js/sidebar.js"></script>
+<script type="module" src="js/filter.js"></script>

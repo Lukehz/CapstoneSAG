@@ -6,7 +6,11 @@ module.exports = {
     './public/**/*.html',
  ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        sans: ['"DM Sans"', 'sans-serif'], // Incluye "DM Sans" como fuente principal
+      },
+    },
   },
   plugins: [],
 }

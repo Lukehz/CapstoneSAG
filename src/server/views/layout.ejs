@@ -3,184 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi App</title>
+    <title><%= title %></title>
+    <!-- Estilos externos -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
     <link href="https://api.mapbox.com/mapbox-gl-js/v2.12.0/mapbox-gl.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.2/mapbox-gl-geocoder.css" type="text/css">
-    <link rel="stylesheet" href="styles/main.css">
-    <link rel="stylesheet" href="/tailwind/output.css">
-    <link rel="stylesheet" href="/tailwind/Main_styles.css">
+    <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.2/mapbox-gl-geocoder.css">
+     <!-- Fuente DM Sans -->
+     <link rel="preconnect" href="https://fonts.googleapis.com">
+     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet"> 
+    <!-- Estilos locales -->
+    <link rel="stylesheet" href="/styles/output.css">
+    <link rel="stylesheet" href="/styles/Main_styles.css">
     <style>
+        /* Estilos adicionales */
         [x-cloak] { display: none !important; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+        }
 
         /* Estilo para el sidebar */
         aside {
-            flex: 0 0 15%; /* Sidebar ocupa el 15% */
+            flex: 0 0 15%; /* El sidebar ocupa el 15% del ancho */
+            min-width: 200px; /* Asegurar que el sidebar tenga un ancho mínimo razonable */
             background-color: #ffffff;
             color: #000000;
             z-index: 10;
-            transition: flex 0.3s ease-in-out;
-            overflow-y: auto;
-            padding-top: 20px;
+            height: 100vh; /* Altura completa de la ventana */
+            overflow-y: auto; /* Activar scroll si el contenido excede */
+            padding: 10px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
         }
 
-        /* Sidebar colapsado */
-        .sidebar-collapsed {
-            flex: 0 0 0; /* Reducimos el ancho del sidebar a 0 */
-            overflow: hidden;
+        /* Ajustar los elementos internos para que se adapten */
+        aside nav {
+            flex-grow: 1; /* Empuja el footer hacia abajo */
         }
 
-        /* Botón de toggle para mostrar/ocultar el sidebar */
-        .toggle-sidebar-btn {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            z-index: 20;
-            background-color: #ffffff;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-        }
-        .toggle-sidebar-btn .icon {
-            width: 24px;
-            height: 24px;
+        aside nav a, aside nav button {
+            white-space: nowrap; /* Evitar que el texto se divida en varias líneas */
+            overflow: hidden; /* Cortar el texto si excede */
+            text-overflow: ellipsis; /* Mostrar puntos suspensivos si se corta */
         }
 
-        /* Estilos para los botones del menú */
-        .menu-button {
-            display: flex;
-            align-items: center;
-            padding: 12px 20px;
-            font-size: 16px;
-            color: #333;
-            transition: background-color 0.3s;
-            border-radius: 8px;
+        /* Footer del Sidebar */
+        aside .sidebar-footer {
+            margin-top: auto; /* Mueve el footer al final del sidebar */
+            padding-top: 10px;
+            border-top: 1px solid #e5e7eb;
         }
 
-        .menu-button:hover {
-            background-color: #f0f0f0;
-        }
-
-        /* Iconos */
-        .icon {
-            width: 24px;
-            height: 24px;
-            margin-right: 10px;
-            fill: currentColor;
-        }
-
-        /* Contenedor principal */
+        /* Ajuste para el contenedor principal */
         #content-container {
             flex: 1;
-            transition: margin-left 0.3s ease;
-            margin-left: 0;
-            width: 85%;
-            height: 100%;
+            height: 100vh;
+            overflow: hidden; /* Evitar que el contenido desborde */
+            position: relative;
         }
 
-        /* Expande el contenedor principal cuando el sidebar está oculto */
-        .collapsed #content-container {
-            margin-left: 0;
-            width: 100%;
-            height: 100%;
-        }
+        /* Para dispositivos móviles, colapsar el sidebar */
+        @media (max-width: 768px) {
+            aside {
+                flex: 0 0 100%; /* Sidebar ocupa todo el ancho */
+                position: absolute;
+                z-index: 20;
+                transition: transform 0.3s ease-in-out; /* Añadir animación */
+                transform: translateX(-100%); /* Ocultar el sidebar */
+            }
 
-        /* Contenedor fijo para el perfil en la parte inferior */
-        .sidebar-footer {
+            aside.open {
+                transform: translateX(0); /* Mostrar el sidebar */
+            }
+        }
+        /* Footer del Sidebar */
+        aside .sidebar-footer {
             border-top: 1px solid #e5e7eb;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .sidebar-footer a {
-            display: flex;
-            align-items: center;
-            padding: 10px;
-            color: #333;
-            text-decoration: none;
-            border-radius: 8px;
-            transition: background-color 0.3s;
-        }
-
-        .sidebar-footer a:hover {
-            background-color: #f0f0f0;
-        }
-
-        #map{
-            width: 100%;
-            height: 100%;
+            padding-top: 10px;
         }
     </style>
 </head>
-<body class="bg-gray-50 expanded">
-    </button>
-
-    <div class="flex h-screen">
-        <!-- Sidebar -->
-        <aside id="sidebar" class="border-r bg-white shadow-sm flex flex-col">
-            <div>
-                <div class="flex items-center justify-center h-16 border-b">
-                    <h1 class="text-lg font-semibold">Mi App</h1>
+<body class="flex h-screen bg-gray-300" x-data="{ open: false, infoOpen: false }">
+    <!-- Sidebar -->
+    <aside>
+        <!-- Contenido del sidebar -->
+        <div>
+            <!-- Encabezado -->
+            <div class="flex flex-row items-center justify-between p-4">
+                <a href="#" class="text-lg font-semibold text-gray-900 truncate">LandMosaic <br> Vision </a>
+                <button class="md:hidden" @click="open = !open">
+                    <svg fill="currentColor" viewBox="0 0 20 20" class="w-6 h-6">
+                        <path x-show="!open" d="M3 5h14M3 10h14m-7 5h7"></path>
+                        <path x-show="open" d="M4.293 4.293l1.414 1.414L10 8.586l4.293-4.293 1.414 1.414L10 11.414l-4.293 4.293-1.414-1.414L8.586 10z"></path>
+                    </svg>
+                </button>
+            </div>
+            <!-- Navegación -->
+            <nav class="px-4">
+                <a href="#" class="block px-4 py-2 mt-2 text-gray-900 rounded truncate">Inicio</a>
+                <!-- Dropdown para "Informaciones" -->
+                <div class="relative mt-2" @click.away="infoOpen = false" @click="infoOpen = !infoOpen">
+                    <button class="block w-full flex justify-between items-center px-4 py-2 text-gray-900 rounded truncate">
+                        Informaciones
+                        <svg :class="{'rotate-180': infoOpen}" class="w-4 h-4 transition-transform duration-200 transform" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M5 8l5 5 5-5H5z"></path>
+                        </svg>
+                    </button>
+                    <div x-show="infoOpen" x-cloak class="absolute left-0 mt-2 w-full bg-white border rounded shadow">
+                        <ul class="flex flex-col space-y-2">
+                            <li><a href="/crud/region" onclick="loadItems('region')" class="block px-4 py-2 text-gray-900 rounded hover:bg-gray-200">Región</a></li>
+                            <li><a href="/crud/provincia" onclick="loadItems('provincia')" class="block px-4 py-2 text-gray-900 rounded hover:bg-gray-200">Provincia</a></li>
+                            <li><a href="/crud/sector" onclick="loadItems('sector')" class="block px-4 py-2 text-gray-900 rounded hover:bg-gray-200">Sector</a></li>
+                            <li><a href="/crud/cuarentena" onclick="loadItems('cuarentena')" class="block px-4 py-2 text-gray-900 rounded hover:bg-gray-200">Cuarentena</a></li>
+                            <li><a href="/crud/cultivo" onclick="loadItems('cultivo')" class="block px-4 py-2 text-gray-900 rounded hover:bg-gray-200">Cultivo</a></li>
+                            <li><a href="/crud/fase" onclick="loadItems('fase')" class="block px-4 py-2 text-gray-900 rounded hover:bg-gray-200">Fase</a></li>
+                            <li><a href="/crud/parcelacion" onclick="loadItems('parcelacion')" class="block px-4 py-2 text-gray-900 rounded hover:bg-gray-200">Parcelación</a></li>
+                            <li><a href="/crud/usuario" onclick="loadItems('provinciausuario')" class="block px-4 py-2 text-gray-900 rounded hover:bg-gray-200">Usuario</a></li>  
+                        </ul>
+                    </div>
                 </div>
-                <nav class="space-y-2 p-2">
-                    <button class="menu-button">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 20 20" fill="currentColor">
-                            <path d="M10 2a8 8 0 100 16 8 8 0 000-16zM9 7a1 1 0 012 0v2a1 1 0 01-2 0V7zM9 12a1 1 0 012 0v2a1 1 0 01-2 0v-2z" />
-                        </svg>
-                        <span>Inicio</span>
-                    </button>
-                    <button class="menu-button">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 20 20" fill="currentColor">
-                            <path d="M8 2a2 2 0 00-2 2v12a2 2 0 002 2h4a2 2 0 002-2V4a2 2 0 00-2-2H8z" />
-                        </svg>
-                        <span>Explorar</span>
-                    </button>
-                    <button class="menu-button">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 20 20" fill="currentColor">
-                            <path d="M10.326 2.518A1.49 1.49 0 0111.992 4v12c0 .827-.663 1.5-1.5 1.5H5.5A1.5 1.5 0 014 16V4a1.49 1.49 0 011.674-1.482l4.652 1.036z" />
-                        </svg>
-                        <span>Configuración</span>
-                    </button>
-                </nav>
-            </div>
-
-            <!-- Perfil y opciones de cuenta en la parte inferior -->
-            <div class="sidebar-footer">
-                <a href="#">
-                    <div class="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center"></div>
-                    <span class="ml-2">Mi Cuenta</span>
-                </a>
-                <a href="#">Perfil</a>
-                <a href="#">Configuración</a>
-                <a href="#">Cerrar Sesión</a>
-            </div>
-        </aside>
-
-        <!-- Contenedor principal -->
-        <div id="content-container" class="relative overflow-auto">
-            <%- body %> <!-- Aquí se inyectará el contenido de cada página (e.g., index.ejs) -->
+            </nav>
         </div>
-    </div>
-
+        <!-- Footer del Sidebar -->
+        <div class="sidebar-footer px-4">
+            <a href="/perfil" class="block px-4 py-2 mt-2 text-gray-900 rounded truncate hover:bg-blue-500 hover:text-white">
+                Perfil
+            </a>
+            <a href="/logout" class="block px-4 py-2 mt-2 text-gray-900 rounded truncate hover:bg-red-500 hover:text-white">
+                Cerrar Sesión
+            </a>
+        </div>
+    </aside>
+    <!-- Contenido Principal -->
+    <main id="content-container" class="flex-1">
+        <div class="flex h-screen">
+            <%- body %> <!-- Aquí se inyecta el contenido dinámico -->
+        </div>
+    </main>
     <!-- Scripts -->
-    <%- script %>
-
-    
-    
-    
-    
-
-    <!-- Scripts globales -->
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@2.8.2/dist/alpine.min.js" defer></script>
     <script src="https://api.mapbox.com/mapbox-gl-js/v2.12.0/mapbox-gl.js"></script>
     <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.2/mapbox-gl-geocoder.min.js"></script>
+    <script type="module" src="js/filter.js"></script>
 </body>
 </html>

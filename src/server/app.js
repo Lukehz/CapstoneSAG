@@ -53,17 +53,30 @@ app.use(expressLayouts);
 
 
 // Servir archivos estáticos
-  // Servir archivos estáticos
-app.use(express.static(path.join(__dirname, '../../public/static')));
+app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(express.static(path.join(__dirname, '../../public/crud')));
-// En app.js
-app.get('/crud', verificarAutenticacion('Admin'), (req, res) => {
-    res.sendFile(path.join(__dirname, '../../public/crud', 'crud.html'));
+// Rutas protegidas (CRUD dinámico)
+app.get('/crud/:table', (req, res) => {
+  const { table } = req.params;
+  const tableTitles = {
+      parcelacion: 'Parcelaciones',
+      region: 'Regiones',
+      provincia: 'Provincias',
+      sector: 'Sectores',
+      cuarentena: 'Cuarentenas',
+      fase: 'Fases',
+      cultivo: 'Cultivos',
+      usuario: 'Usuarios',
+      historial: 'Historial'
+  };
+
+  res.render('crud', {
+      title: `Gestión de ${tableTitles[table] || table.charAt(0).toUpperCase() + table.slice(1)}`,
+  });
 });
 
 // Redirigir la ruta raíz al login
-app.get('/', (req, res) => {
+app.get('/', (req, res) => {1
     res.redirect('/login'); // Redirige a la página de login
 });
 
@@ -74,7 +87,6 @@ app.get('/index', verificarAutenticacion(['Admin', 'User']), (req, res) => {
       usuario: req.session.usuario  // Pasar datos del usuario a la vista
   });
 });
-
 
 // Middleware para servir archivos estáticos
 app.use(express.static(path.join(__dirname, '../../public')));
