@@ -131,7 +131,7 @@
             <a href="/perfil" class="block px-4 py-2 mt-2 text-gray-900 rounded truncate hover:bg-blue-500 hover:text-white">
                 Perfil
             </a>
-            <a href="/logout" class="block px-4 py-2 mt-2 text-gray-900 rounded truncate hover:bg-red-500 hover:text-white">
+            <a id="logout" class="block px-4 py-2 mt-2 text-gray-900 rounded truncate hover:bg-red-500 hover:text-white">
                 Cerrar Sesión
             </a>
         </div>
@@ -147,5 +147,31 @@
     <script src="https://api.mapbox.com/mapbox-gl-js/v2.12.0/mapbox-gl.js"></script>
     <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.2/mapbox-gl-geocoder.min.js"></script>
     <script type="module" src="js/filter.js"></script>
+    <script>
+            // Seleccionamos el enlace de Cerrar Sesión
+    const logoutLink = document.getElementById('logout');
+
+        // Agregamos un evento click al enlace
+        logoutLink.addEventListener('click', async function(event) {
+            event.preventDefault(); // Prevenir la acción por defecto del enlace (ir a /logout)
+
+            try {
+                // Hacemos la solicitud de logout al servidor
+                const response = await fetch('/api/auth/logout', { method: 'GET' });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Error al cerrar sesión');
+                }
+
+                // Redirigir al login
+                window.location.href = '/login';
+            } catch (error) {
+                console.error('Error:', error);
+                alert('No se pudo cerrar la sesión. Intenta nuevamente.');
+            }
+        });
+
+    </script>
 </body>
 </html>

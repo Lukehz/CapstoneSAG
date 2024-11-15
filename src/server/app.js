@@ -56,11 +56,12 @@ app.use(expressLayouts);
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Rutas protegidas (CRUD dinámico)
-app.get('/crud', (req, res) => {
-  const table = req.query.table; // Extrae el parámetro 'table'
-  if (!table) {
-      return res.status(400).send('Falta el parámetro table');
-  }
+app.get('/crud', verificarAutenticacion('Admin'), (req, res) => {
+  // Extrae el parámetro 'table' y asigna 'parcelacion' como valor por defecto si no existe
+  const table = req.query.table || 'parcelacion';
+
+  // Aquí puedes agregar lógica adicional si es necesario para cambiar el valor de 'table'
+  // dependiendo de otras condiciones de la aplicación.
 
   // Renderiza la vista CRUD con el nombre de la tabla
   res.render('crud', { title: `Gestión de ${table}` });

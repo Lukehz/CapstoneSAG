@@ -1,7 +1,7 @@
 function getTableNameFromUrl() {
     const urlParams = new URLSearchParams(window.location.search);
     const table = urlParams.get('table');
-    return table ? table : null; // Devuelve null si no hay parámetro 'table'
+    return table ? table : 'parcelacion'; // Devuelve null si no hay parámetro 'table'
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -32,7 +32,7 @@ async function loadItems(Table, sectors = [], phases = [], crops = [], registere
     if (nameTable === 'parcelacion') {
         crudTitle.textContent = 'Gestión de Parcelaciones';
         crudTitle.className = 'text-5xl font-bold';
-        addButton.textContent = '+';
+        addButton.textContent = 'Agregar Parcelacion';
         addButton.className = 'text-black font-semibold hover:text-black py-2 px-4 border border-blue-500 hover:border-black rounded';
         addButton.onclick = () => openModal('parcelacion');
         loadOptionsFilter(nameTable);
@@ -63,37 +63,17 @@ async function loadItems(Table, sectors = [], phases = [], crops = [], registere
         </div>
         `;
         ///fin test kosmi
-        
-        // Añadir el event listener al botón de filtrar
-        const filterButton = document.getElementById('filterButton');
-        filterButton.addEventListener('click', () => {
-            const selectedSectors = Array.from(document.getElementById('filter_sector').selectedOptions).map(option => option.value);
-            const selectedPhases = Array.from(document.getElementById('filter_fase').selectedOptions).map(option => option.value);
-            const selectedCrops = Array.from(document.getElementById('filter_cultivo').selectedOptions).map(option => option.value);
-            const selectedRegistered = Array.from(document.getElementById('filter_registrada').selectedOptions).map(option => option.value);
-            
-            // Loguear los valores seleccionados
-            console.log('Filtros seleccionados:', {
-                sectors: selectedSectors,
-                phases: selectedPhases,
-                crops: selectedCrops,
-                registered: selectedRegistered
-            });
-
-
-
-            // Llamar a la función para cargar ítems filtrados
-            loadItems('parcelacion', selectedSectors, selectedPhases, selectedCrops, selectedRegistered);
-        });
         addButton.onclick = () => openModal('parcelacion'); // Asigna función al botón
     } else if (nameTable === 'region') {
         crudTitle.textContent = 'Gestión de Regiones';
         addButton.textContent = 'Agregar Región';
+        addButton.className = 'text-black font-semibold hover:text-black py-2 px-4 border border-blue-500 hover:border-black rounded';
         filters.innerHTML = ``;
         addButton.onclick = () => openModal('region');
     } else if (nameTable === 'provincia') {
         crudTitle.textContent = 'Gestión de Provincia';
         addButton.textContent = 'Agregar provincia';
+        addButton.className = 'text-black font-semibold hover:text-black py-2 px-4 border border-blue-500 hover:border-black rounded';
         addButton.onclick = () => openModal('provincia');
         loadOptionsRegionFilter();
         filters.innerHTML = `    
@@ -104,26 +84,12 @@ async function loadItems(Table, sectors = [], phases = [], crops = [], registere
                 </select>
             </div>
             </div>
-            `
+            `;
 
-        // Añadir el event listener al botón de filtrar
-        const filterButton = document.getElementById('filterButton');
-        filterButton.addEventListener('click', () => {
-            const selectedRegiones = Array.from(document.getElementById('filter_region').selectedOptions).map(option => option.value);
-
-            // Loguear los valores seleccionados
-            console.log('Filtros seleccionados:', {
-                regiones : selectedRegiones
-            });
-
-
-
-            // Llamar a la función para cargar ítems filtrados
-            loadItems('provincia', undefined, undefined, undefined, undefined, selectedRegiones);
-        });
     } else if (nameTable === 'sector') {
         crudTitle.textContent = 'Gestión de Sector';
         addButton.textContent = 'Agregar Sector';
+        addButton.className = 'text-black font-semibold hover:text-black py-2 px-4 border border-blue-500 hover:border-black rounded';
         addButton.onclick = () => openModal('sector');
         loadOptionsSectorFilter();
         filters.innerHTML = `
@@ -136,28 +102,15 @@ async function loadItems(Table, sectors = [], phases = [], crops = [], registere
             </div>
         </div>
         
-        `
+        `;
         addButton.onclick = () => openModal('sector');
 
-        // Añadir el event listener al botón de filtrar
-        const filterButton = document.getElementById('filterButton');
-        filterButton.addEventListener('click', () => {
-            const selectedProvincia = Array.from(document.getElementById('filter_provincia').selectedOptions).map(option => option.value);
-
-            // Loguear los valores seleccionados
-            console.log('Filtros seleccionados:', {
-                provincias : selectedProvincia
-            });
-
-
-
-            // Llamar a la función para cargar ítems filtrados
-            loadItems('sector', undefined, undefined, undefined, undefined, undefined, selectedProvincia);
-        });
+        
 
     } else if (nameTable === 'cuarentena') {
         crudTitle.textContent = 'Gestión de Cuarentena';
         addButton.textContent = 'Agregar Cuarentena';
+        addButton.className = 'text-black font-semibold hover:text-black py-2 px-4 border border-blue-500 hover:border-black rounded';
         addButton.onclick = () => openModal('cuarentena');
         loadOptionsFilter(nameTable);
         filters.innerHTML = `
@@ -177,38 +130,25 @@ async function loadItems(Table, sectors = [], phases = [], crops = [], registere
             </div>
         </div>
         
-        `
+        `;
 
-        // Añadir el event listener al botón de filtrar
-        const filterButton = document.getElementById('filterButton');
-        filterButton.addEventListener('click', () => {
-            const selectedSectors = Array.from(document.getElementById('filter_sector').selectedOptions).map(option => option.value);
-            const selectedRadio = Array.from(document.getElementById('filter_radio').selectedOptions).map(option => option.value);
-            
-            // Loguear los valores seleccionados
-            console.log('Filtros seleccionados:', {
-                sectors: selectedSectors,
-                radio: selectedRadio
-            });
-
-
-
-            // Llamar a la función para cargar ítems filtrados
-            loadItems('cuarentena', selectedSectors, undefined, undefined, undefined, undefined, undefined, selectedRadio);
-        });
+        
     } else if (nameTable === 'cultivo') {
         crudTitle.textContent = 'Gestión de Cultivo';
         addButton.textContent = 'Agregar Cultivo';
+        addButton.className = 'text-black font-semibold hover:text-black py-2 px-4 border border-blue-500 hover:border-black rounded';
         filters.innerHTML = ``;
         addButton.onclick = () => openModal('cultivo');
     } else if (nameTable === 'fase') {
         crudTitle.textContent = 'Gestión de Fase';
         addButton.textContent = 'Agregar Fase';
+        addButton.className = 'text-black font-semibold hover:text-black py-2 px-4 border border-blue-500 hover:border-black rounded';
         filters.innerHTML = ``;
         addButton.onclick = () => openModal('fase');
     } else if (nameTable === 'usuario') {
         crudTitle.textContent = 'Gestión de Usuario';
         addButton.textContent = 'Agregar Usuario';
+        addButton.className = 'text-black font-semibold hover:text-black py-2 px-4 border border-blue-500 hover:border-black rounded';
         addButton.onclick = () => openModal('usuario');
 
         filters.innerHTML = `
@@ -221,23 +161,8 @@ async function loadItems(Table, sectors = [], phases = [], crops = [], registere
                 </select>
             </div>
         </div>
-        `
-
-        // Añadir el event listener al botón de filtrar
-        const filterButton = document.getElementById('filterButton');
-        filterButton.addEventListener('click', () => {
-            const selectedRol = Array.from(document.getElementById('filter_rol').selectedOptions).map(option => option.value);
-            
-            // Loguear los valores seleccionados
-            console.log('Filtros seleccionados:', {
-                roles: selectedRol
-            });
-
-
-
-            // Llamar a la función para cargar ítems filtrados
-            loadItems('usuario', undefined, undefined, undefined, undefined, undefined, undefined, undefined, selectedRol);
-        });
+        `;
+        
     } else if (nameTable === 'historial') {
         crudTitle.textContent = 'Gestión de Historial';
         filters.innerHTML = ``;
@@ -393,7 +318,7 @@ async function openModal(nameTable, item = null) {
 
     // Configuración de campos y título según la tabla seleccionada
     if (nameTable === 'parcelacion') {
-        title.textContent = item ? 'Editar Parcelación' : '+';
+        title.textContent = item ? 'Editar Parcelación' : 'Agregar Parcelación';
         
     
         // Campos para Parcelación
@@ -1178,3 +1103,119 @@ async function loadOptionsRegionFilter() {
 
         centerTableData();
     });
+
+
+
+
+/************************** OPCIONES PARA LOS SELECTS *****************************/
+    // FILTROS QUE SE LLEGAN A OCUPAR EN LA FUNCION loadItems() PARA CARGAR LOS DATOS CON LOS FILTROS
+
+    // EL QUE RESETEA LOS LOS EVENTOS DEL CLIC DE LOS FILTROS
+    let filterButtonAdded = false; // Variable de control
+
+/************************** FILTRO_PARCELACION *****************************/
+    
+
+// Verificamos si el eventListener ya fue agregado
+if (!filterButtonAdded && nameTable === 'parcelacion') {
+    const filterButton = document.getElementById('filterButton');
+    filterButton.addEventListener('click', () => {
+        const selectedSectors = Array.from(document.getElementById('filter_sector').selectedOptions).map(option => option.value);
+        const selectedPhases = Array.from(document.getElementById('filter_fase').selectedOptions).map(option => option.value);
+        const selectedCrops = Array.from(document.getElementById('filter_cultivo').selectedOptions).map(option => option.value);
+        const selectedRegistered = Array.from(document.getElementById('filter_registrada').selectedOptions).map(option => option.value);
+
+        // Loguear los valores seleccionados
+        console.log('Filtros seleccionados:', {
+            sectors: selectedSectors,
+            phases: selectedPhases,
+            crops: selectedCrops,
+            registered: selectedRegistered
+        });
+
+        // Llamar a la función para cargar ítems filtrados
+        loadItems('parcelacion', selectedSectors, selectedPhases, selectedCrops, selectedRegistered);
+    });
+
+    filterButtonAdded = true; // Marcamos que ya fue agregado
+}
+
+
+/************************** FILTRO_PROVINCIA*****************************/
+
+// Verificamos si el eventListener ya fue agregado
+if (!filterButtonAdded && nameTable === 'provincia') {
+    const filterButton = document.getElementById('filterButton');
+    filterButton.addEventListener('click', () => {
+        const selectedRegiones = Array.from(document.getElementById('filter_region').selectedOptions).map(option => option.value);
+
+        // Loguear los valores seleccionados
+        console.log('Filtros seleccionados:', {
+            regiones: selectedRegiones
+        });
+
+        // Llamar a la función para cargar ítems filtrados
+        loadItems('provincia', undefined, undefined, undefined, undefined, selectedRegiones);
+    });
+
+    filterButtonAdded = true; // Marcamos que ya fue agregado
+}
+
+/************************** FILTRO_SECTOR*****************************/
+// Verificamos si el eventListener ya fue agregado
+if (!filterButtonAdded && nameTable === 'sector') {
+    const filterButton = document.getElementById('filterButton');
+    filterButton.addEventListener('click', () => {
+        const selectedProvincia = Array.from(document.getElementById('filter_provincia').selectedOptions).map(option => option.value);
+
+        // Loguear los valores seleccionados
+        console.log('Filtros seleccionados:', {
+            provincias: selectedProvincia
+        });
+
+        // Llamar a la función para cargar ítems filtrados
+        loadItems('sector', undefined, undefined, undefined, undefined, undefined, selectedProvincia);
+    });
+
+    filterButtonAdded = true; // Marcamos que ya fue agregado
+}
+
+
+/************************** FILTRO_CUARENTENA*****************************/
+// Verificamos si el eventListener ya fue agregado
+if (!filterButtonAdded && nameTable === 'cuarentena') {
+    const filterButton = document.getElementById('filterButton');
+    filterButton.addEventListener('click', () => {
+        const selectedSectors = Array.from(document.getElementById('filter_sector').selectedOptions).map(option => option.value);
+        const selectedRadio = Array.from(document.getElementById('filter_radio').selectedOptions).map(option => option.value);
+
+        // Loguear los valores seleccionados
+        console.log('Filtros seleccionados:', {
+            sectors: selectedSectors,
+            radio: selectedRadio
+        });
+
+        // Llamar a la función para cargar ítems filtrados
+        loadItems('cuarentena', selectedSectors, undefined, undefined, undefined, undefined, undefined, selectedRadio);
+    });
+
+    filterButtonAdded = true; // Marcamos que el eventListener ya fue agregado
+}
+
+
+/************************** FILTRO_USUARIO*****************************/
+// Añadir el event listener al botón de filtrar
+const filterButton = document.getElementById('filterButton');
+filterButton.addEventListener('click', () => {
+    const selectedRol = Array.from(document.getElementById('filter_rol').selectedOptions).map(option => option.value);
+    
+    // Loguear los valores seleccionados
+    console.log('Filtros seleccionados:', {
+        roles: selectedRol
+    });
+
+
+
+    // Llamar a la función para cargar ítems filtrados
+    loadItems('usuario', undefined, undefined, undefined, undefined, undefined, undefined, undefined, selectedRol);
+});

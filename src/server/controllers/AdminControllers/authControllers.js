@@ -30,7 +30,7 @@ const login = async (req, res) => {
         // Determinar la redirección según el rol y enviar el ID
         let redirect;
         if (usuario.rol === 'Admin') {
-            redirect = '/crud';
+            redirect = '/index';
         } else if (usuario.rol === 'User') {
             redirect = '/index';
         } else {
