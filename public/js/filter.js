@@ -44,3 +44,18 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
   
+document.addEventListener("DOMContentLoaded", () => {
+  const createQuarantineButton = document.getElementById("create-quarantine-button");
+  const quarantinePanel = document.getElementById("quarantine-panel");
+  const cancelQuarantineButton = document.getElementById("cancel-quarantine");
+
+  // Alternar visibilidad del panel de cuarentena
+  createQuarantineButton.addEventListener("click", () => {
+      quarantinePanel.classList.toggle("hidden");
+  });
+
+  // Ocultar el panel de cuarentena al cancelar
+  cancelQuarantineButton.addEventListener("click", () => {
+      quarantinePanel.classList.add("hidden");
+  });
+});

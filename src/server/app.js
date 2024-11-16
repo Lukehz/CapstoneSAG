@@ -63,8 +63,11 @@ app.get('/crud', verificarAutenticacion('Admin'), (req, res) => {
   // Aquí puedes agregar lógica adicional si es necesario para cambiar el valor de 'table'
   // dependiendo de otras condiciones de la aplicación.
 
-  // Renderiza la vista CRUD con el nombre de la tabla
-  res.render('crud', { title: `Gestión de ${table}` });
+  // Renderizar la vista del CRUD
+  res.render('crud', {
+      title: `Gestión de ${table}`,
+      usuario: req.session.usuario // Pasar datos del usuario para personalizar la vista
+  });
 });
 
 // Redirigir la ruta raíz al login

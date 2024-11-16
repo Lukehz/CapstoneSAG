@@ -15,6 +15,7 @@
     <!-- Estilos locales -->
     <link rel="stylesheet" href="/styles/output.css">
     <link rel="stylesheet" href="/styles/Main_styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet"/>
     <style>
         /* Estilos adicionales */
         [x-cloak] { display: none !important; }
@@ -83,6 +84,29 @@
             border-top: 1px solid #e5e7eb;
             padding-top: 10px;
         }
+
+        #filter-button {
+            width: 36px; /* Ancho del botón */
+            height: 36px; /* Alto del botón */
+            background-color: white;
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            }
+
+        #filter-button i {
+            font-size: 16px; /* Tamaño del icono */
+            color: #4a5568; /* Gris oscuro */
+        }
+
+        #filter-button:hover {
+            background-color: #f3f4f6; /* Gris claro */
+        }
+
     </style>
 </head>
 <body class="flex h-screen bg-gray-300" x-data="{ open: false, infoOpen: false }">
@@ -104,26 +128,29 @@
             <nav class="px-4">
                 <a href="/index" class="block px-4 py-2 mt-2 text-gray-900 rounded truncate">Inicio</a>
                 <!-- Dropdown para "Informaciones" -->
-                <div class="relative mt-2" @click.away="infoOpen = false" @click="infoOpen = !infoOpen">
-                    <button class="block w-full flex justify-between items-center px-4 py-2 text-gray-900 rounded truncate">
-                        Informaciones
-                        <svg :class="{'rotate-180': infoOpen}" class="w-4 h-4 transition-transform duration-200 transform" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M5 8l5 5 5-5H5z"></path>
-                        </svg>
-                    </button>
-                    <div x-show="infoOpen" x-cloak class="absolute left-0 mt-2 w-full bg-white border rounded shadow">
-                        <ul class="flex flex-col space-y-2">
-                            <li><a href="/crud?table=region" onclick="loadItems('region')" class="block px-4 py-2 text-gray-900 rounded hover:bg-gray-200">Región</a></li>
-                            <li><a href="/crud?table=provincia" onclick="loadItems('provincia')" class="block px-4 py-2 text-gray-900 rounded hover:bg-gray-200">Provincia</a></li>
-                            <li><a href="/crud?table=sector" onclick="loadItems('sector')" class="block px-4 py-2 text-gray-900 rounded hover:bg-gray-200">Sector</a></li>
-                            <li><a href="/crud?table=cuarentena" onclick="loadItems('cuarentena')" class="block px-4 py-2 text-gray-900 rounded hover:bg-gray-200">Cuarentena</a></li>
-                            <li><a href="/crud?table=cultivo" onclick="loadItems('cultivo')" class="block px-4 py-2 text-gray-900 rounded hover:bg-gray-200">Cultivo</a></li>
-                            <li><a href="/crud?table=fase" onclick="loadItems('fase')" class="block px-4 py-2 text-gray-900 rounded hover:bg-gray-200">Fase</a></li>
-                            <li><a href="/crud?table=parcelacion" onclick="loadItems('parcelacion')" class="block px-4 py-2 text-gray-900 rounded hover:bg-gray-200">Parcelación</a></li>
-                            <li><a href="/crud?table=usuario" onclick="loadItems('provinciausuario')" class="block px-4 py-2 text-gray-900 rounded hover:bg-gray-200">Usuario</a></li>  
-                        </ul>
+                <!-- Botón "Informaciones" visible solo para administradores -->
+                <% if (usuario && usuario.role === 'Admin') { %>
+                    <div class="relative mt-2" @click.away="infoOpen = false" @click="infoOpen = !infoOpen">
+                        <button class="block w-full flex justify-between items-center px-4 py-2 text-gray-900 rounded truncate">
+                            Informaciones
+                            <svg :class="{'rotate-180': infoOpen}" class="w-4 h-4 transition-transform duration-200 transform" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M5 8l5 5 5-5H5z"></path>
+                            </svg>
+                        </button>
+                        <div x-show="infoOpen" x-cloak class="absolute left-0 mt-2 w-full bg-white border rounded shadow">
+                            <ul class="flex flex-col space-y-2">
+                                <li><a href="/crud?table=region" onclick="loadItems('region')" class="block px-4 py-2 text-gray-900 rounded hover:bg-gray-200">Región</a></li>
+                                <li><a href="/crud?table=provincia" onclick="loadItems('provincia')" class="block px-4 py-2 text-gray-900 rounded hover:bg-gray-200">Provincia</a></li>
+                                <li><a href="/crud?table=sector" onclick="loadItems('sector')" class="block px-4 py-2 text-gray-900 rounded hover:bg-gray-200">Sector</a></li>
+                                <li><a href="/crud?table=cuarentena" onclick="loadItems('cuarentena')" class="block px-4 py-2 text-gray-900 rounded hover:bg-gray-200">Cuarentena</a></li>
+                                <li><a href="/crud?table=cultivo" onclick="loadItems('cultivo')" class="block px-4 py-2 text-gray-900 rounded hover:bg-gray-200">Cultivo</a></li>
+                                <li><a href="/crud?table=fase" onclick="loadItems('fase')" class="block px-4 py-2 text-gray-900 rounded hover:bg-gray-200">Fase</a></li>
+                                <li><a href="/crud?table=parcelacion" onclick="loadItems('parcelacion')" class="block px-4 py-2 text-gray-900 rounded hover:bg-gray-200">Parcelación</a></li>
+                                <li><a href="/crud?table=usuario" onclick="loadItems('usuario')" class="block px-4 py-2 text-gray-900 rounded hover:bg-gray-200">Usuario</a></li>  
+                            </ul>
+                        </div>
                     </div>
-                </div>
+                <% } %>
             </nav>
         </div>
         <!-- Footer del Sidebar -->
