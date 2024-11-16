@@ -1,25 +1,26 @@
-<section class="py-1 bg-blueGray-50">
-    <div class="container mx-auto px-4">
-        <div class="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-lg rounded">
+<!-- Contenedor principal que ocupa el espacio al lado del sidebar -->
+<div class="ml-[25%] w-[75%] min-h-screen bg-white relative">
+    <!-- Contenedor para centrar el contenido -->
+    <div class="flex flex-col min-h-screen">
+        <!-- Contenido principal -->
+        <div class="flex-1 flex flex-col px-6">
             <!-- Header del CRUD -->
-            <div class="rounded-t mb-0 px-4 py-3 border-0">
-                <div class="flex justify-center items-center mt-4">
-                    <h1 id="crud-title" class="font-semibold text-xl text-blueGray-700"><%= title %></h1>
-                </div>
+            <div class="py-4 border-b border-gray-200 sticky top-0 bg-white z-10">
+                <h1 id="crud-title" class="text-xl font-semibold text-blueGray-700"><%= title %></h1>
             </div>
 
             <!-- Contenedor del CRUD -->
-            <div class="block w-full overflow-x-auto px-4 py-3">
+            <div class="py-4">
                 <!-- Filtros y Botones -->
-                <div class="flex justify-end mb-4">
+                <div class="flex justify-end mb-4 sticky top-16 bg-white z-10 py-2">
                     <button id="addButton" class="bg-indigo-500 text-white text-xl font-bold rounded-full w-8 h-8 flex items-center justify-center mr-2" type="button">+</button>
-                    <button id="filterButton" class="text-black font-semibold hover:text-black py-2 px-4 border border-blue-500 hover:border-black rounded"><i class="fas fa-filter"></i></button>
+                    <button id="filterButton" class="text-black font-semibold hover:text-black py-2 px-4 border border-blue-500 hover:border-black rounded"> Filtro </button>
                 </div>
                 <div id="filters" class="mb-4"></div>
 
                 <!-- Tabla de contenido -->
                 <div class="overflow-x-auto">
-                    <table id="itemsTable" class="items-center bg-transparent w-full border-collapse">
+                    <table id="itemsTable" class="w-full border-collapse">
                         <thead>
                             <tr id="tableHeaders"></tr>
                         </thead>
@@ -28,31 +29,28 @@
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Footer -->
-    <footer class="relative pt-8 pb-6 mt-16">
-        <div class="container mx-auto px-4">
-            <div class="flex flex-wrap items-center md:justify-between justify-center">
-                <div class="w-full md:w-6/12 px-4 mx-auto text-center">
-                    <div class="text-sm text-blueGray-500 font-semibold py-1">
-                        Gestión de Parcelaciones © 2023
-                    </div>
+        <!-- Footer -->
+        <footer class="w-full bg-blueGray-50 py-4 mt-auto">
+            <div class="container mx-auto px-6">
+                <div class="text-center">
+                    <p class="text-sm text-blueGray-500 font-semibold">
+                        Gestión de Parcelaciones © 2024
+                    </p>
                 </div>
             </div>
-        </div>
-    </footer>
-</section>
+        </footer>
+    </div>
+</div>
 
 <!-- Modal para mostrar la imagen -->
 <div id="imageModal" class="modal fixed w-full h-full top-0 left-0 flex items-center justify-center hidden">
-    <div class="modal-overlay absolute w-full h-full"></div>
+    <div class="modal-overlay absolute w-full h-full bg-black opacity-50"></div>
     <div class="modal-container bg-white w-11/12 md:max-w-md mx-auto rounded shadow-lg z-50 overflow-y-auto">
         <div class="modal-content py-4 text-left px-6">
             <div class="flex justify-between items-center pb-3">
-                <button class="modal-close cursor-pointer z-50 right-4 top-4" onclick="closeModalImg()">
-                    <!--i class="fas fa-times"></i> <-- ESTA LINEA FUNCIONABA EN EL DISEÑO DE PIPE Y LUCAS, FALLO EN ESCARLLET -->
-                    <p>x</p> 
+                <button class="modal-close cursor-pointer z-50" onclick="closeModalImg()">
+                    <span class="text-2xl">&times;</span>
                 </button>
             </div>
             <img id="modalImage" class="w-full" style="max-width: 100%; height: auto;" alt="Imagen de la parcelación" />
@@ -62,23 +60,23 @@
 
 <!-- Modal para agregar/actualizar parcelación -->
 <div id="myModal" class="modal fixed w-full h-full top-0 left-0 flex items-center justify-center hidden">
-<div class="modal-overlay absolute w-full h-full "></div>
-<div class="modal-container bg-white w-11/12 md:max-w-md mx-auto rounded shadow-lg z-50 overflow-y-auto">
-    <div class="modal-content py-4 text-left px-6">
-        <div class="flex justify-between items-center pb-3">
-            <p id="modalTitle" class="text-2xl font-bold">Agregar Item</p>
-            <button class="modal-close cursor-pointer z-50 right-4 top-4" onclick="closeModal()">
-                <!--i class="fas fa-times"></i> <-- ESTA LINEA FUNCIONABA EN EL DISEÑO DE PIPE Y LUCAS, FALLO EN ESCARLLET -->
-                <p>x</p> 
-            </button>
-        </div>
-        <form id="itemForm">
-            <input type="hidden" id="itemId">
-            <div id="formFields">
-                <!-- Los campos del formulario se llenarán aquí dinámicamente -->
+    <div class="modal-overlay absolute w-full h-full bg-black opacity-50"></div>
+    <div class="modal-container bg-white w-11/12 md:max-w-md mx-auto rounded shadow-lg z-50 overflow-y-auto">
+        <div class="modal-content py-4 text-left px-6">
+            <div class="flex justify-between items-center pb-3">
+                <p id="modalTitle" class="text-2xl font-bold">Agregar Item</p>
+                <button class="modal-close cursor-pointer z-50" onclick="closeModal()">
+                    <span class="text-2xl">&times;</span>
+                </button>
             </div>
-            <button type="submit" id="submitButton" class="bg-indigo-500 text-white text-xs font-bold uppercase px-3 py-1 rounded outline-none focus:outline-none mr-1 mb-1 mt-4 w-full no-hover">Agregar Item</button>
-        </form>
+            <form id="itemForm">
+                <input type="hidden" id="itemId">
+                <div id="formFields">
+                    <!-- Los campos del formulario se llenarán aquí dinámicamente -->
+                </div>
+                <button type="submit" id="submitButton" class="bg-indigo-500 text-white text-xs font-bold uppercase px-3 py-1 rounded outline-none focus:outline-none mr-1 mb-1 mt-4 w-full hover:bg-indigo-600 transition-colors duration-200">Agregar Item</button>
+            </form>
+        </div>
     </div>
 </div>
 

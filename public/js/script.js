@@ -37,49 +37,51 @@ async function loadItems(Table, sectors = [], phases = [], crops = [], registere
         addButton.onclick = () => openModal('parcelacion');
         loadOptionsFilter(nameTable);
         filters.innerHTML = `
-        <div id="filters" class="flex flex-wrap gap-10 justify-center items-center">
-            <div class="flex flex-col w-60">
-                <select name="filter_sector" id="filter_sector" class="block appearance-none w-full bt-black border border-gray-300 text-gray-700 py-1 px-2 rounded leading-tight focus:outline-none focus:bt-black focus:border-blue-500">
-                    <option value="">Seleccione la zona de interés</option>
-                </select>
-            </div>
-            <div class="flex flex-col w-60">
-                <select name="filter_fase" id="filter_fase" class="block appearance-none w-full bt-black border border-gray-300 text-gray-700 py-1 px-2 rounded leading-tight focus:outline-none focus:bt-black focus:border-blue-500">
-                    <option value="">Seleccione una fase</option>
-                </select>
-            </div>
-            <div class="flex flex-col w-60">
-                <select name="filter_cultivo" id="filter_cultivo" class="block appearance-none w-full bt-black border border-gray-300 text-gray-700 py-1 px-2 rounded leading-tight focus:outline-none focus:bt-black focus:border-blue-500">
-                    <option value="">Selecciona el tipo de cultivo</option>
-                </select>
-            </div>
-            <div class="flex flex-col w-70">
-                <select name="filter_registrada" id="filter_registrada" class="block appearance-none w-full bt-black border border-gray-300 text-gray-700 py-1 px-2 rounded leading-tight focus:outline-none focus:bt-black focus:border-blue-500">
-                    <option value="">Seleccione si está registrada</option>
-                    <option value="No Registrada">No Registrada</option>
-                    <option value="Registrada">Registrada</option>
-                </select>
-            </div>
-        </div>
+<div id="filters" class="flex flex-nowrap gap-4 justify-center items-center overflow-x-auto py-4">
+    <div class="flex-shrink-0 w-60">
+        <select name="filter_sector" id="filter_sector" class="block w-full appearance-none border border-gray-300 text-gray-700 py-2 px-3 rounded leading-tight focus:outline-none focus:border-blue-500">
+            <option value="">Seleccione la zona de interés</option>
+        </select>
+    </div>
+    <div class="flex-shrink-0 w-60">
+        <select name="filter_fase" id="filter_fase" class="block w-full appearance-none border border-gray-300 text-gray-700 py-2 px-3 rounded leading-tight focus:outline-none focus:border-blue-500">
+            <option value="">Seleccione una fase</option>
+        </select>
+    </div>
+    <div class="flex-shrink-0 w-60">
+        <select name="filter_cultivo" id="filter_cultivo" class="block w-full appearance-none border border-gray-300 text-gray-700 py-2 px-3 rounded leading-tight focus:outline-none focus:border-blue-500">
+            <option value="">Selecciona el tipo de cultivo</option>
+        </select>
+    </div>
+    <div class="flex-shrink-0 w-60">
+        <select name="filter_registrada" id="filter_registrada" class="block w-full appearance-none border border-gray-300 text-gray-700 py-2 px-3 rounded leading-tight focus:outline-none focus:border-blue-500">
+            <option value="">Seleccione si está registrada</option>
+            <option value="No Registrada">No Registrada</option>
+            <option value="Registrada">Registrada</option>
+        </select>
+    </div>
+</div>
         `;
         ///fin test kosmi
         addButton.onclick = () => openModal('parcelacion'); // Asigna función al botón
     } else if (nameTable === 'region') {
         crudTitle.textContent = 'Gestión de Regiones';
+        crudTitle.className = 'text-5xl font-bold';
         addButton.textContent = 'Agregar Región';
         addButton.className = 'text-black font-semibold hover:text-black py-2 px-4 border border-blue-500 hover:border-black rounded';
         filters.innerHTML = ``;
         addButton.onclick = () => openModal('region');
     } else if (nameTable === 'provincia') {
         crudTitle.textContent = 'Gestión de Provincia';
+        crudTitle.className = 'text-5xl font-bold';
         addButton.textContent = 'Agregar provincia';
         addButton.className = 'text-black font-semibold hover:text-black py-2 px-4 border border-blue-500 hover:border-black rounded';
         addButton.onclick = () => openModal('provincia');
         loadOptionsRegionFilter();
         filters.innerHTML = `    
-            <div id="filters" class="flex flex-wrap gap-10 justify-center items-center">
+            <div id="filters" class="flex flex-nowrap gap-4 justify-center items-center overflow-x-auto py-4">
             <div class="flex flex-col w-60">
-                <select name="filter_sector" id="filter_region" class="block appearance-none w-full bt-black border border-gray-300 text-gray-700 py-1 px-2 rounded leading-tight focus:outline-none focus:bt-black focus:border-blue-500">
+                <select name="filter_sector" id="filter_region" class="block w-full appearance-none border border-gray-300 text-gray-700 py-2 px-3 rounded leading-tight focus:outline-none focus:border-blue-500">
                     <option value="">Seleccione la zona de interés</option>
                 </select>
             </div>
@@ -88,6 +90,7 @@ async function loadItems(Table, sectors = [], phases = [], crops = [], registere
 
     } else if (nameTable === 'sector') {
         crudTitle.textContent = 'Gestión de Sector';
+        crudTitle.className = 'text-5xl font-bold';
         addButton.textContent = 'Agregar Sector';
         addButton.className = 'text-black font-semibold hover:text-black py-2 px-4 border border-blue-500 hover:border-black rounded';
         addButton.onclick = () => openModal('sector');
@@ -96,7 +99,7 @@ async function loadItems(Table, sectors = [], phases = [], crops = [], registere
     
         <div id="filters" class="flex flex-wrap gap-10 justify-center items-center">
             <div class="flex flex-col w-60">
-                <select name="filter_sector" id="filter_provincia" class="block appearance-none w-full bt-black border border-gray-300 text-gray-700 py-1 px-2 rounded leading-tight focus:outline-none focus:bt-black focus:border-blue-500">
+                <select name="filter_sector" id="filter_provincia" class="block w-full appearance-none border border-gray-300 text-gray-700 py-2 px-3 rounded leading-tight focus:outline-none focus:border-blue-500">
                     <option value="">Seleccione la zona de interés</option>
                 </select>
             </div>
@@ -109,6 +112,7 @@ async function loadItems(Table, sectors = [], phases = [], crops = [], registere
 
     } else if (nameTable === 'cuarentena') {
         crudTitle.textContent = 'Gestión de Cuarentena';
+        crudTitle.className = 'text-5xl font-bold';
         addButton.textContent = 'Agregar Cuarentena';
         addButton.className = 'text-black font-semibold hover:text-black py-2 px-4 border border-blue-500 hover:border-black rounded';
         addButton.onclick = () => openModal('cuarentena');
@@ -117,12 +121,12 @@ async function loadItems(Table, sectors = [], phases = [], crops = [], registere
 
         <div id="filters" class="flex flex-wrap gap-10 justify-center items-center">
             <div class="flex flex-col w-60">
-                <select name="filter_sector" id="filter_sector" class="block appearance-none w-full bt-black border border-gray-300 text-gray-700 py-1 px-2 rounded leading-tight focus:outline-none focus:bt-black focus:border-blue-500">
+                <select name="filter_sector" id="filter_sector" class="block w-full appearance-none border border-gray-300 text-gray-700 py-2 px-3 rounded leading-tight focus:outline-none focus:border-blue-500">
                     <option value="">Seleccione la zona de interés</option>
                 </select>
             </div>    
             <div class="flex flex-col w-70">
-                <select name="filter_sector" id="filter_radio" class="block appearance-none w-full bt-black border border-gray-300 text-gray-700 py-1 px-2 rounded leading-tight focus:outline-none focus:bt-black focus:border-blue-500">
+                <select name="filter_sector" id="filter_radio" class="block w-full appearance-none border border-gray-300 text-gray-700 py-2 px-3 rounded leading-tight focus:outline-none focus:border-blue-500">
                     <option value="">Todas las opciones</option>
                     <option value="Valores">Radio</option>
                     <option value="Trazado">Trazado</option>
@@ -135,18 +139,21 @@ async function loadItems(Table, sectors = [], phases = [], crops = [], registere
         
     } else if (nameTable === 'cultivo') {
         crudTitle.textContent = 'Gestión de Cultivo';
+        crudTitle.className = 'text-5xl font-bold';
         addButton.textContent = 'Agregar Cultivo';
         addButton.className = 'text-black font-semibold hover:text-black py-2 px-4 border border-blue-500 hover:border-black rounded';
         filters.innerHTML = ``;
         addButton.onclick = () => openModal('cultivo');
     } else if (nameTable === 'fase') {
         crudTitle.textContent = 'Gestión de Fase';
+        crudTitle.className = 'text-5xl font-bold';
         addButton.textContent = 'Agregar Fase';
         addButton.className = 'text-black font-semibold hover:text-black py-2 px-4 border border-blue-500 hover:border-black rounded';
         filters.innerHTML = ``;
         addButton.onclick = () => openModal('fase');
     } else if (nameTable === 'usuario') {
         crudTitle.textContent = 'Gestión de Usuario';
+        crudTitle.className = 'text-5xl font-bold';
         addButton.textContent = 'Agregar Usuario';
         addButton.className = 'text-black font-semibold hover:text-black py-2 px-4 border border-blue-500 hover:border-black rounded';
         addButton.onclick = () => openModal('usuario');
@@ -154,7 +161,7 @@ async function loadItems(Table, sectors = [], phases = [], crops = [], registere
         filters.innerHTML = `
                 <div id="filters" class="flex flex-wrap gap-10 justify-center items-center">
                 <div class="flex flex-col w-70">
-                <select name="filter_sector" id="filter_rol" class="block appearance-none w-full bt-black border border-gray-300 text-gray-700 py-1 px-2 rounded leading-tight focus:outline-none focus:bt-black focus:border-blue-500">
+                <select name="filter_sector" id="filter_rol" class="block w-full appearance-none border border-gray-300 text-gray-700 py-2 px-3 rounded leading-tight focus:outline-none focus:border-blue-500">
                     <option value="">Todos los roles</option>
                     <option value="Admin">Administrador</option>
                     <option value="User">Usuario</option>
@@ -165,6 +172,7 @@ async function loadItems(Table, sectors = [], phases = [], crops = [], registere
         
     } else if (nameTable === 'historial') {
         crudTitle.textContent = 'Gestión de Historial';
+        crudTitle.className = 'text-5xl font-bold';
         filters.innerHTML = ``;
         addButton.style.display = 'none'; // Oculta el botón de agregar para historial
         //addButton.textContent = 'Agregar Historial';
@@ -323,27 +331,30 @@ async function openModal(nameTable, item = null) {
     
         // Campos para Parcelación
         formFields.innerHTML = `
-            <input type="hidden" id="itemId"> <!-- Campo oculto para el ID -->
-            <input type="number" id="latitud" placeholder="Latitud" step="any" min="-90" max="90" required>
-            <input type="number" id="longitud" placeholder="Longitud" step="any" min="-180" max="180" required>
-            <input type="file" name="image" accept="image/*" id="image">
-            <select name="id_sector" id="id_sector" required>
-                <option value="">Seleccione un Sector</option>
-                <!-- Opciones dinámicas -->
-            </select>
-            <select name="id_fase" id="id_fase" required>
-                <option value="">Seleccione una Fase</option>
-                <!-- Opciones dinámicas -->
-            </select>
-            <select name="id_cultivo" id="id_cultivo" required>
-                <option value="">Seleccione un Cultivo</option>
-                <!-- Opciones dinámicas -->
-            </select>
-            <select name="registrada" id="registrada" required>
-                <option value="">Seleccione si está registrada</option>
-                <option value="0">No Registrada</option>
-                <option value="1">Registrada</option>
-            </select>
+<div class="flex flex-col sm:flex-row sm:flex-wrap gap-4">
+    <input type="hidden" id="itemId"> <!-- Campo oculto para el ID -->
+    <input type="number" id="latitud" placeholder="Latitud" step="any" min="-90" max="90" required class="flex-1 min-w-[150px]">
+    <input type="number" id="longitud" placeholder="Longitud" step="any" min="-180" max="180" required class="flex-1 min-w-[150px]">
+    <input type="file" name="image" accept="image/*" id="image" class="flex-1 min-w-[150px]">
+    <select name="id_sector" id="id_sector" required class="flex-1 min-w-[150px]">
+        <option value="">Seleccione un Sector</option>
+        <!-- Opciones dinámicas -->
+    </select>
+    <select name="id_fase" id="id_fase" required class="flex-1 min-w-[150px]">
+        <option value="">Seleccione una Fase</option>
+        <!-- Opciones dinámicas -->
+    </select>
+    <select name="id_cultivo" id="id_cultivo" required class="flex-1 min-w-[150px]">
+        <option value="">Seleccione un Cultivo</option>
+        <!-- Opciones dinámicas -->
+    </select>
+    <select name="registrada" id="registrada" required class="flex-1 min-w-[150px]">
+        <option value="">Seleccione si está registrada</option>
+        <option value="0">No Registrada</option>
+        <option value="1">Registrada</option>
+    </select>
+</div>
+
         `;
         // Solo cargar opciones si es 'parcelacion'
         try {
