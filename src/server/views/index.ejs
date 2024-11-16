@@ -55,12 +55,14 @@
 
 <!-- Botón Crear Cuarentena -->
 <!-- Botón Crear Cuarentena -->
-<button 
-  id="create-quarantine-button" 
-  class="absolute top-4 left-4 z-10 py-2 px-4 bg-red-500 hover:bg-red-600 text-white rounded-lg shadow-lg transition-colors"
->
-  Crear Cuarentena
-</button>
+<% if (usuario && usuario.role === 'Admin') { %>
+  <button 
+    id="create-quarantine-button" 
+    class="absolute top-4 left-4 z-10 py-2 px-4 bg-red-500 hover:bg-red-600 text-white rounded-lg shadow-lg transition-colors"
+  >
+    Crear Cuarentena
+  </button>
+<% } %>
 
 <!-- Panel de Cuarentena -->
 <div id="quarantine-panel" class="absolute top-16 left-4 bg-white p-4 rounded-lg shadow-lg w-72 z-10 hidden">
