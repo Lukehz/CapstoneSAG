@@ -16,7 +16,6 @@ const saveQuarantine = async (req, res) => {
     await transaction.begin();
 
     let latitud, longitud, radio = null;
-    
     if (type === 'polygon') {
       if (points.length < 3) {
         return res.status(400).json({ success: false, error: 'Se requieren al menos 3 puntos para un trazado.' });
@@ -30,23 +29,29 @@ const saveQuarantine = async (req, res) => {
       latitud = points[0][1];
       longitud = points[0][0];
       radio = parseFloat(radius);
+      if (radio <= 0) {
+        return res.status(400).json({ success: false, error: 'El radio debe ser un valor positivo.' });
+      }
     } else {
       return res.status(400).json({ success: false, error: 'El campo "type" debe ser "polygon" o "radius".' });
     }
+
+    const activa = 1;
 
     // Paso 1: Guardar la cuarentena con id_sector (comuna seleccionada)
     const resultCuarentena = await transaction.request()
       .input('latitud', sql.Float, latitud)
       .input('longitud', sql.Float, longitud)
       .input('radio', sql.Float, radio)
-      .input('id_sector', sql.Int, idSector) // Usar el idSector de la comuna seleccionada
+      .input('id_sector', sql.Int, idSector)
       .input('comentario', sql.NVarChar, comentario)
+      .input('activa', sql.Bit, activa)
       .query(`
-        INSERT INTO dbo.cuarentena (latitud, longitud, radio, id_sector, comentario)
+        INSERT INTO dbo.cuarentena (latitud, longitud, radio, id_sector, comentario, activa)
         OUTPUT INSERTED.id_cuarentena
-        VALUES (@latitud, @longitud, @radio, @id_sector, @comentario)
+        VALUES (@latitud, @longitud, @radio, @id_sector, @comentario, @activa)
       `);
-    
+
     idCuarentena = resultCuarentena.recordset[0].id_cuarentena;
     console.log(`Cuarentena guardada con ID: ${idCuarentena}`);
 
@@ -60,15 +65,16 @@ const saveQuarantine = async (req, res) => {
           .input('orden', sql.Int, i + 1)
           .query('INSERT INTO dbo.vertice (id_cuarentena, latitud, longitud, orden) VALUES (@id_cuarentena, @latitud, @longitud, @orden)');
       }
-      console.log(`Vértices guardados para la cuarentena ID: ${idCuarentena}`);
+      console.log(`Vértices guardados para el trazado de cuarentena con ID: ${idCuarentena}`);
     }
 
-    // Paso 3: Ejecutar el procedimiento almacenado
+    // Ejecutar el procedimiento almacenado
     await transaction.request()
-      .input('id_cuarentena', sql.Int, idCuarentena)
-      .execute('sp_CrearConexionesCuarentena');
-    console.log(`Procedimiento almacenado ejecutado para la cuarentena ID: ${idCuarentena}`);
+    .input('id_cuarentena', sql.Int, idCuarentena)
+    .execute('sp_CrearConexionesCuarentena');
+  console.log(`Procedimiento almacenado ejecutado para la cuarentena ID: ${idCuarentena}`);
 
+    // Confirmar la transacción
     await transaction.commit();
     res.status(201).json({
       success: true,
@@ -79,7 +85,6 @@ const saveQuarantine = async (req, res) => {
   } catch (error) {
     console.error('Error en el proceso de guardar cuarentena:', error);
     if (transaction) await transaction.rollback();
-    
     let message = 'Error al procesar la cuarentena: ';
     if (idCuarentena) {
       message += `Cuarentena guardada con ID ${idCuarentena}, pero hubo un error en pasos posteriores. `;
@@ -95,16 +100,15 @@ const saveQuarantine = async (req, res) => {
     if (pool) await pool.close();
   }
 };
-
-
 const getAllQuarantines = async (req, res) => {
   try {
     const result = await sql.query(`
-      SELECT c.id_cuarentena, c.latitud, c.longitud, c.radio, c.comentario, 
-             v.id_conexion, v.latitud_INI, v.longitud_INI, v.latitud_END, v.longitud_END, v.ORDEN
-      FROM dbo.cuarentena c
-      INNER JOIN VW_conexiones_cuarentena v ON c.id_cuarentena = v.id_cuarentena
-      ORDER BY c.id_cuarentena, v.ORDEN
+    SELECT c.id_cuarentena, c.latitud, c.longitud, c.radio, c.comentario, c.activa,
+    v.id_conexion, v.latitud_INI, v.longitud_INI, v.latitud_END, v.longitud_END, v.ORDEN
+    FROM dbo.cuarentena c
+    INNER JOIN VW_conexiones_cuarentena v ON c.id_cuarentena = v.id_cuarentena
+    WHERE c.activa = 1
+    ORDER BY c.id_cuarentena, v.ORDEN
     `);
 
     const quarantines = result.recordset.reduce((acc, row) => {
@@ -166,107 +170,6 @@ const getAllRadiusQuarantines = async (req, res) => {
 let isDeleting = false; // Flag para evitar duplicación de la acción
 
 
-
-      // eliminar la cuarentena
-      const deleteQuarantine = async (req, res) => {
-        const { id } = req.params;
-        let pool;
-        let transaction;
-        const maxAttempts = 3;
-        
-      
-        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-          try {
-            // Crear nueva conexión para cada intento
-            pool = await connectDB();
-            transaction = new sql.Transaction(pool);
-            await transaction.begin();
-      
-            // Primero verificar si la cuarentena existe
-            const checkResult = await transaction.request()
-              .input('id_cuarentena', sql.Int, id)
-              .query('SELECT id_cuarentena FROM dbo.cuarentena WHERE id_cuarentena = @id_cuarentena');
-      
-            if (checkResult.recordset.length === 0) {
-              await transaction.rollback();
-              return res.status(404).json({
-                success: false,
-                message: `No se encontró la cuarentena con ID: ${id}`
-              });
-            }
-      
-            // Eliminar primero las conexiones relacionadas (si existen)
-            await transaction.request()
-              .input('id_cuarentena', sql.Int, id)
-              .query('DELETE FROM dbo.conexion WHERE id_cuarentena = @id_cuarentena');
-      
-            // Luego eliminar la cuarentena
-            const deleteResult = await transaction.request()
-              .input('id_cuarentena', sql.Int, id)
-              .query('DELETE FROM dbo.cuarentena WHERE id_cuarentena = @id_cuarentena');
-      
-            if (deleteResult.rowsAffected[0] === 0) {
-              await transaction.rollback();
-              return res.status(500).json({
-                success: false,
-                message: 'No se pudo eliminar la cuarentena'
-              });
-            }
-      
-            // Commit de la transacción
-            await transaction.commit();
-            
-            console.log(`Cuarentena con ID ${id} eliminada exitosamente`);
-            
-            return res.status(200).json({
-              success: true,
-              message: 'Cuarentena eliminada exitosamente'
-            });
-      
-          } catch (error) {
-            // Manejar deadlock
-            if (error.number === 1205) {
-              console.warn(`Deadlock detectado. Intento ${attempt} de ${maxAttempts}`);
-              if (transaction) {
-                await transaction.rollback();
-              }
-              // Si no es el último intento, continuar con el siguiente
-              if (attempt < maxAttempts) {
-                await new Promise(resolve => setTimeout(resolve, 1000 * attempt)); // Espera exponencial
-                continue;
-              }
-            }
-      
-            // Para cualquier otro error o si se agotaron los intentos de deadlock
-            console.error('Error al eliminar cuarentena:', error);
-            if (transaction) {
-              await transaction.rollback();
-            }
-            
-            return res.status(500).json({
-              success: false,
-              message: 'Error al eliminar la cuarentena',
-              error: error.message
-            });
-      
-          } finally {
-            if (pool) {
-              try {
-                await pool.close();
-                console.log('Conexión a la base de datos cerrada');
-              } catch (err) {
-                console.error('Error al cerrar la conexión:', err);
-              }
-            }
-          }
-        }
-      
-        // Si se llega aquí, significa que se agotaron todos los intentos
-        return res.status(500).json({
-          success: false,
-          message: 'Se alcanzó el número máximo de intentos para eliminar la cuarentena'
-        });
-      };
     
     
 const getComentario = async (req, res) => {
@@ -325,14 +228,78 @@ const getComuna = async (req, res) => {
     });
   }
 };
-  
+
+
+const getInactiveQuarantines = async (req, res) => {
+  let pool;
+
+  try {
+    pool = await connectDB();
+    const result = await pool.request()
+      .input('activa', sql.Bit, 0)
+      .query(`
+        SELECT id_cuarentena, latitud, longitud, radio, id_sector, comentario, activa
+        FROM dbo.cuarentena
+        WHERE activa = @activa
+      `);
+
+    res.status(200).json({ success: true, data: result.recordset });
+  } catch (error) {
+    console.error('Error al obtener cuarentenas inactivas:', error);
+    res.status(500).json({ success: false, error: 'Error al obtener cuarentenas inactivas.' });
+  } finally {
+    pool && pool.close();
+  }
+};
+
+
+const deactivateQuarantine = async (req, res) => {
+  const { id } = req.params; // ID de la cuarentena a inhabilitar
+
+  if (!id) {
+    return res.status(400).json({ success: false, error: 'El ID de la cuarentena es obligatorio.' });
+  }
+
+  let pool;
+
+  try {
+    pool = await connectDB(); // Intentamos conectar a la base de datos
+    if (!pool) {
+      return res.status(500).json({ success: false, error: 'No se pudo establecer la conexión a la base de datos.' });
+    }
+
+    const result = await pool.request()
+      .input('id', sql.Int, id)
+      .input('activa', sql.Bit, 0) // Cambiamos a inactiva (0)
+      .query(`
+        UPDATE dbo.cuarentena
+        SET activa = @activa
+        WHERE id_cuarentena = @id
+      `);
+
+    if (result.rowsAffected[0] === 0) {
+      return res.status(404).json({ success: false, error: 'Cuarentena no encontrada.' });
+    }
+
+    res.status(200).json({ success: true, message: `Cuarentena con ID ${id} inhabilitada exitosamente.` });
+  } catch (error) {
+    console.error('Error al inhabilitar cuarentena:', error);
+    res.status(500).json({ success: false, error: `Error al inhabilitar la cuarentena: ${error.message}` });
+  } finally {
+    if (pool) {
+      await pool.close();
+    }
+  }
+};
+
       
 module.exports = {
   saveQuarantine,
   getAllQuarantines,
   getAllRadiusQuarantines,
-  deleteQuarantine,
   getComentario,
-  getComuna
+  getComuna, 
+  getInactiveQuarantines,
+  deactivateQuarantine
 };
     

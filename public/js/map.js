@@ -8,7 +8,7 @@ const map = new mapboxgl.Map({
   zoom: 11,
   maxZoom: 20,
   minZoom: 1,
-  fitBoundsOptions: null
+  fitBoundsOptions: null,
 });
 
 // Coordenadas para centrar el mapa (modifica según tus necesidades)
@@ -22,7 +22,7 @@ document.getElementById('center-map').addEventListener('click', () => {
     zoom: 11, // Puedes ajustar el nivel de zoom que desees
     speed: 1, // Velocidad de animación
     curve: 1, // Curva de la animación
-    easing: (t) => t // Easing de la animación
+    easing: (t) => t, // Easing de la animación
   });
 });
 
@@ -36,14 +36,14 @@ const coordinatesGeocoder = function (query) {
       center: [lng, lat],
       geometry: {
         type: 'Point',
-        coordinates: [lng, lat]
+        coordinates: [lng, lat],
       },
       place_name: `Lat: ${lat} Lng: ${lng}`,
       place_type: ['coordinate'],
       properties: {},
-      type: 'Feature'
+      type: 'Feature',
     };
-  }
+  };
 
   const coord1 = Number(matches[1]);
   const coord2 = Number(matches[2]);
@@ -60,15 +60,17 @@ const coordinatesGeocoder = function (query) {
   return geocodes;
 };
 
-map.addControl(
-  new MapboxGeocoder({
-    accessToken: mapboxgl.accessToken,
-    localGeocoder: coordinatesGeocoder,
-    placeholder: 'Ingrese coordenadas',
-    mapboxgl: mapboxgl,
-    reverseGeocode: true
-  })
-);
+// Configuración del control del buscador
+const geocoder = new MapboxGeocoder({
+  accessToken: mapboxgl.accessToken,
+  localGeocoder: coordinatesGeocoder, // Habilita búsqueda de coordenadas
+  placeholder: 'Ingrese coordenadas o lugar', // Cambia el texto del placeholder
+  mapboxgl: mapboxgl, // Necesario para la integración
+  reverseGeocode: true, // Habilita búsqueda inversa (lat/lng)
+});
+
+// Asigna el buscador al contenedor específico
+document.getElementById('map-search').appendChild(geocoder.onAdd(map));
 
 // Exporta el mapa
 export { map };

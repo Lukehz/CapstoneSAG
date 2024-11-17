@@ -1,0 +1,119 @@
+<!-- Contenedor del mapa -->
+<div class="ml-[15%] w-full min-h-screen bg-white">
+<div id="map" style="width: 100%; height: 100vh;"></div>
+
+<!-- Botón de Filtro y Buscador -->
+<div class="absolute top-4 right-4 flex flex-row space-x-2 z-10">
+    <!-- Contenedor del buscador -->
+    <div id="map-search" class="flex-1"></div>
+    
+    <!-- Botón Filtro -->
+    <button 
+      id="filter-button" 
+      class="flex items-center justify-center bg-white text-gray-700 rounded-lg shadow-lg w-auto h-full px-4" 
+      aria-label="Abrir filtros"
+    >
+      <i class="fas fa-filter"></i> <!-- Icono de filtro de Font Awesome -->
+    </button>
+    
+  </div>
+
+  
+<!-- Panel de Filtros -->
+<div id="filter-panel" class="absolute top-16 right-4 bg-white p-4 rounded-lg shadow-lg w-72 z-10 hidden">
+  <h2 class="text-lg font-bold mb-4">Filtros</h2>
+  <div id="controls" class="space-y-2">
+    <label>
+      <input type="checkbox" id="quarantine-toggle"> Mostrar trazado de cuarentena
+    </label>
+    <label>
+      <input type="checkbox" id="quarantine-circle-toggle"> Mostrar Círculo de Cuarentena
+    </label>
+    <label>
+      <input type="checkbox" id="parcela-toggle"> Mostrar parcelas
+    </label>
+  </div>
+
+  <!-- Dropdown Parcelas -->
+  <div class="mb-4">
+    <label class="block text-sm font-medium text-gray-700">Parcelas</label>
+    <select id="parcelas-dropdown" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+      <option value="">Seleccione una parcela</option>
+    </select>
+  </div>
+
+  <!-- Dropdown Cuarentenas -->
+  <div class="mb-4">
+    <label class="block text-sm font-medium text-gray-700">Cuarentenas</label>
+    <select id="cuarentenas-dropdown" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+      <option value="">Seleccione una cuarentena</option>
+    </select>
+  </div>
+</div>
+
+  
+
+<!-- Botón Crear Cuarentena -->
+<!-- Botón Crear Cuarentena -->
+<% if (usuario && usuario.role === 'Admin') { %>
+  <button 
+    id="create-quarantine-button" 
+    class="absolute top-4 left-4 z-10 py-2 px-4 bg-red-500 hover:bg-red-600 text-white rounded-lg shadow-lg transition-colors"
+  >
+    Crear Cuarentena
+  </button>
+<% } %>
+
+<!-- Panel de Cuarentena -->
+<div id="quarantine-panel" class="absolute top-16 left-4 bg-white p-4 rounded-lg shadow-lg w-72 z-10 hidden">
+  <h2 class="text-lg font-bold mb-4">Crear Cuarentena</h2>
+  <select id="quarantine-type" class="mb-2 block w-full border border-gray-300 rounded-lg p-2">
+    <option value="seleccionar">Seleccionar modo dibujo</option>
+    <option value="trazado">Por Trazado</option>
+    <option value="radio">Por Radio</option>
+  </select>
+  <div class="form-group mb-2">
+    <label for="sector-select" class="block text-sm font-medium text-gray-700">Sector:</label>
+    <select id="SelectComuna" class="block w-full border border-gray-300 rounded-lg p-2">
+      <option value="">Seleccionar</option>
+    </select>
+  </div>
+  <textarea id="quarantine-comment" class="block w-full border border-gray-300 rounded-lg p-2 mb-2" placeholder="Escriba un comentario"></textarea>
+  <input 
+    type="number" 
+    id="quarantine-radius" 
+    class="block w-full border border-gray-300 rounded-lg p-2 mb-2 hidden" 
+    placeholder="Radio en metros" 
+    min="0"
+  >
+  <div class="flex space-x-2">
+    <button id="cancel-quarantine" class="py-2 px-4 bg-gray-500 hover:bg-gray-600 text-white rounded-lg shadow-lg transition-colors">
+      Cancelar
+    </button>
+    <button id="save-quarantine" class="py-2 px-4 bg-green-500 hover:bg-green-600 text-white rounded-lg shadow-lg transition-colors">
+      Guardar
+    </button>
+  </div>
+</div>
+
+
+
+
+<!-- Botón Centrar Mapa -->
+<button 
+  id="center-map" 
+  class="absolute bottom-4 left-4 z-10 py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded-lg shadow-lg transition-colors"
+>
+  Centrar Mapa
+</button>
+</div>
+</div>
+<!-- Scripts del mapa -->
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.12.0/mapbox-gl.js"></script>
+<script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.2/mapbox-gl-geocoder.min.js"></script>
+<script type="module" src="js/map.js"></script>
+<script type="module" src="/js/quarantine.js"></script>
+<script type="module" src="js/parcelas.js"></script>
+<script type="module" src="js/api.js"></script>
+<script type="module" src="js/sidebar.js"></script>
+<script type="module" src="js/filter.js"></script>

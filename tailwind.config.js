@@ -4,9 +4,16 @@ module.exports = {
     './public/**.html',
     './public/**/*.js',
     './public/**/*.html',
+    './src/**/*.ejs',
+    './src/*.ejs',
+
  ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        sans: ['"DM Sans"', 'sans-serif'], // Incluye "DM Sans" como fuente principal
+      },
+    },
   },
   plugins: [],
 }
