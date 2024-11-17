@@ -16,6 +16,7 @@ const usuarioRoutes = require('./Routes/AdminRoutes/usuarioRoutes');
 const historialRoutes = require('./Routes/AdminRoutes/historialRoutes');
 const authRoutes = require('./Routes/AdminRoutes/authRoutes'); // Importar rutas de autenticación
 const { verificarAutenticacion } = require('./Middlewares/authMiddleware');
+const { getUsuarioById } = require('./controllers/AdminControllers/usuarioController'); // Ajusta la ruta si es necesario
 //Rutas nicol
 const parcelasRoutes = require('./Routes/parcelasRoutes');
 const quarantineRoutes = require('./Routes/quarantineRoutes');
@@ -83,6 +84,63 @@ app.get('/index', verificarAutenticacion(['Admin', 'User']), (req, res) => {
   });
 });
 
+app.use((req, res, next) => {
+  if (req.session.usuario) {
+      res.locals.usuario = {
+          id_usuario: req.session.usuario.userId, // Cambia 'userId' a 'id_usuario'
+          nombre: req.session.usuario.username,  // Cambia 'username' a 'nombre'
+          rol: req.session.usuario.role          // Cambia 'role' a 'rol'
+      };
+  } else {
+      res.locals.usuario = null;
+  }
+  console.log('Middleware global: usuario en sesión:', res.locals.usuario);
+  next();
+});
+
+app.get('/perfil/:userId', verificarAutenticacion(['Admin', 'User']), async (req, res) => {
+  try {
+      const { userId } = req.params;
+
+      // Recupera los datos del usuario
+      const user = await getUsuarioById(userId);
+
+      if (!user) {
+          return res.status(404).render('error', {
+              title: 'Error',
+              message: 'Usuario no encontrado',
+          });
+      }
+
+      // Actualiza la sesión con los datos actualizados si es necesario
+      req.session.usuario = {
+          userId: user.id_usuario,
+          username: user.nombre,
+          role: user.rol
+      };
+
+      // Combina los datos de la sesión con los del usuario recuperado
+      const usuarioCompleto = {
+          ...req.session.usuario, // Información de la sesión
+          ...user                 // Información del usuario desde la base de datos
+      };
+
+      // Renderiza la vista del perfil
+      res.render('perfil', {
+          title: 'Perfil de Usuario',
+          usuario: usuarioCompleto // Pasa el usuario combinado a la vista
+      });
+  } catch (error) {
+      console.error('Error al obtener datos del usuario:', error);
+      res.status(500).render('error', {
+          title: 'Error',
+          message: 'Error interno del servidor',
+      });
+  }
+});
+
+
+
 // Middleware para servir archivos estáticos
 app.use(express.static(path.join(__dirname, '../../public')));
 
@@ -110,11 +168,6 @@ app.use('/api/historial', historialRoutes);
 app.use('/api/auth', authRoutes);
 //app.use('/api/crud', crudRoutes); // Aquí añades tus rutas de CRUD
 // Exportar la aplicación para su uso en server.js
-
-// Ruta para servir perfil.html
-app.get('/perfil', (req, res) => {
-  res.sendFile(path.join(__dirname, '../../public','perfil.html'));
-});
 
 app.use('/perfil', perfilRoutes);
 

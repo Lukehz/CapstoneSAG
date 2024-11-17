@@ -37,6 +37,7 @@
             box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
             display: flex;
             flex-direction: column;
+            margin: 0;
         }
 
         /* Ajustar los elementos internos para que se adapten */
@@ -60,7 +61,8 @@
         /* Ajuste para el contenedor principal */
         #content-container {
             flex: 1;
-            height: 100vh;
+            width: 100%;
+            height: 100%;
             overflow: hidden; /* Evitar que el contenido desborde */
             position: relative;
         }
@@ -109,7 +111,7 @@
 
     </style>
 </head>
-<body class="flex h-screen bg-gray-300" x-data="{ open: false, infoOpen: false }">
+<body class="flex h-screen bg-white overflow-hidden" x-data="{ open: false, infoOpen: false }">
     <!-- Sidebar -->
     <aside>
         <!-- Contenido del sidebar -->
@@ -155,16 +157,17 @@
         </div>
         <!-- Footer del Sidebar -->
         <div class="sidebar-footer px-4">
-            <a href="/perfil" class="block px-4 py-2 mt-2 text-gray-900 rounded truncate hover:bg-blue-500 hover:text-white">
+            <!-- Enlace al perfil del usuario -->
+            <a href="/perfil/<%= usuario.userId %>" class="block px-4 py-2 mt-2 text-gray-900 rounded truncate hover:bg-blue-500 hover:text-white">
                 Perfil
             </a>
-            <a id="logout" class="block px-4 py-2 mt-2 text-gray-900 rounded truncate hover:bg-red-500 hover:text-white">
+            <a href="/api/auth/logout" id="logout" class="block px-4 py-2 mt-2 text-gray-900 rounded truncate hover:bg-red-500 hover:text-white">
                 Cerrar Sesión
             </a>
         </div>
     </aside>
     <!-- Contenido Principal -->
-    <main id="content-container" class="flex-1">
+    <main id="content-container"  class="flex-1 h-full overflow-y-scroll">
         <div class="flex h-screen">
             <%- body %> <!-- Aquí se inyecta el contenido dinámico -->
         </div>
@@ -200,5 +203,6 @@
         });
 
     </script>
+
 </body>
 </html>
