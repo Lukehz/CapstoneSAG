@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <!-- Estilos externos -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.12.0/mapbox-gl.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.2/mapbox-gl-geocoder.css">
+     <!-- Fuente DM Sans -->
+     <link rel="preconnect" href="https://fonts.googleapis.com">
+     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet"> 
+    <!-- Estilos locales -->
+    <link rel="stylesheet" href="/styles/output.css">
+    <link rel="stylesheet" href="/styles/Main_styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet"/>
+    <style>
+        /* Estilos adicionales */
+        [x-cloak] { display: none !important; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        /* Estilo para el sidebar */
+        aside {
+            flex: 0 0 15%; /* El sidebar ocupa el 15% del ancho */
+            min-width: 200px; /* Asegurar que el sidebar tenga un ancho mínimo razonable */
+            background-color: #ffffff;
+            color: #000000;
+            z-index: 10;
+            height: 100vh; /* Altura completa de la ventana */
+            overflow-y: auto; /* Activar scroll si el contenido excede */
+            padding: 10px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+        }
+
+        /* Ajustar los elementos internos para que se adapten */
+        aside nav {
+            flex-grow: 1; /* Empuja el footer hacia abajo */
+        }
+
+        aside nav a, aside nav button {
+            white-space: nowrap; /* Evitar que el texto se divida en varias líneas */
+            overflow: hidden; /* Cortar el texto si excede */
+            text-overflow: ellipsis; /* Mostrar puntos suspensivos si se corta */
+        }
+
+        /* Footer del Sidebar */
+        aside .sidebar-footer {
+            margin-top: auto; /* Mueve el footer al final del sidebar */
+            padding-top: 10px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        /* Ajuste para el contenedor principal */
+        #content-container {
+            flex: 1;
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* Evitar que el contenido desborde */
+            position: relative;
+        }
+
+        /* Para dispositivos móviles, colapsar el sidebar */
+        @media (max-width: 768px) {
+            aside {
+                flex: 0 0 100%; /* Sidebar ocupa todo el ancho */
+                position: absolute;
+                z-index: 20;
+                transition: transform 0.3s ease-in-out; /* Añadir animación */
+                transform: translateX(-100%); /* Ocultar el sidebar */
+            }
+
+            aside.open {
+                transform: translateX(0); /* Mostrar el sidebar */
+            }
+        }
+        /* Footer del Sidebar */
+        aside .sidebar-footer {
+            border-top: 1px solid #e5e7eb;
+            padding-top: 10px;
+        }
+
+        #filter-button {
+            width: 36px; /* Ancho del botón */
+            height: 36px; /* Alto del botón */
+            background-color: white;
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            }
+
+        #filter-button i {
+            font-size: 16px; /* Tamaño del icono */
+            color: #4a5568; /* Gris oscuro */
+        }
+
+        #filter-button:hover {
+            background-color: #f3f4f6; /* Gris claro */
+        }
+
+    </style>
+</head>
+<body class="flex h-screen bg-white overflow-hidden" x-data="{ open: false, infoOpen: false }">
+    <!-- Sidebar -->
+    <aside>
+        <!-- Contenido del sidebar -->
+        <div>
+            <!-- Encabezado -->
+            <div class="flex flex-row items-center justify-between p-4">
+                <a href="/index" class="text-lg font-semibold text-gray-900 truncate">LandMosaic <br> Vision </a>
+                <button class="md:hidden" @click="open = !open">
+                    <svg fill="currentColor" viewBox="0 0 20 20" class="w-6 h-6">
+                        <path x-show="!open" d="M3 5h14M3 10h14m-7 5h7"></path>
+                        <path x-show="open" d="M4.293 4.293l1.414 1.414L10 8.586l4.293-4.293 1.414 1.414L10 11.414l-4.293 4.293-1.414-1.414L8.586 10z"></path>
+                    </svg>
+                </button>
+            </div>
+            <!-- Navegación -->
+            <nav class="px-4">
+                <a href="/index" class="block px-4 py-2 mt-2 text-gray-900 rounded truncate">Inicio</a>
+                <!-- Dropdown para "Informaciones" -->
+                <!-- Botón "Informaciones" visible solo para administradores -->
+                <% if (usuario && usuario.role === 'Admin') { %>
+                    <div class="relative mt-2" @click.away="infoOpen = false" @click="infoOpen = !infoOpen">
+                        <button class="block w-full flex justify-between items-center px-4 py-2 text-gray-900 rounded truncate">
+                            Informaciones
+                            <svg :class="{'rotate-180': infoOpen}" class="w-4 h-4 transition-transform duration-200 transform" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M5 8l5 5 5-5H5z"></path>
+                            </svg>
+                        </button>
+                        <div x-show="infoOpen" x-cloak class="absolute left-0 mt-2 w-full bg-white border rounded shadow">
+                            <ul class="flex flex-col space-y-2">
+                                <li><a href="/crud?table=region" onclick="loadItems('region')" class="block px-4 py-2 text-gray-900 rounded hover:bg-gray-200">Región</a></li>
+                                <li><a href="/crud?table=provincia" onclick="loadItems('provincia')" class="block px-4 py-2 text-gray-900 rounded hover:bg-gray-200">Provincia</a></li>
+                                <li><a href="/crud?table=sector" onclick="loadItems('sector')" class="block px-4 py-2 text-gray-900 rounded hover:bg-gray-200">Sector</a></li>
+                                <li><a href="/crud?table=cuarentena" onclick="loadItems('cuarentena')" class="block px-4 py-2 text-gray-900 rounded hover:bg-gray-200">Cuarentena</a></li>
+                                <li><a href="/crud?table=cultivo" onclick="loadItems('cultivo')" class="block px-4 py-2 text-gray-900 rounded hover:bg-gray-200">Cultivo</a></li>
+                                <li><a href="/crud?table=fase" onclick="loadItems('fase')" class="block px-4 py-2 text-gray-900 rounded hover:bg-gray-200">Fase</a></li>
+                                <li><a href="/crud?table=parcelacion" onclick="loadItems('parcelacion')" class="block px-4 py-2 text-gray-900 rounded hover:bg-gray-200">Parcelación</a></li>
+                                <li><a href="/crud?table=usuario" onclick="loadItems('usuario')" class="block px-4 py-2 text-gray-900 rounded hover:bg-gray-200">Usuario</a></li>  
+                            </ul>
+                        </div>
+                    </div>
+                <% } %>
+            </nav>
+        </div>
+        <!-- Footer del Sidebar -->
+        <div class="sidebar-footer px-4">
+            <!-- Enlace al perfil del usuario -->
+            <a href="/perfil/<%= usuario.userId %>" class="block px-4 py-2 mt-2 text-gray-900 rounded truncate hover:bg-blue-500 hover:text-white">
+                Perfil
+            </a>
+            <a href="/api/auth/logout" id="logout" class="block px-4 py-2 mt-2 text-gray-900 rounded truncate hover:bg-red-500 hover:text-white">
+                Cerrar Sesión
+            </a>
+        </div>
+    </aside>
+    <!-- Contenido Principal -->
+    <main id="content-container"  class="flex-1 h-full overflow-y-scroll">
+        <div class="flex h-screen">
+            <%- body %> <!-- Aquí se inyecta el contenido dinámico -->
+        </div>
+    </main>
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@2.8.2/dist/alpine.min.js" defer></script>
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.12.0/mapbox-gl.js"></script>
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.2/mapbox-gl-geocoder.min.js"></script>
+    <script type="module" src="js/filter.js"></script>
+    <script>
+            // Seleccionamos el enlace de Cerrar Sesión
+    const logoutLink = document.getElementById('logout');
+
+        // Agregamos un evento click al enlace
+        logoutLink.addEventListener('click', async function(event) {
+            event.preventDefault(); // Prevenir la acción por defecto del enlace (ir a /logout)
+
+            try {
+                // Hacemos la solicitud de logout al servidor
+                const response = await fetch('/api/auth/logout', { method: 'GET' });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Error al cerrar sesión');
+                }
+
+                // Redirigir al login
+                window.location.href = '/login';
+            } catch (error) {
+                console.error('Error:', error);
+                alert('No se pudo cerrar la sesión. Intenta nuevamente.');
+            }
+        });
+
+    </script>
+
+</body>
+</html>

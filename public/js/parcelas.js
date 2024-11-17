@@ -5,7 +5,6 @@ let parcelaMarkers = [];
 /* */ 
 
 const updateParcelas = () => {
-  alert('Obteniendo parcelas...');
   fetch('/parcelas')
     .then(response => {
       if (!response.ok) {
@@ -14,7 +13,6 @@ const updateParcelas = () => {
       return response.json();
     })
     .then(parcelas => {
-     alert('Parcelas recibidas');
       if (!parcelas.length) {
         return;
       }
@@ -37,7 +35,7 @@ const updateParcelas = () => {
             <p>Cultivo: ${parcela.Cultivo}</p>
             <p>Comuna: ${parcela.Comuna}</p>
             <p>Registrada: ${parcela.Registrada}</p>
-            <button id="delete-btn-${parcela.ID}" class="close-btn">Eliminar</button>
+            <button id="delete-btn-${parcela.ID}" class="close-btn" >Eliminar</button>
           `))
           .addTo(map);
           
@@ -47,6 +45,7 @@ const updateParcelas = () => {
     if (deleteButton) {
       deleteButton.addEventListener('click', function() {
         eliminarParcela(parcela.ID, deleteButton);
+        updateParcelas();
       });
     }
   });

@@ -1,7 +1,18 @@
-// Al cargar la página, carga la tabla parcelacion por defecto
-document.addEventListener("DOMContentLoaded", () => loadItems('parcelacion')); // Cambia a la tabla por defecto
+function getTableNameFromUrl() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const table = urlParams.get('table');
+    return table ? table : 'parcelacion'; // Devuelve null si no hay parámetro 'table'
+}
 
-let nameTable = 'parcelacion'; // Valor predeterminado
+document.addEventListener("DOMContentLoaded", () => {
+    const tableName = getTableNameFromUrl();
+    if (tableName) {
+        loadItems(tableName); // Solo carga la tabla si hay un parámetro 'table'
+    }
+});
+
+// Inicializar `nameTable` de forma dinámica basado en la URL
+let nameTable = getTableNameFromUrl(); // Valor dinámico basado en la URL
 
 /********************************** READ ********************************/
 /****** LEE TODOS LOS ITEMS, CREA LA TABLA Y RELLENA CON LOS ITEMS ******/
@@ -21,144 +32,101 @@ async function loadItems(Table, sectors = [], phases = [], crops = [], registere
     if (nameTable === 'parcelacion') {
         crudTitle.textContent = 'Gestión de Parcelaciones';
         crudTitle.className = 'text-5xl font-bold';
-        addButton.textContent = '+';
+        addButton.textContent = 'Agregar Parcelacion';
         addButton.className = 'text-black font-semibold hover:text-black py-2 px-4 border border-blue-500 hover:border-black rounded';
         addButton.onclick = () => openModal('parcelacion');
         loadOptionsFilter(nameTable);
         filters.innerHTML = `
-        <div id="filters" class="flex flex-wrap gap-10 justify-center items-center">
-            <div class="flex flex-col w-60">
-                <select name="filter_sector" id="filter_sector" class="block appearance-none w-full bt-black border border-gray-300 text-gray-700 py-1 px-2 rounded leading-tight focus:outline-none focus:bt-black focus:border-blue-500">
-                    <option value="">Seleccione la zona de interés</option>
-                </select>
-            </div>
-            <div class="flex flex-col w-60">
-                <select name="filter_fase" id="filter_fase" class="block appearance-none w-full bt-black border border-gray-300 text-gray-700 py-1 px-2 rounded leading-tight focus:outline-none focus:bt-black focus:border-blue-500">
-                    <option value="">Seleccione una fase</option>
-                </select>
-            </div>
-            <div class="flex flex-col w-60">
-                <select name="filter_cultivo" id="filter_cultivo" class="block appearance-none w-full bt-black border border-gray-300 text-gray-700 py-1 px-2 rounded leading-tight focus:outline-none focus:bt-black focus:border-blue-500">
-                    <option value="">Selecciona el tipo de cultivo</option>
-                </select>
-            </div>
-            <div class="flex flex-col w-70">
-                <select name="filter_registrada" id="filter_registrada" class="block appearance-none w-full bt-black border border-gray-300 text-gray-700 py-1 px-2 rounded leading-tight focus:outline-none focus:bt-black focus:border-blue-500">
-                    <option value="">Seleccione si está registrada</option>
-                    <option value="No Registrada">No Registrada</option>
-                    <option value="Registrada">Registrada</option>
-                </select>
-            </div>
-        </div>
+<div id="filters" class="flex flex-nowrap gap-4 justify-center items-center overflow-x-auto py-4">
+    <div class="flex-shrink-0 w-60">
+        <select name="filter_sector" id="filter_sector" class="block w-full appearance-none border border-gray-300 text-gray-700 py-2 px-3 rounded leading-tight focus:outline-none focus:border-blue-500">
+            <option value="">Seleccione la zona de interés</option>
+        </select>
+    </div>
+    <div class="flex-shrink-0 w-60">
+        <select name="filter_fase" id="filter_fase" class="block w-full appearance-none border border-gray-300 text-gray-700 py-2 px-3 rounded leading-tight focus:outline-none focus:border-blue-500">
+            <option value="">Seleccione una fase</option>
+        </select>
+    </div>
+    <div class="flex-shrink-0 w-60">
+        <select name="filter_cultivo" id="filter_cultivo" class="block w-full appearance-none border border-gray-300 text-gray-700 py-2 px-3 rounded leading-tight focus:outline-none focus:border-blue-500">
+            <option value="">Selecciona el tipo de cultivo</option>
+        </select>
+    </div>
+    <div class="flex-shrink-0 w-60">
+        <select name="filter_registrada" id="filter_registrada" class="block w-full appearance-none border border-gray-300 text-gray-700 py-2 px-3 rounded leading-tight focus:outline-none focus:border-blue-500">
+            <option value="">Seleccione si está registrada</option>
+            <option value="No Registrada">No Registrada</option>
+            <option value="Registrada">Registrada</option>
+        </select>
+    </div>
+</div>
         `;
         ///fin test kosmi
-        
-        // Añadir el event listener al botón de filtrar
-        const filterButton = document.getElementById('filterButton');
-        filterButton.addEventListener('click', () => {
-            const selectedSectors = Array.from(document.getElementById('filter_sector').selectedOptions).map(option => option.value);
-            const selectedPhases = Array.from(document.getElementById('filter_fase').selectedOptions).map(option => option.value);
-            const selectedCrops = Array.from(document.getElementById('filter_cultivo').selectedOptions).map(option => option.value);
-            const selectedRegistered = Array.from(document.getElementById('filter_registrada').selectedOptions).map(option => option.value);
-            
-            // Loguear los valores seleccionados
-            console.log('Filtros seleccionados:', {
-                sectors: selectedSectors,
-                phases: selectedPhases,
-                crops: selectedCrops,
-                registered: selectedRegistered
-            });
-
-
-
-            // Llamar a la función para cargar ítems filtrados
-            loadItems('parcelacion', selectedSectors, selectedPhases, selectedCrops, selectedRegistered);
-        });
         addButton.onclick = () => openModal('parcelacion'); // Asigna función al botón
     } else if (nameTable === 'region') {
         crudTitle.textContent = 'Gestión de Regiones';
+        crudTitle.className = 'text-5xl font-bold';
         addButton.textContent = 'Agregar Región';
+        addButton.className = 'text-black font-semibold hover:text-black py-2 px-4 border border-blue-500 hover:border-black rounded';
         filters.innerHTML = ``;
         addButton.onclick = () => openModal('region');
     } else if (nameTable === 'provincia') {
         crudTitle.textContent = 'Gestión de Provincia';
+        crudTitle.className = 'text-5xl font-bold';
         addButton.textContent = 'Agregar provincia';
+        addButton.className = 'text-black font-semibold hover:text-black py-2 px-4 border border-blue-500 hover:border-black rounded';
         addButton.onclick = () => openModal('provincia');
         loadOptionsRegionFilter();
         filters.innerHTML = `    
-            <div id="filters" class="flex flex-wrap gap-10 justify-center items-center">
+            <div id="filters" class="flex flex-nowrap gap-4 justify-center items-center overflow-x-auto py-4">
             <div class="flex flex-col w-60">
-                <select name="filter_sector" id="filter_region" class="block appearance-none w-full bt-black border border-gray-300 text-gray-700 py-1 px-2 rounded leading-tight focus:outline-none focus:bt-black focus:border-blue-500">
+                <select name="filter_sector" id="filter_region" class="block w-full appearance-none border border-gray-300 text-gray-700 py-2 px-3 rounded leading-tight focus:outline-none focus:border-blue-500">
                     <option value="">Seleccione la zona de interés</option>
                 </select>
             </div>
             </div>
-            `
+            `;
 
-        // Añadir el event listener al botón de filtrar
-        const filterButton = document.getElementById('filterButton');
-        filterButton.addEventListener('click', () => {
-            const selectedRegiones = Array.from(document.getElementById('filter_region').selectedOptions).map(option => option.value);
-
-            // Loguear los valores seleccionados
-            console.log('Filtros seleccionados:', {
-                regiones : selectedRegiones
-            });
-
-
-
-            // Llamar a la función para cargar ítems filtrados
-            loadItems('provincia', undefined, undefined, undefined, undefined, selectedRegiones);
-        });
     } else if (nameTable === 'sector') {
         crudTitle.textContent = 'Gestión de Sector';
+        crudTitle.className = 'text-5xl font-bold';
         addButton.textContent = 'Agregar Sector';
+        addButton.className = 'text-black font-semibold hover:text-black py-2 px-4 border border-blue-500 hover:border-black rounded';
         addButton.onclick = () => openModal('sector');
         loadOptionsSectorFilter();
         filters.innerHTML = `
     
         <div id="filters" class="flex flex-wrap gap-10 justify-center items-center">
             <div class="flex flex-col w-60">
-                <select name="filter_sector" id="filter_provincia" class="block appearance-none w-full bt-black border border-gray-300 text-gray-700 py-1 px-2 rounded leading-tight focus:outline-none focus:bt-black focus:border-blue-500">
+                <select name="filter_sector" id="filter_provincia" class="block w-full appearance-none border border-gray-300 text-gray-700 py-2 px-3 rounded leading-tight focus:outline-none focus:border-blue-500">
                     <option value="">Seleccione la zona de interés</option>
                 </select>
             </div>
         </div>
         
-        `
+        `;
         addButton.onclick = () => openModal('sector');
 
-        // Añadir el event listener al botón de filtrar
-        const filterButton = document.getElementById('filterButton');
-        filterButton.addEventListener('click', () => {
-            const selectedProvincia = Array.from(document.getElementById('filter_provincia').selectedOptions).map(option => option.value);
-
-            // Loguear los valores seleccionados
-            console.log('Filtros seleccionados:', {
-                provincias : selectedProvincia
-            });
-
-
-
-            // Llamar a la función para cargar ítems filtrados
-            loadItems('sector', undefined, undefined, undefined, undefined, undefined, selectedProvincia);
-        });
+        
 
     } else if (nameTable === 'cuarentena') {
         crudTitle.textContent = 'Gestión de Cuarentena';
+        crudTitle.className = 'text-5xl font-bold';
         addButton.textContent = 'Agregar Cuarentena';
+        addButton.className = 'text-black font-semibold hover:text-black py-2 px-4 border border-blue-500 hover:border-black rounded';
         addButton.onclick = () => openModal('cuarentena');
         loadOptionsFilter(nameTable);
         filters.innerHTML = `
 
         <div id="filters" class="flex flex-wrap gap-10 justify-center items-center">
             <div class="flex flex-col w-60">
-                <select name="filter_sector" id="filter_sector" class="block appearance-none w-full bt-black border border-gray-300 text-gray-700 py-1 px-2 rounded leading-tight focus:outline-none focus:bt-black focus:border-blue-500">
+                <select name="filter_sector" id="filter_sector" class="block w-full appearance-none border border-gray-300 text-gray-700 py-2 px-3 rounded leading-tight focus:outline-none focus:border-blue-500">
                     <option value="">Seleccione la zona de interés</option>
                 </select>
             </div>    
             <div class="flex flex-col w-70">
-                <select name="filter_sector" id="filter_radio" class="block appearance-none w-full bt-black border border-gray-300 text-gray-700 py-1 px-2 rounded leading-tight focus:outline-none focus:bt-black focus:border-blue-500">
+                <select name="filter_sector" id="filter_radio" class="block w-full appearance-none border border-gray-300 text-gray-700 py-2 px-3 rounded leading-tight focus:outline-none focus:border-blue-500">
                     <option value="">Todas las opciones</option>
                     <option value="Valores">Radio</option>
                     <option value="Trazado">Trazado</option>
@@ -166,69 +134,45 @@ async function loadItems(Table, sectors = [], phases = [], crops = [], registere
             </div>
         </div>
         
-        `
+        `;
 
-        // Añadir el event listener al botón de filtrar
-        const filterButton = document.getElementById('filterButton');
-        filterButton.addEventListener('click', () => {
-            const selectedSectors = Array.from(document.getElementById('filter_sector').selectedOptions).map(option => option.value);
-            const selectedRadio = Array.from(document.getElementById('filter_radio').selectedOptions).map(option => option.value);
-            
-            // Loguear los valores seleccionados
-            console.log('Filtros seleccionados:', {
-                sectors: selectedSectors,
-                radio: selectedRadio
-            });
-
-
-
-            // Llamar a la función para cargar ítems filtrados
-            loadItems('cuarentena', selectedSectors, undefined, undefined, undefined, undefined, undefined, selectedRadio);
-        });
+        
     } else if (nameTable === 'cultivo') {
         crudTitle.textContent = 'Gestión de Cultivo';
+        crudTitle.className = 'text-5xl font-bold';
         addButton.textContent = 'Agregar Cultivo';
+        addButton.className = 'text-black font-semibold hover:text-black py-2 px-4 border border-blue-500 hover:border-black rounded';
         filters.innerHTML = ``;
         addButton.onclick = () => openModal('cultivo');
     } else if (nameTable === 'fase') {
         crudTitle.textContent = 'Gestión de Fase';
+        crudTitle.className = 'text-5xl font-bold';
         addButton.textContent = 'Agregar Fase';
+        addButton.className = 'text-black font-semibold hover:text-black py-2 px-4 border border-blue-500 hover:border-black rounded';
         filters.innerHTML = ``;
         addButton.onclick = () => openModal('fase');
     } else if (nameTable === 'usuario') {
         crudTitle.textContent = 'Gestión de Usuario';
+        crudTitle.className = 'text-5xl font-bold';
         addButton.textContent = 'Agregar Usuario';
+        addButton.className = 'text-black font-semibold hover:text-black py-2 px-4 border border-blue-500 hover:border-black rounded';
         addButton.onclick = () => openModal('usuario');
 
         filters.innerHTML = `
                 <div id="filters" class="flex flex-wrap gap-10 justify-center items-center">
                 <div class="flex flex-col w-70">
-                <select name="filter_sector" id="filter_rol" class="block appearance-none w-full bt-black border border-gray-300 text-gray-700 py-1 px-2 rounded leading-tight focus:outline-none focus:bt-black focus:border-blue-500">
+                <select name="filter_sector" id="filter_rol" class="block w-full appearance-none border border-gray-300 text-gray-700 py-2 px-3 rounded leading-tight focus:outline-none focus:border-blue-500">
                     <option value="">Todos los roles</option>
                     <option value="Admin">Administrador</option>
                     <option value="User">Usuario</option>
                 </select>
             </div>
         </div>
-        `
-
-        // Añadir el event listener al botón de filtrar
-        const filterButton = document.getElementById('filterButton');
-        filterButton.addEventListener('click', () => {
-            const selectedRol = Array.from(document.getElementById('filter_rol').selectedOptions).map(option => option.value);
-            
-            // Loguear los valores seleccionados
-            console.log('Filtros seleccionados:', {
-                roles: selectedRol
-            });
-
-
-
-            // Llamar a la función para cargar ítems filtrados
-            loadItems('usuario', undefined, undefined, undefined, undefined, undefined, undefined, undefined, selectedRol);
-        });
+        `;
+        
     } else if (nameTable === 'historial') {
         crudTitle.textContent = 'Gestión de Historial';
+        crudTitle.className = 'text-5xl font-bold';
         filters.innerHTML = ``;
         addButton.style.display = 'none'; // Oculta el botón de agregar para historial
         //addButton.textContent = 'Agregar Historial';
@@ -382,32 +326,35 @@ async function openModal(nameTable, item = null) {
 
     // Configuración de campos y título según la tabla seleccionada
     if (nameTable === 'parcelacion') {
-        title.textContent = item ? 'Editar Parcelación' : '+';
+        title.textContent = item ? 'Editar Parcelación' : 'Agregar Parcelación';
         
     
         // Campos para Parcelación
         formFields.innerHTML = `
-            <input type="hidden" id="itemId"> <!-- Campo oculto para el ID -->
-            <input type="number" id="latitud" placeholder="Latitud" step="any" min="-90" max="90" required>
-            <input type="number" id="longitud" placeholder="Longitud" step="any" min="-180" max="180" required>
-            <input type="file" name="image" accept="image/*" id="image">
-            <select name="id_sector" id="id_sector" required>
-                <option value="">Seleccione un Sector</option>
-                <!-- Opciones dinámicas -->
-            </select>
-            <select name="id_fase" id="id_fase" required>
-                <option value="">Seleccione una Fase</option>
-                <!-- Opciones dinámicas -->
-            </select>
-            <select name="id_cultivo" id="id_cultivo" required>
-                <option value="">Seleccione un Cultivo</option>
-                <!-- Opciones dinámicas -->
-            </select>
-            <select name="registrada" id="registrada" required>
-                <option value="">Seleccione si está registrada</option>
-                <option value="0">No Registrada</option>
-                <option value="1">Registrada</option>
-            </select>
+<div class="flex flex-col sm:flex-row sm:flex-wrap gap-4">
+    <input type="hidden" id="itemId"> <!-- Campo oculto para el ID -->
+    <input type="number" id="latitud" placeholder="Latitud" step="any" min="-90" max="90" required class="flex-1 min-w-[150px]">
+    <input type="number" id="longitud" placeholder="Longitud" step="any" min="-180" max="180" required class="flex-1 min-w-[150px]">
+    <input type="file" name="image" accept="image/*" id="image" class="flex-1 min-w-[150px]">
+    <select name="id_sector" id="id_sector" required class="flex-1 min-w-[150px]">
+        <option value="">Seleccione un Sector</option>
+        <!-- Opciones dinámicas -->
+    </select>
+    <select name="id_fase" id="id_fase" required class="flex-1 min-w-[150px]">
+        <option value="">Seleccione una Fase</option>
+        <!-- Opciones dinámicas -->
+    </select>
+    <select name="id_cultivo" id="id_cultivo" required class="flex-1 min-w-[150px]">
+        <option value="">Seleccione un Cultivo</option>
+        <!-- Opciones dinámicas -->
+    </select>
+    <select name="registrada" id="registrada" required class="flex-1 min-w-[150px]">
+        <option value="">Seleccione si está registrada</option>
+        <option value="0">No Registrada</option>
+        <option value="1">Registrada</option>
+    </select>
+</div>
+
         `;
         // Solo cargar opciones si es 'parcelacion'
         try {
@@ -1168,3 +1115,118 @@ async function loadOptionsRegionFilter() {
         centerTableData();
     });
 
+
+
+
+/************************** OPCIONES PARA LOS SELECTS *****************************/
+    // FILTROS QUE SE LLEGAN A OCUPAR EN LA FUNCION loadItems() PARA CARGAR LOS DATOS CON LOS FILTROS
+
+    // EL QUE RESETEA LOS LOS EVENTOS DEL CLIC DE LOS FILTROS
+    let filterButtonAdded = false; // Variable de control
+
+/************************** FILTRO_PARCELACION *****************************/
+    
+
+// Verificamos si el eventListener ya fue agregado
+if (!filterButtonAdded && nameTable === 'parcelacion') {
+    const filterButton = document.getElementById('filterButton');
+    filterButton.addEventListener('click', () => {
+        const selectedSectors = Array.from(document.getElementById('filter_sector').selectedOptions).map(option => option.value);
+        const selectedPhases = Array.from(document.getElementById('filter_fase').selectedOptions).map(option => option.value);
+        const selectedCrops = Array.from(document.getElementById('filter_cultivo').selectedOptions).map(option => option.value);
+        const selectedRegistered = Array.from(document.getElementById('filter_registrada').selectedOptions).map(option => option.value);
+
+        // Loguear los valores seleccionados
+        console.log('Filtros seleccionados:', {
+            sectors: selectedSectors,
+            phases: selectedPhases,
+            crops: selectedCrops,
+            registered: selectedRegistered
+        });
+
+        // Llamar a la función para cargar ítems filtrados
+        loadItems('parcelacion', selectedSectors, selectedPhases, selectedCrops, selectedRegistered);
+    });
+
+    filterButtonAdded = true; // Marcamos que ya fue agregado
+}
+
+
+/************************** FILTRO_PROVINCIA*****************************/
+
+// Verificamos si el eventListener ya fue agregado
+if (!filterButtonAdded && nameTable === 'provincia') {
+    const filterButton = document.getElementById('filterButton');
+    filterButton.addEventListener('click', () => {
+        const selectedRegiones = Array.from(document.getElementById('filter_region').selectedOptions).map(option => option.value);
+
+        // Loguear los valores seleccionados
+        console.log('Filtros seleccionados:', {
+            regiones: selectedRegiones
+        });
+
+        // Llamar a la función para cargar ítems filtrados
+        loadItems('provincia', undefined, undefined, undefined, undefined, selectedRegiones);
+    });
+
+    filterButtonAdded = true; // Marcamos que ya fue agregado
+}
+
+/************************** FILTRO_SECTOR*****************************/
+// Verificamos si el eventListener ya fue agregado
+if (!filterButtonAdded && nameTable === 'sector') {
+    const filterButton = document.getElementById('filterButton');
+    filterButton.addEventListener('click', () => {
+        const selectedProvincia = Array.from(document.getElementById('filter_provincia').selectedOptions).map(option => option.value);
+
+        // Loguear los valores seleccionados
+        console.log('Filtros seleccionados:', {
+            provincias: selectedProvincia
+        });
+
+        // Llamar a la función para cargar ítems filtrados
+        loadItems('sector', undefined, undefined, undefined, undefined, undefined, selectedProvincia);
+    });
+
+    filterButtonAdded = true; // Marcamos que ya fue agregado
+}
+
+
+/************************** FILTRO_CUARENTENA*****************************/
+// Verificamos si el eventListener ya fue agregado
+if (!filterButtonAdded && nameTable === 'cuarentena') {
+    const filterButton = document.getElementById('filterButton');
+    filterButton.addEventListener('click', () => {
+        const selectedSectors = Array.from(document.getElementById('filter_sector').selectedOptions).map(option => option.value);
+        const selectedRadio = Array.from(document.getElementById('filter_radio').selectedOptions).map(option => option.value);
+
+        // Loguear los valores seleccionados
+        console.log('Filtros seleccionados:', {
+            sectors: selectedSectors,
+            radio: selectedRadio
+        });
+
+        // Llamar a la función para cargar ítems filtrados
+        loadItems('cuarentena', selectedSectors, undefined, undefined, undefined, undefined, undefined, selectedRadio);
+    });
+
+    filterButtonAdded = true; // Marcamos que el eventListener ya fue agregado
+}
+
+
+/************************** FILTRO_USUARIO*****************************/
+// Añadir el event listener al botón de filtrar
+const filterButton = document.getElementById('filterButton');
+filterButton.addEventListener('click', () => {
+    const selectedRol = Array.from(document.getElementById('filter_rol').selectedOptions).map(option => option.value);
+    
+    // Loguear los valores seleccionados
+    console.log('Filtros seleccionados:', {
+        roles: selectedRol
+    });
+
+
+
+    // Llamar a la función para cargar ítems filtrados
+    loadItems('usuario', undefined, undefined, undefined, undefined, undefined, undefined, undefined, selectedRol);
+});

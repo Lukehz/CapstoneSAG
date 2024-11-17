@@ -1,5 +1,4 @@
 const { sql, query } = require('../../config/db');
-const bcrypt = require('bcryptjs');
 
 const login = async (req, res) => {
     console.log('Datos recibidos en /login:', req.body);
@@ -9,47 +8,41 @@ const login = async (req, res) => {
         if (!username || !password) {
             return res.status(400).json({ message: 'El nombre de usuario y la contraseña son obligatorios' });
         }
-         // 1. Consultar la base de datos para obtener el usuario
-        const sqlQuery = 'SELECT * FROM usuario WHERE usuario = @username';
+        
+        const sqlQuery = 'SELECT * FROM usuario WHERE usuario = @username AND password = @password';
+
         const result = await query(sqlQuery, [
-            { name: 'username', type: sql.VarChar, value: username }
+            { name: 'username', type: sql.VarChar, value: username },
+            { name: 'password', type: sql.VarChar, value: password }
         ]);
 
         if (result.length === 0) {
             return res.status(401).json({ message: 'Usuario no encontrado o contraseña incorrecta' });
         }
-
+        
         const usuario = result[0];
-        // 2. Comparar la contraseña proporcionada con el hash almacenado
-        const isMatch = await bcrypt.compare(password, usuario.password); // Aquí se compara con el hash almacenado
-
-        if (!isMatch) {
-            return res.status(401).json({ message: 'Contraseña incorrecta' });
-        }
-
-         // 3. Si la contraseña es correcta, crear la sesión
         req.session.usuario = { 
             username: usuario.usuario, 
             role: usuario.rol,
             userId: usuario.id_usuario // Añadir el ID a la sesión también
         };
 
-        // 4. Determinar la redirección según el rol y enviar id
+        // Determinar la redirección según el rol y enviar el ID
         let redirect;
         if (usuario.rol === 'Admin') {
-            redirect = '/crud';
+            redirect = '/index';
         } else if (usuario.rol === 'User') {
             redirect = '/index';
         } else {
             return res.status(403).json({ message: 'Rol de usuario no autorizado' });
         }
 
-        // 5. Responder con la información necesaria
+        // Enviar la respuesta con toda la información necesaria
         return res.json({
             message: 'Sesión iniciada correctamente',
             redirect: redirect,
-            userId: usuario.id_usuario, // Añade el ID del usuario a la respuesta
-            rol: usuario.rol // El rol también se envía al frontend, si es necesario
+            userId: usuario.id_usuario, // Añadir el ID del usuario a la respuesta
+            rol: usuario.rol // Opcional: también puedes enviar el rol si lo necesitas en el frontend
         });
 
     } catch (err) {

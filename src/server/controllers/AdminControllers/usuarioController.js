@@ -23,7 +23,6 @@ const createUsuario = async (req, res) => {
 
     const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
-
     // Primero, verificar si el RUT ya existe en la base de datos
     const checkRutQuery = `
         SELECT COUNT(*) AS count FROM USUARIO WHERE rut = @rut
@@ -44,7 +43,6 @@ const createUsuario = async (req, res) => {
     // 2. Hashear la contraseña
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
-
     const sqlQuery = `
         INSERT INTO USUARIO (correo, password, usuario, rut, dv_rut, nombre, apellido, rol) 
         VALUES (@correo, @password, @usuario, @rut, @dv_rut, @nombre, @apellido, @rol)
@@ -72,45 +70,38 @@ const createUsuario = async (req, res) => {
 };
 
 // Leer los datos de un ítem por ID para rellenar el formulario de edición
-const getUsuarioById = async (req, res) => {
-    // Extraer el ID del parámetro de la solicitud
-    const { id } = req.params;
 
+const getUsuarioById = async (id) => {
     try {
         const sqlQuery = `
             SELECT id_usuario, correo, password, usuario, rut, dv_rut, nombre, apellido, rol 
             FROM usuario 
             WHERE id_usuario = @id
         `;
-        
-        // Ejecutar la consulta pasando el ID como parámetro
+
         const result = await query(sqlQuery, [
-            { name: 'id', type: sql.Int, value: id } // Convertir el ID a entero antes de pasarlo a la consulta
+            { name: 'id', type: sql.Int, value: parseInt(id) } // Convertir el ID a entero antes de pasarlo a la consulta
         ]);
 
-        // Verificar si se encontró algún ítem
-        if (result.length > 0) {
-            // Si se encontró, devolver el primer ítem en formato JSON
-            res.json(result[0]);
-        } else {
-            res.status(404).json({ error: 'Ítem no encontrado' });
-        }
+        return result[0] || null; // Devuelve el primer resultado o null si no se encuentra
     } catch (error) {
-        console.error('Error al obtener ítem:', error.message); // Registrar el error en la consola para depuración
-        res.status(500).json({ error: error.message });
+        console.error('Error al obtener el usuario por ID:', error.message);
+        throw error;
     }
 };
+
 
 // Actualizar un ítem
 const updateUsuario = async (req, res) => {
     const { id } = req.params; // Obtiene el ID del ítem desde la URL
-    const { correo, usuario, rut, dv_rut, nombre, apellido, rol } = req.body;
+    const { correo, password, usuario, rut, dv_rut, nombre, apellido, rol } = req.body;
     
     console.log(req.body);
 
     const sqlQuery = `
         UPDATE usuario 
         SET correo = @correo,
+            password =  @password,
             usuario = @usuario,
             rut = @rut,
             dv_rut = @dv_rut,
@@ -124,7 +115,7 @@ const updateUsuario = async (req, res) => {
         // Crea los parámetros para la consulta
         await query(sqlQuery, [
             { name: 'correo', type: sql.VarChar, value: correo },
-            //{ name: 'password', type: sql.VarChar, value: password },
+            { name: 'password', type: sql.VarChar, value: password },
             { name: 'usuario', type: sql.VarChar, value: usuario },
             { name: 'rut', type: sql.Int, value: rut }, // Asegúrate de convertirlo al tipo correcto
             { name: 'dv_rut', type: sql.Char, value: dv_rut },

@@ -690,7 +690,9 @@ function fetchAndDisplayQuarantines(type = null) {
         <h3>Cuarentena ID: ${properties.id}</h3>
         <p>Comentario: ${properties.comentario || 'Sin comentario'}</p>
         <p>Radio: ${properties.radio} metros</p>
-        <button class="deactivate-button" data-id="${properties.id}">Desactivar</button>
+        <button class="deactivate-button bg-blue-500 text-white py-1 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 data-id="${properties.id}">
+        Desactivar
+    </button>
       `;
             // Agregar el evento click al botón de desactivar
         const deactivateButton = popupContent.querySelector('.deactivate-button');
@@ -700,8 +702,6 @@ function fetchAndDisplayQuarantines(type = null) {
 
             // Después de desactivar, eliminar la cuarentena del mapa
             deactivateQuarantine(properties.id);
-
-            // Recargar el mapa con las cuarentenas actualizadas
             fetchAndDisplayQuarantines('radio');
           }
         });
@@ -737,7 +737,7 @@ function fetchAndDisplayQuarantines(type = null) {
       popupContent.innerHTML = `
         <h3>Cuarentena ID: ${properties.id}</h3>
         <p>Comentario: ${properties.comentario || 'Sin comentario'}</p>
-        <button class="deactivate-button" data-id="${properties.id}">Inhabilitar</button>
+        <button class="deactivate-button  bg-blue-500 text-white py-1 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 data-id="${properties.id}">Inhabilitar</button>
       `;
       
     
@@ -970,7 +970,7 @@ function updateInactiveQuarantinePolygons(features, type) {
     }
   
     contentHTML += `
-      <button class="activate-button" data-id="${properties.id}">Activar</button>
+      <button class="activate-button  bg-blue-500 text-white py-1 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 data-id="${properties.id}">Activar</button>
     `;
   
     popupContent.innerHTML = contentHTML;

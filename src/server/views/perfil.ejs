@@ -1,0 +1,66 @@
+<div class="ml-[15%] w-full min-h-screen bg-white">
+    <!-- Encabezado -->
+    <div class="w-full bg-gradient-to-r from-green-200 to-green-100 p-6 flex justify-center">
+        <div class="w-24 h-24 rounded-full bg-white border-4 border-green-400 flex items-center justify-center">
+            <i class="fas fa-user text-4xl text-gray-400"></i>
+        </div>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="p-4">
+        <h2 class="text-2xl font-semibold text-green-800 mb-2">Perfil</h2>
+        <p class="text-sm text-green-600 mb-6">Detalles personales</p>
+
+        <form action="/perfil/actualizar" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Nombre -->
+            <div>
+                <label for="nombre" class="block text-sm font-medium text-green-800">Nombre</label>
+                <input type="text" id="nombre" name="nombre" value="<%= usuario.nombre %>" required
+                    class="w-full px-3 py-2 border border-green-400 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800">
+            </div>
+
+            <!-- Apellido -->
+            <div>
+                <label for="apellido" class="block text-sm font-medium text-green-800">Apellido</label>
+                <input type="text" id="apellido" name="apellido" value="<%= usuario.apellido %>" required
+                    class="w-full px-3 py-2 border border-green-400 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800">
+            </div>
+
+            <!-- RUT -->
+            <div>
+                <label for="rut" class="block text-sm font-medium text-green-800">RUT</label>
+                <input type="text" id="rut" name="rut" value="<%= usuario.rut %>-<%= usuario.dv_rut %>" required
+                    class="w-full px-3 py-2 border border-green-400 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800">
+            </div>
+
+            <!-- Usuario -->
+            <div>
+                <label for="usuario" class="block text-sm font-medium text-green-800">Usuario</label>
+                <input type="text" id="usuario" name="usuario" value="<%= usuario.usuario %>" required
+                    class="w-full px-3 py-2 border border-green-400 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800">
+            </div>
+
+            <!-- Correo -->
+            <div>
+                <label for="correo" class="block text-sm font-medium text-green-800">Correo</label>
+                <input type="email" id="correo" name="correo" value="<%= usuario.correo %>" required
+                    class="w-full px-3 py-2 border border-green-400 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800">
+            </div>
+
+            <!-- Rol -->
+            <div>
+                <label for="rol" class="block text-sm font-medium text-green-800">Rol</label>
+                <input type="text" id="rol" name="rol" value="<%= usuario.rol %>" required
+                    class="w-full px-3 py-2 border border-green-400 rounded-md focus:outline-none focus:ring-2 focus:ring-green-800">
+            </div>
+
+            <!-- Espacio para el botón -->
+            <div class="col-span-1 md:col-span-2">
+                <button type="submit"
+                    class="w-full bg-green-800 text-white py-3 rounded-md hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-800">
+                    Guardar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
