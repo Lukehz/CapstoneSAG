@@ -16,7 +16,6 @@ const updateParcelas = () => {
     .then(parcelas => {
      alert('Parcelas recibidas');
       if (!parcelas.length) {
-        console.log('No se encontraron parcelas');
         return;
       }
 
@@ -69,7 +68,6 @@ function toggleParcelas() {
     // Si no está marcado, eliminar todos los marcadores
     parcelaMarkers.forEach(marker => marker.remove());
     parcelaMarkers = [];
-    console.log('Parcelas ocultadas del mapa.');
   }
 }
 
@@ -82,7 +80,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function eliminarParcela(idParcela, boton) {
-  console.log("Intentando eliminar parcela con ID:", idParcela);
 
   fetch(`/parcelas/delete-parcela/${idParcela}`, {
     method: 'DELETE',
@@ -105,3 +102,159 @@ function eliminarParcela(idParcela, boton) {
   });
 }
 
+// Variable para indicar si estamos en modo de creación de parcela
+let isCreatingParcela = false;
+
+// Al hacer clic en el botón, activar el modo de creación de parcela
+document.getElementById('create-parcela').addEventListener('click', () => {
+  isCreatingParcela = true;
+  alert('Haz clic en el mapa para seleccionar la ubicación de la parcela.');
+});
+
+// Detectar clic en el mapa para obtener las coordenadas
+map.on('click', (e) => {
+  if (isCreatingParcela) {
+    const lat = e.lngLat.lat;
+    const lng = e.lngLat.lng;
+
+    // Rellenar los campos de latitud y longitud
+    document.getElementById('latitud').value = lat;
+    document.getElementById('longitud').value = lng;
+
+    // Desactivar el modo de creación de parcela
+    isCreatingParcela = false;
+  }
+});
+
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    const response = await fetch('/parcelas/api/DataOptions');
+    if (!response.ok) {
+      throw new Error('Error al obtener los datos de la base de datos');
+    }
+    const data = await response.json();
+    if (data.success) {
+      // Poblar los selectores de forma independiente
+      cargarComunas(data.data.comunas);
+      cargarFases(data.data.fases);
+      cargarCultivos(data.data.cultivos);
+    } else {
+      console.error('Error: los datos no son válidos.', data);
+    }
+  } catch (error) {
+    console.error('Error en la obtención de datos:', error);
+  }
+});
+// Funciones separadas para cada selector
+function cargarComunas(comunas) {
+  populateSelect('SelectComunaModal', comunas);
+}
+function cargarFases(fases) {
+  populateSelect('SelectFase', fases);
+}
+function cargarCultivos(cultivos) {
+  populateSelect('SelectCultivo', cultivos);
+}
+
+function populateSelect(selectId, options) {
+  // Verificar si el elemento select existe en el DOM
+  const selectElement = document.getElementById(selectId);
+  if (!selectElement) {
+    console.error(`ERROR: Elemento con id "${selectId}" no encontrado en el DOM.`);
+    return;
+  } else {
+  }
+
+  // Verificar si las opciones son válidas
+  if (!options || !Array.isArray(options) || options.length === 0) {
+    console.warn(`ADVERTENCIA: No se encontraron opciones válidas para el select con id "${selectId}".`);
+    return;
+  } else {
+  }
+
+  // Limpia las opciones previas del select
+  selectElement.innerHTML = '<option value="">Seleccionar </option>';
+  // Procesar y agregar las opciones al select
+  options.forEach((option, index) => {
+    try {
+      const opt = document.createElement('option');
+      // Configuración específica para cada tipo de select
+      if (selectId === 'SelectComunaModal') {
+        const selectElement = document.getElementById('SelectComunaModal');
+        opt.value = option.id_sector || '';
+        opt.textContent = option.comuna || 'Sin nombre';
+        if (!option.id_sector || !option.comuna) {
+          console.warn(`Opción incompleta detectada:`, option);
+        }      
+      } else if (selectId === 'SelectFase') {
+        if (!option.id_fase || !option.nombre) {
+          throw new Error(`Datos incompletos para la opción en index ${index}:`, option);
+        }
+        opt.value = option.id_fase;
+        opt.textContent = option.nombre;
+      } else if (selectId === 'SelectCultivo') {
+        if (!option.id_cultivo || !option.nombre) {
+          throw new Error(`Datos incompletos para la opción en index ${index}:`, option);
+        }
+        opt.value = option.id_cultivo;
+        opt.textContent = option.nombre;
+      }
+      // Añadir la opción al select
+      selectElement.appendChild(opt);
+    } catch (error) {
+      console.error(`ERROR: Problema al procesar la opción en index ${index} para "${selectId}":`, error.message);
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Captura de elementos del DOM
+  const saveButton = document.getElementById('save-parcelacion');
+  const cancelButton = document.getElementById('cancel-parcelacion');
+  const parcelacionForm = document.getElementById('parcelacion-form');
+
+  // Evento para guardar la parcelación
+  saveButton.addEventListener('click', async () => {
+    const latitud = document.getElementById('latitud').value;
+    const longitud = document.getElementById('longitud').value;
+    const id_sector = document.getElementById('SelectComunaModal').value; // Sector
+    const id_fase = document.getElementById('SelectFase').value; // Fase
+    const id_cultivo = document.getElementById('SelectCultivo').value; // Cultivo
+    const registrada = document.getElementById('Selectregistro').value; // Obtener valor dinámico
+
+    // Validar que todos los campos estén completos
+    if (!latitud || !longitud || !id_sector || !id_fase || !id_cultivo || registrada === '') {
+      alert('Por favor, completa todos los campos antes de guardar.');
+      return;
+    }
+
+    // Enviar datos al servidor
+    try {
+      const response = await fetch('/parcelas/api/SaveParcel', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ latitud, longitud, id_sector, id_fase, id_cultivo, registrada }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        alert('Parcelación guardada exitosamente.');
+        parcelacionForm.reset(); // Limpia el formulario después de guardar
+      } else {
+        alert('Error al guardar la parcelación: ' + result.message);
+      }
+    } catch (error) {
+      console.error('Error al guardar la parcelación:', error);
+      alert('Ocurrió un error al guardar la parcelación. Intenta nuevamente.');
+    }
+  });
+
+  // Evento para cancelar la parcelación
+  cancelButton.addEventListener('click', () => {
+    parcelacionForm.reset(); // Limpia el formulario
+    alert('Parcelación cancelada.');
+  });
+});

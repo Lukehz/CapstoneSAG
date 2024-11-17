@@ -29,22 +29,56 @@
           <option value="">Seleccionar</option>
         </select>
       </div>
+
+
       <button id="cancel-quarantine" class="btn-quarantine">Cancelar cuarentena</button>
       <textarea id="quarantine-comment" placeholder="Escriba un comentario"></textarea>
       <input type="number" id="quarantine-radius" placeholder="Radio en metros" min="0" style="display: none;">
       <button id="save-quarantine">Guardar cuarentena</button>
-    </div>
-    
+    <br>
+
+<!-- Modal estático para creación de parcelación -->
+<button id="create-parcela">Crear Parcela</button>
+<div id="parcelacion-modal">
+  <h2>Crear Parcelación</h2>
+  <form id="parcelacion-form">
+    <label for="latitud">Latitud:</label>
+    <input type="text" id="latitud" name="latitud" readonly>
+    <br><br>
+    <label for="longitud">Longitud:</label>
+    <input type="text" id="longitud" name="longitud" readonly>
+    <br><br>
+    seleccionar comuna:<select id="SelectComunaModal"><option value=""></option></select>
+    <br><br>
+    seleccionar fase:<select id="SelectFase"><option value=""></option></select>
+    <br><br>
+    seleccionar cultivo:<select id="SelectCultivo"><option value=""></option></select>
+    <br><br>
+      <label for="Selectregistro"></label>seleccionar Registro:
+      <select id="Selectregistro">
+        <option value="">Seleccionar</option>
+        <option value="1">Registrada</option>
+        <option value="0">No Registrada</option>
+      </select>
+    <br><br>
+    <button type="button" id="save-parcelacion">Guardar Parcelación</button>
+    <button type="button" id="cancel-parcelacion">Cancelar</button>
+  </form>
+</div>
+</div>
     
  <div class="sidenav">
   <h2>Filtros</h2>
   <div id="controls">
     <label>
-      <input type="checkbox" id="quarantine-toggle"> Mostrar trazado de cuarentena
+      <input type="checkbox" id="quarantine-toggle"> Mostrar trazado de cuarentena activas
     </label>
     <label>
-      <input type="checkbox" id="quarantine-circle-toggle"> Mostrar Círculo de Cuarentena
-    </label>       
+      <input type="checkbox" id="quarantine-circle-toggle"> Mostrar círculo de cuarentena activas
+    </label>     
+    <label>
+      <input type="checkbox" id="quarantine-inactive">Mostrar cuarentenas inactivas
+    </label>  
     <label>
       <input type="checkbox" id="parcela-toggle"> Mostrar parcelas
     </label>
