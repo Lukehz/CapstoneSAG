@@ -2,7 +2,8 @@
 module.exports = {
   content: [    
     './public/**.html',
-    './public/**/*.js'
+    './public/**/*.js',
+    './public/**/*.html',
  ],
   theme: {
     extend: {},

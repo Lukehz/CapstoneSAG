@@ -21,30 +21,29 @@ async function loadItems(Table, sectors = [], phases = [], crops = [], registere
     if (nameTable === 'parcelacion') {
         crudTitle.textContent = 'Gestión de Parcelaciones';
         crudTitle.className = 'text-5xl font-bold';
-        addButton.textContent = 'Agregar Parcelación';
-        addButton.className = 'text-white font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded';
+        addButton.textContent = '+';
+        addButton.className = 'text-black font-semibold hover:text-black py-2 px-4 border border-blue-500 hover:border-black rounded';
         addButton.onclick = () => openModal('parcelacion');
         loadOptionsFilter(nameTable);
         filters.innerHTML = `
-        <button class="text-white font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded" id="filterButton">Filtrar</button>
         <div id="filters" class="flex flex-wrap gap-10 justify-center items-center">
             <div class="flex flex-col w-60">
-                <select name="filter_sector" id="filter_sector" class="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-1 px-2 rounded leading-tight focus:outline-none focus:bg-white focus:border-blue-500">
+                <select name="filter_sector" id="filter_sector" class="block appearance-none w-full bt-black border border-gray-300 text-gray-700 py-1 px-2 rounded leading-tight focus:outline-none focus:bt-black focus:border-blue-500">
                     <option value="">Seleccione la zona de interés</option>
                 </select>
             </div>
             <div class="flex flex-col w-60">
-                <select name="filter_fase" id="filter_fase" class="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-1 px-2 rounded leading-tight focus:outline-none focus:bg-white focus:border-blue-500">
+                <select name="filter_fase" id="filter_fase" class="block appearance-none w-full bt-black border border-gray-300 text-gray-700 py-1 px-2 rounded leading-tight focus:outline-none focus:bt-black focus:border-blue-500">
                     <option value="">Seleccione una fase</option>
                 </select>
             </div>
             <div class="flex flex-col w-60">
-                <select name="filter_cultivo" id="filter_cultivo" class="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-1 px-2 rounded leading-tight focus:outline-none focus:bg-white focus:border-blue-500">
+                <select name="filter_cultivo" id="filter_cultivo" class="block appearance-none w-full bt-black border border-gray-300 text-gray-700 py-1 px-2 rounded leading-tight focus:outline-none focus:bt-black focus:border-blue-500">
                     <option value="">Selecciona el tipo de cultivo</option>
                 </select>
             </div>
             <div class="flex flex-col w-70">
-                <select name="filter_registrada" id="filter_registrada" class="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-1 px-2 rounded leading-tight focus:outline-none focus:bg-white focus:border-blue-500">
+                <select name="filter_registrada" id="filter_registrada" class="block appearance-none w-full bt-black border border-gray-300 text-gray-700 py-1 px-2 rounded leading-tight focus:outline-none focus:bt-black focus:border-blue-500">
                     <option value="">Seleccione si está registrada</option>
                     <option value="No Registrada">No Registrada</option>
                     <option value="Registrada">Registrada</option>
@@ -86,11 +85,10 @@ async function loadItems(Table, sectors = [], phases = [], crops = [], registere
         addButton.textContent = 'Agregar provincia';
         addButton.onclick = () => openModal('provincia');
         loadOptionsRegionFilter();
-        filters.innerHTML = `
-        <button class="text-white font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded" id="filterButton">Filtrar</button>    
+        filters.innerHTML = `    
             <div id="filters" class="flex flex-wrap gap-10 justify-center items-center">
             <div class="flex flex-col w-60">
-                <select name="filter_sector" id="filter_region" class="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-1 px-2 rounded leading-tight focus:outline-none focus:bg-white focus:border-blue-500">
+                <select name="filter_sector" id="filter_region" class="block appearance-none w-full bt-black border border-gray-300 text-gray-700 py-1 px-2 rounded leading-tight focus:outline-none focus:bt-black focus:border-blue-500">
                     <option value="">Seleccione la zona de interés</option>
                 </select>
             </div>
@@ -118,11 +116,10 @@ async function loadItems(Table, sectors = [], phases = [], crops = [], registere
         addButton.onclick = () => openModal('sector');
         loadOptionsSectorFilter();
         filters.innerHTML = `
-        <button class="text-white font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded" id="filterButton">Filtrar</button>
     
         <div id="filters" class="flex flex-wrap gap-10 justify-center items-center">
             <div class="flex flex-col w-60">
-                <select name="filter_sector" id="filter_provincia" class="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-1 px-2 rounded leading-tight focus:outline-none focus:bg-white focus:border-blue-500">
+                <select name="filter_sector" id="filter_provincia" class="block appearance-none w-full bt-black border border-gray-300 text-gray-700 py-1 px-2 rounded leading-tight focus:outline-none focus:bt-black focus:border-blue-500">
                     <option value="">Seleccione la zona de interés</option>
                 </select>
             </div>
@@ -154,15 +151,14 @@ async function loadItems(Table, sectors = [], phases = [], crops = [], registere
         loadOptionsFilter(nameTable);
         filters.innerHTML = `
 
-        <button class="text-white font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded" id="filterButton">Filtrar</button>
         <div id="filters" class="flex flex-wrap gap-10 justify-center items-center">
             <div class="flex flex-col w-60">
-                <select name="filter_sector" id="filter_sector" class="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-1 px-2 rounded leading-tight focus:outline-none focus:bg-white focus:border-blue-500">
+                <select name="filter_sector" id="filter_sector" class="block appearance-none w-full bt-black border border-gray-300 text-gray-700 py-1 px-2 rounded leading-tight focus:outline-none focus:bt-black focus:border-blue-500">
                     <option value="">Seleccione la zona de interés</option>
                 </select>
             </div>    
             <div class="flex flex-col w-70">
-                <select name="filter_sector" id="filter_radio" class="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-1 px-2 rounded leading-tight focus:outline-none focus:bg-white focus:border-blue-500">
+                <select name="filter_sector" id="filter_radio" class="block appearance-none w-full bt-black border border-gray-300 text-gray-700 py-1 px-2 rounded leading-tight focus:outline-none focus:bt-black focus:border-blue-500">
                     <option value="">Todas las opciones</option>
                     <option value="Valores">Radio</option>
                     <option value="Trazado">Trazado</option>
@@ -200,15 +196,14 @@ async function loadItems(Table, sectors = [], phases = [], crops = [], registere
         filters.innerHTML = ``;
         addButton.onclick = () => openModal('fase');
     } else if (nameTable === 'usuario') {
-        crudTitle.textContent = 'Gestión de Usurio';
+        crudTitle.textContent = 'Gestión de Usuario';
         addButton.textContent = 'Agregar Usuario';
         addButton.onclick = () => openModal('usuario');
 
         filters.innerHTML = `
-        <button class="text-white font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded" id="filterButton">Filtrar</button>
                 <div id="filters" class="flex flex-wrap gap-10 justify-center items-center">
                 <div class="flex flex-col w-70">
-                <select name="filter_sector" id="filter_rol" class="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-1 px-2 rounded leading-tight focus:outline-none focus:bg-white focus:border-blue-500">
+                <select name="filter_sector" id="filter_rol" class="block appearance-none w-full bt-black border border-gray-300 text-gray-700 py-1 px-2 rounded leading-tight focus:outline-none focus:bt-black focus:border-blue-500">
                     <option value="">Todos los roles</option>
                     <option value="Admin">Administrador</option>
                     <option value="User">Usuario</option>
@@ -274,6 +269,11 @@ async function loadItems(Table, sectors = [], phases = [], crops = [], registere
             // Definir encabezados según los datos
             const headers = Object.keys(items[0]); // Obtener claves del primer objeto
             headers.forEach((header, index) => {
+                /*
+                // Si estamos trabajando con la tabla de usuarios, omitimos la columna 'password'
+            if (nameTable === 'usuario' && header === 'password') {
+                return; // Salir de la iteración sin agregar esta columna
+            }    */
                 const th = document.createElement('th'); // Crear un nuevo encabezado
                 th.textContent = header.charAt(0).toUpperCase() + header.slice(1); // Capitalizar
                 tableHeaders.appendChild(th); // Agregar encabezado a la tabla
@@ -295,29 +295,44 @@ async function loadItems(Table, sectors = [], phases = [], crops = [], registere
             // Poblamos las filas
             items.forEach(item => {
                 const row = document.createElement('tr'); // Crear una nueva fila
+                
+                // Crear celdas para cada encabezado
                 headers.forEach((header, index) => {
+                    // Evitar incluir la columna 'password' en la tabla de 'usuarios'
+                    if (nameTable === 'usuarios' && header === 'password') {
+                        return; // Salir de la iteración sin crear una celda para 'password'
+                    }
+
                     const td = document.createElement('td'); // Crear una nueva celda
-                    td.textContent = item[header]; // Asignar valor del item
+
+                    // Si la columna es 'password', reemplazar su valor por '************'
+                    if (header === 'password') {
+                        td.textContent = '************'; // Reemplazar con asteriscos
+                    } else {
+                        td.textContent = item[header]; // Asignar valor del item
+                    }
                     row.appendChild(td); // Agregar celda a la fila
+
+                    // Si estamos en la tabla 'parcelacion', añadimos una celda especial
                     if (nameTable === 'parcelacion') {
                     // Si estamos en la tercera columna, añadimos la celda de imagen después
-                    if (index === 2) {
-                        const imagenTd = document.createElement('td');
-                        const verImagenBtn = document.createElement('button'); // Crear botón para ver imagen
-                        verImagenBtn.textContent = 'Ver Imagen'; // Texto del botón
-                        verImagenBtn.className='text-white-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded'; // Clase del boton 
-                        verImagenBtn.onclick = () => viewImage(item.id); // Llamar a la función viewImage
-                        imagenTd.appendChild(verImagenBtn); // Agregar botón a la celda
-                        row.appendChild(imagenTd); // Agregar celda de imagen a la fila
-                    }
+                        if (index === 2) {
+                            const imagenTd = document.createElement('td');
+                            const verImagenBtn = document.createElement('button'); // Crear botón para ver imagen
+                            verImagenBtn.textContent = 'Ver Imagen'; // Texto del botón
+                        verImagenBtn.className='text-black-700 font-semibold hover:text-black py-2 px-4 border border-blue-500 hover:border-black rounded'; // Clase del boton 
+                            verImagenBtn.onclick = () => viewImage(item.id); // Llamar a la función viewImage
+                            imagenTd.appendChild(verImagenBtn); // Agregar botón a la celda
+                            row.appendChild(imagenTd); // Agregar celda de imagen a la fila
+                        }
                 }});
                 if (nameTable !== 'historial') {
-                const actionsTd = document.createElement('td'); // Crear celda de acciones
-                actionsTd.innerHTML = `
-                    <button class="text-white-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded" onclick="editItem(${item.id})">Editar</button>
-                    <button class="text-white-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded" onclick="deleteItem(${item.id})">Eliminar</button>
-                `;
-                row.appendChild(actionsTd); // Agregar celda de acciones a la fila
+                    const actionsTd = document.createElement('td'); // Crear celda de acciones
+                    actionsTd.innerHTML = `
+                        <button class="text-black-700 font-semibold hover:text-black py-2 px-4 border border-blue-500 hover:border-black rounded" onclick="editItem(${item.id})">Editar</button>
+                        <button class="text-black-700 font-semibold hover:text-black py-2 px-4 border border-blue-500 hover:border-black rounded" onclick="deleteItem(${item.id})">Eliminar</button>
+                    `;
+                    row.appendChild(actionsTd); // Agregar celda de acciones a la fila
                 }
                 itemList.appendChild(row); // Agregar fila a la lista de ítems
             });
@@ -336,7 +351,8 @@ function viewImage(itemId) {
     const modalImage = document.getElementById('modalImage');
     if (modalImage) { // Verifica que el elemento existe
         modalImage.src = imageUrl; // Asigna la URL de la imagen al modal
-        document.getElementById('imageModal').style.display = 'block'; // Muestra el modal
+        document.getElementById('imageModal').style.display = 'flex'; // Muestra el modal
+        document.getElementById('imageModal').style.backgroundColor = 'rgb(0, 0, 0, 0.5)'; // Muestra el modal
     } else {
         console.error('El elemento modalImage no se encuentra en el DOM.');
     }
@@ -366,7 +382,7 @@ async function openModal(nameTable, item = null) {
 
     // Configuración de campos y título según la tabla seleccionada
     if (nameTable === 'parcelacion') {
-        title.textContent = item ? 'Editar Parcelación' : 'Agregar Parcelación';
+        title.textContent = item ? 'Editar Parcelación' : '+';
         
     
         // Campos para Parcelación
@@ -489,7 +505,11 @@ async function openModal(nameTable, item = null) {
         `;
     } else if (nameTable === 'usuario') {
         title.textContent = item ? 'Editar Usuario' : 'Agregar Usuario';
-        
+        // Campos para Usuario
+        let passwordField = '';
+        if (!item) {  // Solo mostrar el campo de contraseña si es creación (item es null)
+            passwordField = `<input type="password" id="password" placeholder="Password" name="password" required>`;
+        }
         // Campos para Usuario
         formFields.innerHTML = `
             <input type="hidden" id="itemId"> <!-- Campo oculto para el ID -->
@@ -504,7 +524,7 @@ async function openModal(nameTable, item = null) {
                 <option value="User">Usuario</option>
             </select>
             <input type="text" id="usuario" placeholder="Nombre de usuario" name="usuario" required>
-            <input type="password" id="password" placeholder="Password" name="password" required> <!-- CON ESTA LINEA DA UNA ADVERTENSIA DE ItemId duplicado, Pero solo con esta linea -->
+            ${passwordField}  <!-- Solo se incluirá el campo de password si es creación -->
         `;
     }
     
@@ -587,7 +607,7 @@ async function openModal(nameTable, item = null) {
 
             document.getElementById('correo').value = item.correo;
             document.getElementById('password').value = item.password;
-            document.getElementById('usuario').value = item.usuario;
+            //document.getElementById('usuario').value = item.usuario;
             document.getElementById('rut').value = item.rut;
             document.getElementById('dv_rut').value = item.dv_rut;
             document.getElementById('nombre').value = item.nombre;
@@ -598,7 +618,8 @@ async function openModal(nameTable, item = null) {
         }
     }
 
-    modal.style.display = 'block'; // Mostrar modal
+    modal.style.display = 'flex'; // Mostrar modal
+    modal.style.backgroundColor = 'rgb(0, 0, 0, 0.5)';
 }
 
 // Función para cerrar el modal y reiniciar el formulario
@@ -702,7 +723,7 @@ document.getElementById('itemForm').addEventListener('submit', async (e) => {
     } else if (nameTable === 'usuario') {
         formData.append('correo', document.getElementById('correo').value);
         formData.append('usuario', document.getElementById('usuario').value);
-        formData.append('password', document.getElementById('password').value);
+        //formData.append('password', document.getElementById('password').value);
         formData.append('rut', document.getElementById('rut').value);
         formData.append('dv_rut', document.getElementById('dv_rut').value);
         formData.append('nombre', document.getElementById('nombre').value);
@@ -1130,4 +1151,20 @@ async function loadOptionsRegionFilter() {
         }
     }
     
+
+    // Centrar objetos de la tabla
+    document.addEventListener('DOMContentLoaded', function() {
+        function centerTableData() {
+            const table = document.getElementById('itemsTable');
+            const cells = table.getElementsByTagName('td');
+            for (let cell of cells) {
+                cell.classList.add('text-center');
+            }
+        }
+
+        const observer = new MutationObserver(centerTableData);
+        observer.observe(document.getElementById('itemList'), { childList: true, subtree: true });
+
+        centerTableData();
+    });
 

@@ -4,115 +4,109 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Parcelaciones</title>
-    <link rel="stylesheet" href="./styles.css">
-    <link rel="stylesheet" href="/tailwind/output.css">
-    <link rel="stylesheet" href="/tailwind/Main_styles.css">
+    <link rel="Estilo" href="../crud/styles.css">
+    <link rel="stylesheet" href="../tailwind/output.css">
+    <link rel="stylesheet" href="../tailwind/Main_styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
-    <style>
-        /* Estilos para el botón de cerrar sesión */
-        .logout-button {
-            position: absolute;
-            top: 10px;
-            right: 20px;
-            padding: 10px 15px;
-            background-color: #ff4d4d; /* Color rojo */
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-    </style>
 </head>
-<body>
-    <button class="logout-button" onclick="logout()">Cerrar Sesión</button>
-    <div class="container">        
-        <main class="main-content<<">
-            <h1 id="crud-title"></h1>
-            <button id="addButton"></button>
-            <div id="filters"></div>
-                        
-            <h2 class="text-lg font-semibold">Tablas</h2>
-            <nav>
-                <aside class="sidebar flex flex-wrap justify-center bg-gray-100 p-4">
-                    <ul class="flex flex-wrap justify-center">
-                        <li class="mr-6 mb-6"> <!-- Aumentar el margen derecho y el margen inferior -->
-                            <button class="nav-button bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" data-table="region" onclick="loadItems('region')">Región</button>
-                        </li>
-                        <li class="mr-6 mb-6">
-                            <button class="nav-button bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" data-table="provincia" onclick="loadItems('provincia')">Provincia</button>
-                        </li>
-                        <li class="mr-6 mb-6">
-                            <button class="nav-button bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" data-table="sector" onclick="loadItems('sector')">Sector</button>
-                        </li>
-                        <li class="mr-6 mb-6">
-                            <button class="nav-button bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" data-table="cuarentena" onclick="loadItems('cuarentena')">Cuarentena</button>
-                        </li>
-                        <li class="mr-6 mb-6">
-                            <button class="nav-button bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" data-table="cultivo" onclick="loadItems('cultivo')">Cultivo</button>
-                        </li>
-                        <li class="mr-6 mb-6">
-                            <button class="nav-button bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" data-table="fase" onclick="loadItems('fase')">Fase</button>
-                        </li>
-                        <li class="mr-6 mb-6">
-                            <button class="nav-button bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" data-table="parcelacion" onclick="loadItems('parcelacion')">Parcelación</button>
-                        </li>
-                        <li class="mr-6 mb-6">
-                            <button class="nav-button bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" data-table="historial" onclick="loadItems('historial')">Historial</button>
-                        </li>
-                        <li class="mr-6 mb-6">
-                            <button class="nav-button bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded" data-table="usuario" onclick="loadItems('usuario')">Usuario</button>
-                        </li>
-                    </ul>
-                </aside>
-            </nav>
-            
-            <table id="itemsTable">
-                <thead>
-                    <tr id="tableHeaders">
-                        <!-- Los encabezados se agregarán aquí -->
-                    </tr>
-                </thead>
-                <tbody id="itemList">
-                    <!-- Aquí se agregarán las filas -->
-                </tbody>
-            </table>   
-        </main>
-    </div>
+<body class="bg-blueGray-50">
+    <section class="py-1 bg-blueGray-50">
+        <div class="container mx-auto px-4">
+            <div class="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-lg rounded">
+                <div class="rounded-t mb-0 px-4 py-3 border-0">
+                    <div class="flex flex-wrap items-center">
+                        <div class="relative w-full px-4 max-w-full flex-grow flex-1 text-right">
+                            <button id="fix_tamano" class="bg-red-500 text-white text-xs font-bold uppercase px-3 py-1 rounded outline-none focus:outline-none mr-1 mb-1 no-hover" type="button" onclick="logout()">Cerrar Sesión</button>
+                        </div>
+                    </div>
+                    <div class="flex justify-center items-center mt-4">
+                        <h1 id="crud-title" class="font-semibold text-xl text-blueGray-700">Gestión de Parcelaciones</h1>
+                    </div>
+                </div>
+
+                <div class="block w-full overflow-x-auto">
+                    <div class="px-4 py-3">
+                        <div class="flex justify-end mb-4">
+                            <button id="addButton" class="bg-indigo-500 text-white text-xl font-bold rounded-full w-8 h-8 flex items-center justify-center mr-2 no-hover" type="button">Agregar</button>
+                            <button class="text-black font-semibold hover:text-black py-2 px-4 border border-blue-500 hover:border-black rounded" id="filterButton"><i class="fas fa-filter"></i></button>
+                        </div>
+                        <div id="filters" class="mb-4"></div>
+
+
+                    <div class="px-4 py-3 table-height overflow-y-auto">
+                        <div class="overflow-x-auto">
+                            <table id="itemsTable" class="items-center bg-transparent w-full border-collapse">
+                                <thead>
+                                    <tr id="tableHeaders">
+                                        <!-- Los encabezados se agregarán aquí dinámicamente -->
+                                    </tr>
+                                </thead>
+                                <tbody id="itemList">
+                                    <!-- Las filas se agregarán aquí dinámicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="relative pt-8 pb-6 mt-16">
+            <div class="container mx-auto px-4">
+                <div class="flex flex-wrap items-center md:justify-between justify-center">
+                    <div class="w-full md:w-6/12 px-4 mx-auto text-center">
+                        <div class="text-sm text-blueGray-500 font-semibold py-1">
+                            Gestión de Parcelaciones © 2023
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </section>
+
     <!-- Modal para mostrar la imagen -->
-    <div id="imageModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModalImg()">&times;</span>
-            <img id="modalImage" style="max-width: 100%; height: auto;" />
+    <div id="imageModal" class="modal fixed w-full h-full top-0 left-0 flex items-center justify-center hidden">
+        <div class="modal-overlay absolute w-full h-full"></div>
+        <div class="modal-container bg-white w-11/12 md:max-w-md mx-auto rounded shadow-lg z-50 overflow-y-auto">
+            <div class="modal-content py-4 text-left px-6">
+                <div class="flex justify-between items-center pb-3">
+                    <button class="modal-close cursor-pointer z-50 right-4 top-4" onclick="closeModalImg()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <img id="modalImage" class="w-full" style="max-width: 100%; height: auto;" alt="Imagen de la parcelación" />
+            </div>
         </div>
     </div>
 
-    <!-- Modal para agregar/actualizar parcelación -->
-    <div id="myModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal()">&times;</span>
-            <h2 id="modalTitle">Agregar Item</h2>
+
+<!-- Modal para agregar/actualizar parcelación -->
+<div id="myModal" class="modal fixed w-full h-full top-0 left-0 flex items-center justify-center hidden">
+    <div class="modal-overlay absolute w-full h-full opacity-50"></div>
+    
+    <div class="modal-container bg-white w-11/12 md:max-w-md mx-auto rounded shadow-lg z-50 overflow-y-auto">
+        <div class="modal-content py-4 text-left px-6">
+            <div class="flex justify-between items-center pb-3">
+                <h2 id="modalTitle" class="text-2xl font-bold">Agregar Item</h2>
+                <button class="modal-close cursor-pointer z-50" onclick="closeModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
             <form id="itemForm">
-                <input type="hidden" id="itemId"> <!-- Campo oculto para el ID -->
-                <div id="formFields">
+                <input type="hidden" id="itemId">
+                <div id="formFields" class="space-y-4">
                     <!-- Los campos del formulario se llenarán aquí -->
                 </div>
-                <button type="submit" id="submitButton">Agregar Item</button>
+                <button type="submit" id="submitButton" class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full">
+                    Agregar Item
+                </button>
             </form>
         </div>
     </div>
-
-    <a href="/perfil">
-      <button style="padding: 10px 20px; background-color: #4CAF50; color: white; border: none; cursor: pointer;">
-          Ir al Perfil
-      </button>
-  </a>
-  <a href="/index.html">
-      <button style="padding: 10px 20px; background-color: #4CAF50; color: white; border: none; cursor: pointer; right: 20px;">
-        Ir al Mapa
-      </button>
-    </a>
-
+</div>
+    
     <script src="script.js"></script>
 </body>
 </html>
