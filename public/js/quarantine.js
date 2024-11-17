@@ -1018,6 +1018,8 @@ function updateInactiveQuarantinePolygons(features, type) {
   });
 }
 
+//activate
+
 function activateQuarantine(id) {
   return fetch(`/quarantines/activa/${id}`, {
     method: 'PUT',
