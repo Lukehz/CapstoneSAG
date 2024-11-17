@@ -980,6 +980,9 @@ function updateInactiveQuarantinePolygons(features, type) {
     activateButton.addEventListener('click', () => {
       if (confirm('¿Estás seguro de activar esta cuarentena?')) {
         activateQuarantine(properties.id)
+        fetchInactiveRadioQuarantines();
+        fetchInactiveTrazadoQuarantines()
+      
           .then(() => {
             // Cerrar el popup
             if (currentPopup) {
@@ -999,9 +1002,7 @@ function updateInactiveQuarantinePolygons(features, type) {
             }
   
             // Recargar las cuarentenas
-            fetchInactiveRadioQuarantines();
-            fetchInactiveTrazadoQuarantines();
-            fetchAndDisplayQuarantines();
+            
           })
           .catch(error => {
             console.error('Error al activar la cuarentena:', error);
