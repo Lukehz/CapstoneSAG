@@ -23,6 +23,9 @@ const quarantineRoutes = require('./Routes/quarantineRoutes');
 //Rutas perfil
 const perfilRoutes = require('./Routes/AdminRoutes/perfilRoutes');
 
+// Rutas de predicción
+const prediccionRoutes = require('./Routes/prediccionRoutes'); // Nueva ruta de predicción
+
 // Inicializar la aplicación Express
 const app = express();
 
@@ -44,24 +47,22 @@ app.use(session({
     cookie: { secure: false } // Cambia a true si usas HTTPS
 }));
 
-
 app.use(expressLayouts)
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.set('layout', 'layout');
 app.use(expressLayouts);
 
-
 // Servir archivos estáticos
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Middleware para servir archivos estáticos (incluyendo los resultados de predicción)
+app.use('/static', express.static(path.join(__dirname, 'public/static'))); // Nueva configuración para servir archivos estáticos de resultados
 
 // Rutas protegidas (CRUD dinámico)
 app.get('/crud', verificarAutenticacion('Admin'), (req, res) => {
   // Extrae el parámetro 'table' y asigna 'parcelacion' como valor por defecto si no existe
   const table = req.query.table || 'parcelacion';
-
-  // Aquí puedes agregar lógica adicional si es necesario para cambiar el valor de 'table'
-  // dependiendo de otras condiciones de la aplicación.
 
   // Renderizar la vista del CRUD
   res.render('crud', {
@@ -71,7 +72,7 @@ app.get('/crud', verificarAutenticacion('Admin'), (req, res) => {
 });
 
 // Redirigir la ruta raíz al login
-app.get('/', (req, res) => {1
+app.get('/', (req, res) => {
     res.redirect('/login'); // Redirige a la página de login
 });
 
@@ -151,6 +152,75 @@ app.use((req, res, next) => {
     next();
 });
 
+// Página de predicciones
+app.get('/prediccion', (req, res) => {
+    res.render('prediccion', { title: 'Predicción de Imágenes' });
+});
+
+const multer = require('multer');
+const { exec } = require('child_process');
+const fs = require('fs');
+
+// Ajuste de `multer` para mantener la extensión del archivo
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/');
+    },
+    filename: (req, file, cb) => {
+        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+    }
+});
+
+const upload = multer({ storage: storage });
+
+app.post('/prediccion', upload.single('image'), (req, res) => {
+    if (!req.file) {
+        return res.status(400).send('No se ha cargado ninguna imagen.');
+    }
+
+    // Verificar la información del archivo subido
+    console.log('Archivo subido:', req.file);
+
+    const rutaImagen = path.resolve(req.file.path);
+
+    // Verificar si el archivo existe antes de continuar
+    if (!fs.existsSync(rutaImagen)) {
+        console.error(`Archivo no encontrado en la ruta: ${rutaImagen}`);
+        return res.status(404).send('Archivo no encontrado.');
+    }
+
+    const comandoPython = `python3 src/server/scriptsPy/prediccionYOLO.py ${rutaImagen}`;
+
+    // Ejecutar el script de Python para hacer la predicción
+    exec(comandoPython, (error, stdout, stderr) => {
+        if (error) {
+            console.error(`Error durante la ejecución: ${stderr}`);
+            return res.status(500).send('Error durante la predicción.');
+        }
+
+        try {
+            const resultados = JSON.parse(stdout);
+            if (resultados.error) {
+                // Si hay un error en la predicción, muestra el error
+                return res.status(500).send(`Error en la predicción: ${resultados.error}`);
+            }
+
+            // Renderizar la vista de resultados con la imagen inferida
+            res.render('prediccionResultados', { 
+                title: 'Resultado de la Predicción', 
+                rutaImagenInferida: resultados.ruta_salida 
+            });
+        } catch (parseError) {
+            console.error('Error al parsear la salida JSON:', parseError);
+            return res.status(500).send('Error al procesar los resultados de la predicción.');
+        }
+    });
+});
+
+// Asegurarte de tener esto en tu app.js para que los archivos de 'uploads/' sean accesibles.
+app.use('/uploads', express.static(path.join(__dirname, '../../uploads')));
+// Añadir rutas de predicción
+app.use('/prediccion', prediccionRoutes); // Nueva ruta para manejar predicciones
 
 // Rutas Crud
 app.use('/api/parcelacion', parcelacionRoutes);
@@ -180,25 +250,25 @@ const errorHandler = (err, req, res, next) => {
       error: 'Ha ocurrido un error en el servidor',
       details: process.env.NODE_ENV === 'development' ? err.message : undefined
     });
-  };
+};
 
 // Manejo de ruta no encontrada (paraz cualquier ruta no especificada)
 app.use((req, res) => {
     res.status(404).json({ error: 'Ruta no encontrada' });
-  });
+});
   
-  // Usar el middleware de manejo de errores
-  app.use(errorHandler);
+// Usar el middleware de manejo de errores
+app.use(errorHandler);
   
-  // Manejo de errores no capturados
-  process.on('uncaughtException', (err) => {
+// Manejo de errores no capturados
+process.on('uncaughtException', (err) => {
     console.error('Error no capturado:', err);
     process.exit(1);
-  });
-  
-  process.on('unhandledRejection', (reason, promise) => {
+});
+
+process.on('unhandledRejection', (reason, promise) => {
     console.error('Promesa rechazada no manejada:', reason);
     process.exit(1);
-  });
-  
+});
+
 module.exports = app;
