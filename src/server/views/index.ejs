@@ -57,15 +57,24 @@
   
 
 <!-- Botón Crear Cuarentena -->
-<!-- Botón Crear Cuarentena -->
 <% if (usuario && usuario.role === 'Admin') { %>
-  <button 
-    id="create-quarantine-button" 
-    class="absolute top-4 left-4 z-10 py-2 px-4 bg-red-500 hover:bg-red-600 text-white rounded-lg shadow-lg transition-colors"
-  >
-    Crear Cuarentena
-  </button>
+  <div id="action-buttons" class="absolute top-4 left-4 flex space-x-2 z-10">
+    <button 
+      id="create-quarantine-button" 
+      class="py-2 px-4 bg-red-500 hover:bg-red-600 text-white rounded-lg shadow-lg transition-colors"
+    >
+      Crear Cuarentena
+    </button>
+
+    <button 
+      id="create-parcela" 
+      class="py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded-lg shadow-lg transition-colors"
+    >
+      Crear Parcelación
+    </button>
+  </div>
 <% } %>
+
 
 <!-- Panel de Cuarentena -->
 <div id="quarantine-panel" class="absolute top-16 left-4 bg-white p-4 rounded-lg shadow-lg w-72 z-10 hidden">
@@ -97,36 +106,58 @@
       Guardar
     </button>
   </div>
+</div>
 
-<!-- Modal estático para creación de parcelación -->
-<button id="create-parcela">Crear Parcela</button>
-<div id="parcelacion-modal">
-  <h2>Crear Parcelación</h2>
-  <form id="parcelacion-form">
-    <label for="latitud">Latitud:</label>
-    <input type="text" id="latitud" name="latitud" readonly>
-    <br><br>
-    <label for="longitud">Longitud:</label>
-    <input type="text" id="longitud" name="longitud" readonly>
-    <br><br>
-    seleccionar comuna:<select id="SelectComunaModal"><option value=""></option></select>
-    <br><br>
-    seleccionar fase:<select id="SelectFase"><option value=""></option></select>
-    <br><br>
-    seleccionar cultivo:<select id="SelectCultivo"><option value=""></option></select>
-    <br><br>
-      <label for="Selectregistro"></label>seleccionar Registro:
-      <select id="Selectregistro">
+
+<div id="parcelacion-modal" class="absolute top-16 left-4 bg-white p-4 rounded-lg shadow-lg w-[600px] z-10 hidden">
+  <h2 class="text-lg font-bold mb-4">Crear Parcelación</h2>
+  <form id="parcelacion-form" class="grid grid-cols-2 gap-4">
+    <div>
+      <label for="latitud" class="block text-sm font-medium text-gray-700">Latitud:</label>
+      <input type="text" id="latitud" name="latitud" class="w-full border border-gray-300 rounded-lg p-2" readonly>
+    </div>
+    <div>
+      <label for="longitud" class="block text-sm font-medium text-gray-700">Longitud:</label>
+      <input type="text" id="longitud" name="longitud" class="w-full border border-gray-300 rounded-lg p-2" readonly>
+    </div>
+    <div>
+      <label for="SelectComunaModal" class="block text-sm font-medium text-gray-700">Seleccionar Comuna:</label>
+      <select id="SelectComunaModal" class="w-full border border-gray-300 rounded-lg p-2">
+        <option value="">Seleccionar</option>
+      </select>
+    </div>
+    <div>
+      <label for="SelectFase" class="block text-sm font-medium text-gray-700">Seleccionar Fase:</label>
+      <select id="SelectFase" class="w-full border border-gray-300 rounded-lg p-2">
+        <option value="">Seleccionar</option>
+      </select>
+    </div>
+    <div>
+      <label for="SelectCultivo" class="block text-sm font-medium text-gray-700">Seleccionar Cultivo:</label>
+      <select id="SelectCultivo" class="w-full border border-gray-300 rounded-lg p-2">
+        <option value="">Seleccionar</option>
+      </select>
+    </div>
+    <div>
+      <label for="Selectregistro" class="block text-sm font-medium text-gray-700">Seleccionar Registro:</label>
+      <select id="Selectregistro" class="w-full border border-gray-300 rounded-lg p-2">
         <option value="">Seleccionar</option>
         <option value="1">Registrada</option>
         <option value="0">No Registrada</option>
       </select>
-    <br><br>
-    <button type="button" id="save-parcelacion">Guardar Parcelación</button>
-    <button type="button" id="cancel-parcelacion">Cancelar</button>
+    </div>
+    <!-- Botones en una sola fila -->
+    <div class="col-span-2 flex justify-end space-x-4">
+      <button type="button" id="cancel-parcelacion" class="py-2 px-4 bg-gray-500 hover:bg-gray-600 text-white rounded-lg shadow-lg transition-colors">
+        Cancelar
+      </button>
+      <button type="button" id="save-parcelacion" class="py-2 px-4 bg-green-500 hover:bg-green-600 text-white rounded-lg shadow-lg transition-colors">
+        Guardar
+      </button>
+    </div>
   </form>
 </div>
-</div>
+
 
 
 

@@ -109,6 +109,14 @@
             background-color: #f3f4f6; /* Gris claro */
         }
 
+        .modal-overlay {
+            z-index: 10; /* Asegúrate de que esté sobre el contenido */
+        }
+
+        .modal-container {
+            z-index: 20; /* Asegúrate de que esté sobre el overlay */
+        }
+
     </style>
 </head>
 <body class="flex h-screen bg-white overflow-hidden" x-data="{ open: false, infoOpen: false }">
@@ -152,6 +160,7 @@
                             </ul>
                         </div>
                     </div>
+                    <a href="/dashboard" class="block px-4 py-2 mt-2 text-gray-900 rounded truncate">Dashboard</a>
                 <% } %>
             </nav>
         </div>

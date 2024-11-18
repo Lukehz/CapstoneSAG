@@ -83,6 +83,14 @@ app.get('/index', verificarAutenticacion(['Admin', 'User']), (req, res) => {
   });
 });
 
+app.get('/dashboard', verificarAutenticacion('Admin'), (req, res) => {
+  res.render('dashboard', {
+      title: 'Mapa de Cuarentenas',
+      script: '',
+      usuario: req.session.usuario  // Pasar datos del usuario a la vista
+  });
+});
+
 app.use((req, res, next) => {
   if (req.session.usuario) {
       res.locals.usuario = {

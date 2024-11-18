@@ -59,3 +59,19 @@ document.addEventListener("DOMContentLoaded", () => {
       quarantinePanel.classList.add("hidden");
   });
 });
+
+document.addEventListener("DOMContentLoaded", () => {
+  const createParcelaButton = document.getElementById("create-parcela");
+  const parcelacionModal = document.getElementById("parcelacion-modal");
+  const cancelParcelaButton = document.getElementById("cancel-parcelacion");
+
+  // Alternar visibilidad del modal de parcelación
+  createParcelaButton.addEventListener("click", () => {
+    parcelacionModal.classList.toggle("hidden");
+  });
+
+  // Ocultar el modal de parcelación al cancelar
+  cancelParcelaButton.addEventListener("click", () => {
+    parcelacionModal.classList.add("hidden");
+  });
+});

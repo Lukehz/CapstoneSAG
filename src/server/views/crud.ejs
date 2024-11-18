@@ -6,7 +6,7 @@
         <div class="flex-1 flex flex-col px-6 overflow-y-auto">
             <!-- Header del CRUD -->
             <div class="py-4 border-b border-gray-200 sticky top-0 bg-white z-10">
-                <h1 id="crud-title" class="text-xl font-semibold text-blueGray-700"><%= title %></h1>
+                <h1 id="crud-title" class="text-xl font-semibold text-black"><%= title %></h1>
             </div>
             <div class="flex justify-end mb-4 sticky top-16 bg-white z-10 py-2">
                 <button id="addButton" class="bg-indigo-500 text-white text-xl font-bold rounded-full w-8 h-8 flex items-center justify-center mr-2" type="button"></button>
@@ -60,7 +60,7 @@
 
 <!-- Modal para agregar/actualizar parcelación -->
 <div id="myModal" class="modal fixed w-full h-full top-0 left-0 flex items-center justify-center hidden">
-    <div class="modal-overlay absolute w-full h-full bg-black opacity-50"></div>
+    <div class="modal-overlay absolute w-full h-full" style="background-color: rgba(0, 0, 0, 0.5);"></div>
     <div class="modal-container bg-white w-11/12 md:max-w-md mx-auto rounded shadow-lg z-50 overflow-y-auto">
         <div class="modal-content py-4 text-left px-6">
             <div class="flex justify-between items-center pb-3">

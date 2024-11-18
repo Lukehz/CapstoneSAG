@@ -2,3 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
+.py-4 {
+    --tw-bg-opacity: 1;
+  }
