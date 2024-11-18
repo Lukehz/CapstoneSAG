@@ -670,7 +670,7 @@ document.getElementById('itemForm').addEventListener('submit', async (e) => {
     } else if (nameTable === 'usuario') {
         formData.append('correo', document.getElementById('correo').value);
         formData.append('usuario', document.getElementById('usuario').value);
-        //formData.append('password', document.getElementById('password').value);
+        formData.append('password', document.getElementById('password').value);
         formData.append('rut', document.getElementById('rut').value);
         formData.append('dv_rut', document.getElementById('dv_rut').value);
         formData.append('nombre', document.getElementById('nombre').value);

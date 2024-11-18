@@ -930,7 +930,7 @@ function updateInactiveQuarantinePolygons(features, type) {
     type: 'fill',
     source: sourceId,
     paint: {
-      'fill-color': type === 'radio' ? 'rgba(255, 0, 0, 0.4)' : 'rgba(0, 0, 255, 0.4)',
+      'fill-color': type === 'radio' ? 'rgb(205, 133, 63)' : 'rgb(205, 133, 63)',
       'fill-opacity': 0.4
     }
   });
@@ -941,7 +941,7 @@ function updateInactiveQuarantinePolygons(features, type) {
     type: 'line',
     source: sourceId,
     paint: {
-      'line-color': type === 'radio' ? '#FF0000' : '#0000FF',
+      'line-color': type === 'radio' ? '#cc9933' : '#cc9933',
       'line-width': 2
     }
   });

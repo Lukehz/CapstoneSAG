@@ -194,6 +194,7 @@ const getComentario = async (req, res) => {
                       s.comuna  -- Incluye la comuna
       FROM dbo.cuarentena c
       LEFT JOIN sector s ON c.id_sector = s.id_sector
+      WHERE c.activa = 1
       ORDER BY c.id_cuarentena
     `);
 
