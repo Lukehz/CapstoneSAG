@@ -13,4 +13,6 @@ router.get('/:id', usuarioController.getUsuarioById);           // Leer usuario 
 router.put('/:id', upload.none(), usuarioController.updateUsuario);            // Actualizar usuario
 router.delete('/:id', usuarioController.deleteUsuario);         // Eliminar usuario
 
+router.get('/:id', usuarioController.GetUserId);  
+
 module.exports = router;

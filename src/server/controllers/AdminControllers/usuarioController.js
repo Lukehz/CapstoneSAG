@@ -71,7 +71,38 @@ const createUsuario = async (req, res) => {
 
 // Leer los datos de un ítem por ID para rellenar el formulario de edición
 
-const getUsuarioById = async (id) => {
+// Leer los datos de un ítem por ID para rellenar el formulario de edición
+//SE UTILIZA EN EL CRUD
+const getUsuarioById = async (req, res) => {
+    // Extraer el ID del parámetro de la solicitud
+    const { id } = req.params;
+
+    try {
+        const sqlQuery = `
+            SELECT id_usuario, correo, password, usuario, rut, dv_rut, nombre, apellido, rol 
+            FROM usuario 
+            WHERE id_usuario = @id
+        `;
+        
+        // Ejecutar la consulta pasando el ID como parámetro
+        const result = await query(sqlQuery, [
+            { name: 'id', type: sql.Int, value: id } // Convertir el ID a entero antes de pasarlo a la consulta
+        ]);
+
+        // Verificar si se encontró algún ítem
+        if (result.length > 0) {
+            // Si se encontró, devolver el primer ítem en formato JSON
+            res.json(result[0]);
+        } else {
+            res.status(404).json({ error: 'Ítem no encontrado' });
+        }
+    } catch (error) {
+        console.error('Error al obtener ítem:', error.message); // Registrar el error en la consola para depuración
+        res.status(500).json({ error: error.message });
+    }
+};
+
+const GetUserId = async (id) => {
     try {
         const sqlQuery = `
             SELECT id_usuario, correo, password, usuario, rut, dv_rut, nombre, apellido, rol 
@@ -101,7 +132,6 @@ const updateUsuario = async (req, res) => {
     const sqlQuery = `
         UPDATE usuario 
         SET correo = @correo,
-            password =  @password,
             usuario = @usuario,
             rut = @rut,
             dv_rut = @dv_rut,
@@ -115,7 +145,7 @@ const updateUsuario = async (req, res) => {
         // Crea los parámetros para la consulta
         await query(sqlQuery, [
             { name: 'correo', type: sql.VarChar, value: correo },
-            { name: 'password', type: sql.VarChar, value: password },
+            //{ name: 'password', type: sql.VarChar, value: password },
             { name: 'usuario', type: sql.VarChar, value: usuario },
             { name: 'rut', type: sql.Int, value: rut }, // Asegúrate de convertirlo al tipo correcto
             { name: 'dv_rut', type: sql.Char, value: dv_rut },
@@ -182,5 +212,6 @@ module.exports = {
     getUsuarioById,
     updateUsuario,
     deleteUsuario,
-    getFilteredUsuario
+    getFilteredUsuario,
+    GetUserId
 };

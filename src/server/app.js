@@ -16,7 +16,7 @@ const usuarioRoutes = require('./Routes/AdminRoutes/usuarioRoutes');
 const historialRoutes = require('./Routes/AdminRoutes/historialRoutes');
 const authRoutes = require('./Routes/AdminRoutes/authRoutes'); // Importar rutas de autenticación
 const { verificarAutenticacion } = require('./Middlewares/authMiddleware');
-const { getUsuarioById } = require('./controllers/AdminControllers/usuarioController'); // Ajusta la ruta si es necesario
+const { GetUserId } = require('./controllers/AdminControllers/usuarioController'); // Ajusta la ruta si es necesario
 //Rutas nicol
 const parcelasRoutes = require('./Routes/parcelasRoutes');
 const quarantineRoutes = require('./Routes/quarantineRoutes');
@@ -110,7 +110,7 @@ app.get('/perfil/:userId', verificarAutenticacion(['Admin', 'User']), async (req
       const { userId } = req.params;
 
       // Recupera los datos del usuario
-      const user = await getUsuarioById(userId);
+      const user = await GetUserId(userId);
 
       if (!user) {
           return res.status(404).render('error', {

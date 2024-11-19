@@ -553,8 +553,8 @@ async function openModal(nameTable, item = null) {
             console.log('ID del ítem:', document.getElementById('itemId').value); // Verificación del ID
 
             document.getElementById('correo').value = item.correo;
-            document.getElementById('password').value = item.password;
-            //document.getElementById('usuario').value = item.usuario;
+            //document.getElementById('password').value = item.password;
+            document.getElementById('usuario').value = item.usuario;
             document.getElementById('rut').value = item.rut;
             document.getElementById('dv_rut').value = item.dv_rut;
             document.getElementById('nombre').value = item.nombre;
@@ -670,7 +670,9 @@ document.getElementById('itemForm').addEventListener('submit', async (e) => {
     } else if (nameTable === 'usuario') {
         formData.append('correo', document.getElementById('correo').value);
         formData.append('usuario', document.getElementById('usuario').value);
-        formData.append('password', document.getElementById('password').value);
+        if (document.getElementById('password')) {
+            formData.append('password', document.getElementById('password').value);
+        }
         formData.append('rut', document.getElementById('rut').value);
         formData.append('dv_rut', document.getElementById('dv_rut').value);
         formData.append('nombre', document.getElementById('nombre').value);
