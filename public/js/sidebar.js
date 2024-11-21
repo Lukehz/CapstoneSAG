@@ -3,7 +3,6 @@ import { map } from './map.js';
 
 // Obtener el contenedor del dropdown
 const dropdown = document.getElementById('parcelas-dropdown');
-
 document.addEventListener('DOMContentLoaded', () => {
   obtenerParcelas();
 });
@@ -15,13 +14,10 @@ async function obtenerParcelas() {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const parcelas = await response.json();
-
     // Llenar el dropdown con las parcelas agrupadas por comuna
     llenarDropdownConParcelasAgrupadas(parcelas);
-
     // Generar el acordeón con las parcelas agrupadas por comuna
     generarListadoParcelasPorComuna(parcelas);
-
     return parcelas;
   } catch (error) {
     console.error('Error al obtener parcelas:', error.message);
@@ -112,7 +108,33 @@ function generarListadoParcelasPorComuna(parcelas) {
 }
 }
 
-// Manejar la selección del dropdown
+function volarAParcelaDesdeDropdown(id, lat, lng) {
+  try {
+    // Validar el mapa
+    if (!map || typeof map.flyTo !== 'function') {
+      console.error('El mapa no está definido o no soporta el método flyTo');
+      return;
+    }
+
+    // Validar coordenadas
+    if (isNaN(lat) || isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+      console.error(`Coordenadas inválidas para la parcela ID: ${id} (Lat: ${lat}, Lng: ${lng})`);
+      return;
+    }
+
+    // Volar a la ubicación seleccionada
+    map.flyTo({
+      center: [lng, lat],
+      zoom: 15,
+      essential: true
+    });
+
+  } catch (error) {
+    console.error('Error al volar a la parcela:', error);
+  }
+}
+
+// Manejar el cambio en el dropdown
 dropdown.addEventListener('change', function() {
   const selectedOption = dropdown.options[dropdown.selectedIndex];
   const id = selectedOption.value;
@@ -120,29 +142,18 @@ dropdown.addEventListener('change', function() {
   const lng = parseFloat(selectedOption.getAttribute('data-lng'));
 
   if (id) {
-    volarAParcela(id, lat, lng);
+    volarAParcelaDesdeDropdown(id, lat, lng);
   }
 });
-
-// Función para centrar el mapa o realizar acciones al seleccionar una parcela
-function volarAParcela(id, lat, lng) {
-  console.log(`Volando a parcela ID: ${id}, Lat: ${lat}, Lng: ${lng}`);
-  map.flyTo([lat, lng], 15); // Centra el mapa en las coordenadas y aplica un zoom de 15
-}
-
 // Cargar las parcelas al iniciar la página
 obtenerParcelas();
 
 // CUARENTENAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-
-
 // Variables globales
 let cuarentenasEnMapa = []; // Arreglo para mantener referencia a las cuarentenas en el mapa
 let cuarentenaActiva = 1; // Para mantener un registro de la cuarentena actualmente seleccionada
 
 const dropdownCuarentenas = document.getElementById('cuarentenas-dropdown');
-
-
 
 // Función para obtener cuarentenas desde la API
 async function obtenerCuarentenas() {
@@ -158,9 +169,6 @@ async function obtenerCuarentenas() {
     throw error;
   }
 }
-
-
-
 // Función para llenar el dropdown con las cuarentenas agrupadas por zona
 function llenarDropdownConCuarentenasAgrupadas(cuarentenas) {
   dropdownCuarentenas.innerHTML = '<option value="">Seleccione una cuarentena</option>'; // Limpia el dropdown
@@ -322,8 +330,6 @@ function volarACuarentenaDesdeDropdown(id, lat, lng) {
     console.error('Error al volar a la cuarentena:', error);
   }
 }
-
-
 dropdownCuarentenas.addEventListener('change', function() {
   const selectedOption = dropdownCuarentenas.options[dropdownCuarentenas.selectedIndex];
   const id = selectedOption.value;
