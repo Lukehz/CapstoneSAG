@@ -120,6 +120,10 @@
     </style>
 </head>
 <body class="flex h-screen bg-white overflow-hidden" x-data="{ open: false, infoOpen: false }">
+    
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.3.1/mapbox-gl-directions.js"></script>
+    <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.3.1/mapbox-gl-directions.css" type="text/css">
+    
     <!-- Sidebar -->
     <aside>
         <!-- Contenido del sidebar -->
@@ -212,6 +216,14 @@
         });
 
     </script>
+    <script> 
+        map.addControl(
+        new MapboxDirections({
+            accessToken: mapboxgl.accessToken
+        }),
+        'top-left'
+    );
+</script>
 
 </body>
 </html>

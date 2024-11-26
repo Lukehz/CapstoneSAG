@@ -704,6 +704,10 @@ function fetchAndDisplayQuarantines(type = null) {
             deactivateQuarantine(properties.id);
             fetchAndDisplayQuarantines('radio');
           }
+          if (currentPopup) {
+            currentPopup.remove();
+          }
+          
         });
     
     
@@ -752,8 +756,12 @@ function fetchAndDisplayQuarantines(type = null) {
           deactivateQuarantine(properties.id);
 
           // Recargar el mapa con las cuarentenas actualizadas
-          fetchAndDisplayQuarantines();
+          fetchAndDisplayQuarantines('trazado');
         }
+        if (currentPopup) {
+          currentPopup.remove();
+        }
+        
       });
       
       // Crear y mostrar el popup
@@ -930,8 +938,8 @@ function updateInactiveQuarantinePolygons(features, type) {
     type: 'fill',
     source: sourceId,
     paint: {
-      'fill-color': type === 'radio' ? 'rgb(205, 133, 63)' : 'rgb(205, 133, 63)',
-      'fill-opacity': 0.4
+      'fill-color': type === 'radio' ? 'rgb(255, 255, 255)' : 'rgb(255, 255, 255)',
+      'fill-opacity': 0.2
     }
   });
 
@@ -941,8 +949,8 @@ function updateInactiveQuarantinePolygons(features, type) {
     type: 'line',
     source: sourceId,
     paint: {
-      'line-color': type === 'radio' ? '#cc9933' : '#cc9933',
-      'line-width': 2
+      'line-color': type === 'radio' ? '#FFFFFF' : '#FFFFFF',
+      'line-width': 1
     }
   });
   map.on('click', fillLayerId, (e) => {

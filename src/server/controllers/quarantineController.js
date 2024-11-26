@@ -237,6 +237,68 @@ const getComuna = async (req, res) => {
   }
 };
 
+const getComentarioInactiva = async (req, res) => {
+  console.log('Obteniendo comentarios');
+  
+  try {
+    // Ejecutar la consulta
+    const result = await sql.query(`
+      SELECT DISTINCT c.id_cuarentena, 
+                      c.latitud, 
+                      c.longitud, 
+                      c.radio, 
+                      c.comentario, 
+                      c.activa,
+                      s.id_sector, 
+                      s.comuna  -- Incluye la comuna
+      FROM dbo.cuarentena c
+      LEFT JOIN sector s ON c.id_sector = s.id_sector
+      WHERE c.activa = 0
+      ORDER BY c.id_cuarentena
+    `);
+
+    // Devolver los resultados como JSON
+    res.json(result.recordset);
+  } catch (err) {
+    console.error('Error al obtener comentarios:', err);
+    res.status(500).json({ error: 'Error al obtener información: ' + err.message });
+  }
+};
+
+const getComunaInactiva = async (req, res) => {
+  console.log('Obteniendo comunas');
+  
+  try {
+    // Ejecutar la consulta SQL directamente con sql.query
+    const result = await sql.query(`
+      SELECT id_sector, comuna
+      FROM sector
+      WHERE activa = 0
+      ORDER BY comuna
+    `);
+
+    if (result.recordset.length > 0) {
+      res.json({
+        success: true,
+        comunas: result.recordset // Enviar las comunas como `recordset`
+      });
+    } else {
+      res.json({
+        success: false,
+        error: 'No se encontraron comunas'
+      });
+    }
+  } catch (error) {
+    console.error('Error al obtener comunas:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Error al obtener las comunas'
+    });
+  }
+};
+
+
+
 const getInactiveQuarantines = async (req, res) => {
   console.log('Obteniendo cuarentenas inactivas');
 
@@ -373,6 +435,8 @@ module.exports = {
   getAllQuarantines,
   getAllRadiusQuarantines,
   getComentario,
+  getComunaInactiva,
+  getComentarioInactiva,
   getComuna, 
   getInactiveQuarantines,
   deactivateQuarantine,

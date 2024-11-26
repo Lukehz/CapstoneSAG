@@ -18,7 +18,7 @@
     
   </div>
 
-  
+  <div id="loading-route" style="display:none;">Calculando ruta...</div>
 <!-- Panel de Filtros -->
 <div id="filter-panel" class="absolute top-16 right-4 bg-white p-4 rounded-lg shadow-lg w-72 z-10 hidden">
   <h2 class="text-lg font-bold mb-4">Filtros</h2>
@@ -43,6 +43,7 @@
   <select id="parcelas-dropdown" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
     <option value="">Seleccione una parcela</option>
   </select>
+  <button value="cancel">Cancelar</option>
 </div>
 
 
@@ -53,7 +54,17 @@
     <select id="cuarentenas-dropdown" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
       <option value="">Seleccione una cuarentena</option>
     </select>
+    <button value="cancel">Cancelar</option>
   </div>
+
+ <!-- Dropdown Cuarentenas inactivas -->
+ <div class="mb-4">
+  <label class="block text-sm font-medium text-gray-700">Cuarentenas inactivas</label>
+  <select id="cuarentenas-inactivas-dropdown" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+    <option value="">Seleccione una cuarentena inactivas</option>
+  </select>
+  <button value="cancel">Cancelar</option>
+</div>
 </div>
 
   
@@ -163,14 +174,14 @@
 
 
 
-
 <!-- Botón Centrar Mapa -->
 <button 
   id="center-map" 
-  class="absolute bottom-4 left-4 z-10 py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded-lg shadow-lg transition-colors"
+  class="absolute bottom-4 right-4 z-10 py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded-lg shadow-lg transition-colors"
 >
-  Centrar Mapa
+  Centrar
 </button>
+
 </div>
 </div>
 <!-- Scripts del mapa -->

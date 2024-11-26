@@ -1,4 +1,3 @@
-// Funcionalidad del mapa
 mapboxgl.accessToken = 'pk.eyJ1Ijoibmljb2xlODAxIiwiYSI6ImNtMHdvdGE3MzAzbnQybG93aXRncnlqb2QifQ.9G8XyYyv4V1b0OJGRnpEZA';
 
 const map = new mapboxgl.Map({
@@ -10,6 +9,16 @@ const map = new mapboxgl.Map({
   minZoom: 1,
   fitBoundsOptions: null,
 });
+
+const directions = new MapboxDirections({
+  accessToken: mapboxgl.accessToken,
+  language: 'es',
+});
+
+map.addControl(directions, 'bottom-left');
+
+
+
 
 // Coordenadas para centrar el mapa (modifica según tus necesidades)
 const mainLocation = [-72.9369, -41.4717];
@@ -72,5 +81,5 @@ const geocoder = new MapboxGeocoder({
 // Asigna el buscador al contenedor específico
 document.getElementById('map-search').appendChild(geocoder.onAdd(map));
 
-// Exporta el mapa
-export { map };
+
+export { map, directions };

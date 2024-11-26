@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { getComentario, saveQuarantine, getAllQuarantines, getAllRadiusQuarantines, getComuna, deactivateQuarantine, getInactiveQuarantines, getInactivaTrazado, activateQuarantine} = require('../controllers/quarantineController'); 
+const { getComentario, saveQuarantine, getAllQuarantines, 
+        getAllRadiusQuarantines, getComuna, deactivateQuarantine, 
+        getInactiveQuarantines, getInactivaTrazado, 
+        activateQuarantine, getComentarioInactiva, getComunaInactiva} = require('../controllers/quarantineController'); 
 
 // Ruta para guardar cuarentena
 router.post('/save-quarantine', saveQuarantine);
@@ -11,6 +14,8 @@ router.get('/comuna', getComuna);// Ruta para desactivar una cuarentena (cambiar
 router.put('/deactivate-quarantine/:id', deactivateQuarantine);
 router.get('/inactiva', getInactiveQuarantines);
 router.get('/inactiva-trazado', getInactivaTrazado);
-router.put('/activa/:id', activateQuarantine)
+router.put('/activa/:id', activateQuarantine);
+router.get('/inactiva/comentario', getComentarioInactiva);
+router.get('/inactiva-comuna', getComunaInactiva);
 
 module.exports = router;
