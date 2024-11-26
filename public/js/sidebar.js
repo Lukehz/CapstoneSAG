@@ -20,6 +20,8 @@ async function obtenerParcelas() {
     // Llenar el dropdown con las parcelas agrupadas por comuna
     llenarDropdownConParcelasAgrupadas(parcelas);
     // Generar listado de parcelas en el acordeón
+
+    // Generar el acordeón con las parcelas agrupadas por comuna
     generarListadoParcelasPorComuna(parcelas);
     return parcelas;
   } catch (error) {
@@ -195,13 +197,64 @@ obtenerParcelas();
 // ------------------------------------------CUARENTENAS ACTIVAS----------------------------------------------------------------
 
 
+
+    parcelaPanel.appendChild(listaParcelas);
+    panel.appendChild(comunaAccordion);
+    panel.appendChild(parcelaPanel);
+
+    // Añadir funcionalidad de acordeón a cada comuna
+    comunaAccordion.addEventListener('click', function() {
+      this.classList.toggle('active');
+      const panel = this.nextElementSibling;
+      panel.style.maxHeight = panel.style.maxHeight ? null : panel.scrollHeight + 'px';
+    });
+function volarAParcelaDesdeDropdown(id, lat, lng) {
+  try {
+    // Validar el mapa
+    if (!map || typeof map.flyTo !== 'function') {
+      console.error('El mapa no está definido o no soporta el método flyTo');
+      return;
+    }
+
+    // Validar coordenadas
+    if (isNaN(lat) || isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+      console.error(`Coordenadas inválidas para la parcela ID: ${id} (Lat: ${lat}, Lng: ${lng})`);
+      return;
+    }
+
+    // Volar a la ubicación seleccionada
+    map.flyTo({
+      center: [lng, lat],
+      zoom: 15,
+      essential: true
+    });
+
+  } catch (error) {
+    console.error('Error al volar a la parcela:', error);
+  }
+}
+
+// Manejar el cambio en el dropdown
+dropdown.addEventListener('change', function() {
+  const selectedOption = dropdown.options[dropdown.selectedIndex];
+  const id = selectedOption.value;
+  const lat = parseFloat(selectedOption.getAttribute('data-lat'));
+  const lng = parseFloat(selectedOption.getAttribute('data-lng'));
+
+  if (id) {
+    volarAParcelaDesdeDropdown(id, lat, lng);
+  }
+});
+// Cargar las parcelas al iniciar la página
+obtenerParcelas();
+
+// CUARENTENAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+
 // Variables globales
 let cuarentenasEnMapa = []; // Arreglo para mantener referencia a las cuarentenas en el mapa
 let cuarentenaActiva = 1; // Para mantener un registro de la cuarentena actualmente seleccionada
 
 const dropdownCuarentenas = document.getElementById('cuarentenas-dropdown');
-
-
 
 // Función para obtener cuarentenas desde la API
 async function obtenerCuarentenas() {
@@ -217,9 +270,6 @@ async function obtenerCuarentenas() {
     throw error;
   }
 }
-
-
-
 // Función para llenar el dropdown con las cuarentenas agrupadas por zona
 function llenarDropdownConCuarentenasAgrupadas(cuarentenas) {
   dropdownCuarentenas.innerHTML = '<option value="">Seleccione una cuarentena</option>'; // Limpia el dropdown
@@ -381,8 +431,6 @@ function volarACuarentenaDesdeDropdown(id, lat, lng) {
     console.error('Error al volar a la cuarentena:', error);
   }
 }
-
-
 dropdownCuarentenas.addEventListener('change', function() {
   const selectedOption = dropdownCuarentenas.options[dropdownCuarentenas.selectedIndex];
   const id = selectedOption.value;
