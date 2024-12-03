@@ -78,27 +78,36 @@ document.addEventListener('DOMContentLoaded', () => {
   parcelaCheckbox.addEventListener('change', toggleParcelas); // Agregar evento al checkbox
 });
 
-function eliminarParcela(idParcela, boton) {
+// Mapa para almacenar los marcadores por ID de parcela
+const markerMap = new Map();
 
+function eliminarParcela(idParcela, boton) {
   fetch(`/parcelas/delete-parcela/${idParcela}`, {
     method: 'DELETE',
     headers: {
-      'Content-Type': 'application/json'
-    }
+      'Content-Type': 'application/json',
+    },
   })
-  .then(response => {
-    if (response.ok) {
-      alert("Parcela eliminada correctamente.");
-      boton.parentElement.style.display = 'none'; // Oculta el recuadro del mapa
-    } else {
-      // Captura el error del backend y muéstralo en la consola
-      return response.text().then(text => { throw new Error(text) });
-    }
-  })
-  .catch(error => {
-    console.error("Error al eliminar la parcela:", error.message); // Mostrar el error detallado
-    alert("No se pudo eliminar la parcela. Intenta nuevamente.");
-  });
+    .then(response => {
+      if (response.ok) {
+        alert("Parcela eliminada correctamente.");
+        boton.parentElement.style.display = 'none'; // Oculta el recuadro del mapa
+
+        // Eliminar el marcador del mapa si existe
+        const marker = markerMap.get(idParcela);
+        if (marker) {
+          marker.remove(); // Elimina el marcador del mapa
+          markerMap.delete(idParcela); // Limpia la referencia en el mapa
+        }
+      } else {
+        // Captura el error del backend y muéstralo en la consola
+        return response.text().then(text => { throw new Error(text); });
+      }
+    })
+    .catch(error => {
+      console.error("Error al eliminar la parcela:", error.message); // Mostrar el error detallado
+      alert("No se pudo eliminar la parcela. Intenta nuevamente.");
+    });
 }
 
 // Variable para indicar si estamos en modo de creación de parcela
@@ -108,6 +117,8 @@ let isCreatingParcela = false;
 document.getElementById('create-parcela').addEventListener('click', () => {
   isCreatingParcela = true;
 });
+
+let currentMarker = null;
 
 // Detectar clic en el mapa para obtener las coordenadas
 map.on('click', (e) => {
@@ -119,8 +130,15 @@ map.on('click', (e) => {
     document.getElementById('latitud').value = lat;
     document.getElementById('longitud').value = lng;
 
-    // Desactivar el modo de creación de parcela
-    isCreatingParcela = false;
+    // Si ya existe un marcador previo, eliminarlo
+    if (currentMarker) {
+      currentMarker.remove();
+    }
+
+    // Agregar un nuevo marcador al mapa
+    currentMarker = new mapboxgl.Marker()
+      .setLngLat([lng, lat]) // Coordenadas del clic
+      .addTo(map); // Añadir marcador al mapa
   }
 });
 
@@ -253,6 +271,17 @@ document.addEventListener('DOMContentLoaded', () => {
   // Evento para cancelar la parcelación
   cancelButton.addEventListener('click', () => {
     parcelacionForm.reset(); // Limpia el formulario
+
+    // Eliminar el marcador actual del mapa si existe
+    if (currentMarker) {
+      currentMarker.remove();
+      currentMarker = null; // Limpiar la referencia
+    }
+
+    // Mostrar mensaje de cancelación
     alert('Parcelación cancelada.');
+
+    // Desactivar el modo de creación de parcela
+    isCreatingParcela = false;
   });
 });
