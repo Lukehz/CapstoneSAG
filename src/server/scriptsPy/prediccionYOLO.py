@@ -14,7 +14,7 @@ def realizar_prediccion(ruta_imagen):
     # Cargar la imagen original
     imagen = cv2.imread(ruta_imagen)
 
-    # Extraer la información relevante de las predicciones y dibujar las cajas
+    # Extraer la información relevante de las predicciones
     detecciones = []
     for resultado in resultados:
         for box in resultado.boxes:
@@ -27,9 +27,16 @@ def realizar_prediccion(ruta_imagen):
                 'box': [x1, y1, x2, y2]
             })
 
-            # Dibujar la caja delimitadora en la imagen
-            cv2.rectangle(imagen, (x1, y1), (x2, y2), (0, 255, 0), 2)
-            cv2.putText(imagen, f'{clase} {confianza:.2f}', (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+    # Ordenar las detecciones por confianza en orden descendente y tomar las 2 mejores
+    detecciones = sorted(detecciones, key=lambda x: x['confidence'], reverse=True)[:2]
+
+    # Dibujar las cajas delimitadoras de las 2 mejores detecciones en la imagen
+    for deteccion in detecciones:
+        x1, y1, x2, y2 = deteccion['box']
+        clase = deteccion['class']
+        confianza = deteccion['confidence']
+        cv2.rectangle(imagen, (x1, y1), (x2, y2), (0, 255, 0), 2)
+        cv2.putText(imagen, f'{clase} {confianza:.2f}', (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
     # Guardar la imagen con las predicciones
     ruta_salida = Path(ruta_imagen).parent / f'inferencia_{Path(ruta_imagen).name}'
