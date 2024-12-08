@@ -8,6 +8,20 @@
     <link rel="stylesheet" href="/tailwind/output.css">
     <link rel="stylesheet" href="/tailwind/Main_styles.css">
     <script type="module" src="static/login.js"></script>
+    <script>
+        // Función para obtener el valor de un parámetro en la URL
+        function getURLParameter(name) {
+            return new URLSearchParams(window.location.search).get(name);
+        }
+
+        window.onload = function() {
+            // Si el parámetro 'alert' está en la URL, muestra la alerta
+            const alertMessage = getURLParameter('alert');
+            if (alertMessage === 'login-required') {
+                alert('Necesitas iniciar sesión para acceder.');
+            }
+        };
+    </script>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
   <div class="w-full max-w-md bg-white rounded-lg shadow-md overflow-hidden">

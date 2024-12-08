@@ -50,10 +50,10 @@ const deleteParcela = async (req, res) => {
     await transaction.commit();
 
     if (result.rowsAffected[0] > 0) {
-      console.log(`Parcela con ID ${id} eliminada correctamente.`);
+     // console.log(`Parcela con ID ${id} eliminada correctamente.`);
       res.json({ success: true, message: `Parcela con ID ${id} eliminada exitosamente.` });
     } else {
-      console.log(`No se encontró una parcela con ID ${id}.`);
+      //console.log(`No se encontró una parcela con ID ${id}.`);
       res.status(404).json({ success: false, message: `No se encontró una parcela con ID ${id}.` });
     }
 
@@ -77,11 +77,11 @@ const getParcelDataOptions = async (req, res, next) => {
       sql.query(cultivoQuery),
     ]);
 
-    console.log('Datos obtenidos de la base de datos:', {
-      comunas: comunasResult.recordset,
-      fases: fasesResult.recordset,
-      cultivos: cultivosResult.recordset,
-    });
+    //console.log('Datos obtenidos de la base de datos:', {
+     // comunas: comunasResult.recordset,
+     // fases: fasesResult.recordset,
+     // cultivos: cultivosResult.recordset,
+    //});
 
     res.json({
       success: true,
@@ -92,14 +92,14 @@ const getParcelDataOptions = async (req, res, next) => {
       },
     });
 
-    console.log('Respuesta enviada al frontend:', {
-      success: true,
-      data: {
-        comunas: comunasResult.recordset,
-        fases: fasesResult.recordset,
-        cultivos: cultivosResult.recordset,
-      },
-    });
+   // console.log('Respuesta enviada al frontend:', {
+    //  success: true,
+     // data: {
+      //  comunas: comunasResult.recordset,
+       // fases: fasesResult.recordset,
+       // cultivos: cultivosResult.recordset,
+     // },
+   // });
 
   } catch (error) {
     console.error('Error al obtener opciones para creación de parcela:', error);

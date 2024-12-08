@@ -13,7 +13,14 @@ const map = new mapboxgl.Map({
 const directions = new MapboxDirections({
   accessToken: mapboxgl.accessToken,
   language: 'es',
+  controls: {
+    inputs: false
+  },
+  interactive: false, // Desactiva la selección interactiva del punto B
+  
 });
+
+
 
 map.addControl(directions, 'bottom-left');
 

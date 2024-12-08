@@ -54,26 +54,49 @@ const saveQuarantine = async (req, res) => {
       `);
 
     idCuarentena = resultCuarentena.recordset[0].id_cuarentena;
-    console.log(`Cuarentena guardada con ID: ${idCuarentena}`);
+    //console.log(`Cuarentena guardada con ID: ${idCuarentena}`);
 
-    // Paso 2: Guardar los vértices solo si es un trazado
+    // Paso 2: Filtrar puntos duplicados (eliminar coordenadas repetidas)
+    const uniquePoints = points.filter((value, index, self) =>
+      index === self.findIndex((t) => (
+        t[0] === value[0] && t[1] === value[1]
+      ))
+    );
+
+    // Paso 3: Guardar los vértices solo si es un trazado
     if (type === 'polygon') {
-      for (let i = 0; i < points.length; i++) {
-        await transaction.request()
+      for (let i = 0; i < uniquePoints.length; i++) {
+        // Verificar si el vértice ya existe en la base de datos
+        const existingVertice = await transaction.request()
+          .input('latitud', sql.Float, uniquePoints[i][1])
+          .input('longitud', sql.Float, uniquePoints[i][0])
           .input('id_cuarentena', sql.Int, idCuarentena)
-          .input('latitud', sql.Float, points[i][1])
-          .input('longitud', sql.Float, points[i][0])
-          .input('orden', sql.Int, i + 1)
-          .query('INSERT INTO dbo.vertice (id_cuarentena, latitud, longitud, orden) VALUES (@id_cuarentena, @latitud, @longitud, @orden)');
+          .query(`
+            SELECT COUNT(*) AS count
+            FROM dbo.vertice
+            WHERE id_cuarentena = @id_cuarentena
+              AND latitud = @latitud
+              AND longitud = @longitud
+          `);
+
+        if (existingVertice.recordset[0].count === 0) {
+          // Solo insertar si el punto no existe
+          await transaction.request()
+            .input('id_cuarentena', sql.Int, idCuarentena)
+            .input('latitud', sql.Float, uniquePoints[i][1])
+            .input('longitud', sql.Float, uniquePoints[i][0])
+            .input('orden', sql.Int, i + 1)
+            .query('INSERT INTO dbo.vertice (id_cuarentena, latitud, longitud, orden) VALUES (@id_cuarentena, @latitud, @longitud, @orden)');
+        }
       }
-      console.log(`Vértices guardados para el trazado de cuarentena con ID: ${idCuarentena}`);
+      //console.log(`Vértices guardados para el trazado de cuarentena con ID: ${idCuarentena}`);
     }
 
     // Ejecutar el procedimiento almacenado
     await transaction.request()
-    .input('id_cuarentena', sql.Int, idCuarentena)
-    .execute('sp_CrearConexionesCuarentena');
-  console.log(`Procedimiento almacenado ejecutado para la cuarentena ID: ${idCuarentena}`);
+      .input('id_cuarentena', sql.Int, idCuarentena)
+      .execute('sp_CrearConexionesCuarentena');
+    //console.log(`Procedimiento almacenado ejecutado para la cuarentena ID: ${idCuarentena}`);
 
     // Confirmar la transacción
     await transaction.commit();
@@ -102,6 +125,7 @@ const saveQuarantine = async (req, res) => {
     if (pool) await pool.close();
   }
 };
+
 
 
 const getAllQuarantines = async (req, res) => {
@@ -179,7 +203,7 @@ let isDeleting = false; // Flag para evitar duplicación de la acción
     
     
 const getComentario = async (req, res) => {
-  console.log('Obteniendo comentarios');
+  //console.log('Obteniendo comentarios');
   
   try {
     // Ejecutar la consulta
@@ -207,7 +231,7 @@ const getComentario = async (req, res) => {
 };
 
 const getComuna = async (req, res) => {
-  console.log('Obteniendo comunas');
+  //console.log('Obteniendo comunas');
   
   try {
     // Ejecutar la consulta SQL directamente con sql.query
@@ -238,7 +262,7 @@ const getComuna = async (req, res) => {
 };
 
 const getComentarioInactiva = async (req, res) => {
-  console.log('Obteniendo comentarios');
+  //console.log('Obteniendo comentarios');
   
   try {
     // Ejecutar la consulta
@@ -266,7 +290,7 @@ const getComentarioInactiva = async (req, res) => {
 };
 
 const getComunaInactiva = async (req, res) => {
-  console.log('Obteniendo comunas');
+  //console.log('Obteniendo comunas');
   
   try {
     // Ejecutar la consulta SQL directamente con sql.query
@@ -300,7 +324,7 @@ const getComunaInactiva = async (req, res) => {
 
 
 const getInactiveQuarantines = async (req, res) => {
-  console.log('Obteniendo cuarentenas inactivas');
+  //console.log('Obteniendo cuarentenas inactivas');
 
   try {
     // Realizar la consulta correctamente
@@ -311,7 +335,7 @@ const getInactiveQuarantines = async (req, res) => {
     `);
 
     // Verificar el resultado de la consulta
-    console.log('Resultado de la consulta:', result.recordset);
+    //console.log('Resultado de la consulta:', result.recordset);
 
     // Si no hay resultados, podemos devolver un mensaje más claro
     if (result.recordset.length === 0) {
@@ -372,8 +396,8 @@ const getInactivaTrazado = async (req, res) => {
 };
 
 const deactivateQuarantine = async (req, res) => {
-  console.log('Llegó la solicitud de desactivación al servidor');
-  console.log('ID de cuarentena recibido en el servidor:', req.params.id);
+ // console.log('Llegó la solicitud de desactivación al servidor');
+ // console.log('ID de cuarentena recibido en el servidor:', req.params.id);
 
   const { id } = req.params;
 
@@ -401,8 +425,8 @@ const deactivateQuarantine = async (req, res) => {
 };
 
 const activateQuarantine = async (req, res) => {
-  console.log('Llegó la solicitud de desactivación al servidor');
-  console.log('ID de cuarentena recibido en el servidor:', req.params.id);
+ // console.log('Llegó la solicitud de desactivación al servidor');
+ // console.log('ID de cuarentena recibido en el servidor:', req.params.id);
 
   const { id } = req.params;
 

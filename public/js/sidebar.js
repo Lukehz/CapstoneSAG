@@ -3,11 +3,22 @@ import { map, directions } from './map.js';
 
 // Obtener el contenedor del dropdown
 const dropdown = document.getElementById('parcelas-dropdown');
+const cancelButton = document.getElementById('cancel-directions');
+
 document.addEventListener('DOMContentLoaded', () => {
   obtenerParcelas();
   // Escuchar cambios en el dropdown
   dropdown.addEventListener('change', manejarSeleccionParcela);
+  cancelButton.addEventListener('click', cancelarVisualizacion);
 });
+
+function cancelarVisualizacion() {
+  // Limpiar las direcciones usando el control de direcciones
+  directions.removeRoutes();
+  
+ // console.log('Ruta eliminada del mapa');
+}
+
 
 // Función para obtener parcelas desde la API
 async function obtenerParcelas() {
@@ -143,10 +154,12 @@ async function mostrarRuta(destLat, destLng) {
 
       try {
         // Usar la API Directions de Mapbox
-        const response = await fetch(
-          `https://api.mapbox.com/directions/v5/mapbox/driving/${origen.join(',')};${destino.join(',')}?geometries=geojson&access_token=pk.eyJ1Ijoibmljb2xlODAxIiwiYSI6ImNtMHdvdGE3MzAzbnQybG93aXRncnlqb2QifQ.9G8XyYyv4V1b0OJGRnpEZA`
-        );
+        const modes = ["driving", "walking", "cycling", "driving-traffic"];
+        const selectedMode = modes[1]; // Cambia el índice según el modo seleccionado por el usuario
 
+        const response = await fetch(
+          `https://api.mapbox.com/directions/v5/mapbox/${selectedMode}/${origen.join(',')};${destino.join(',')}?geometries=geojson&access_token=pk.eyJ1Ijoibmljb2xlODAxIiwiYSI6ImNtMHdvdGE3MzAzbnQybG93aXRncnlqb2QifQ.9G8XyYyv4V1b0OJGRnpEZA`
+        );
         if (!response.ok) {
           throw new Error('Error al obtener datos de dirección');
         }
@@ -158,7 +171,7 @@ async function mostrarRuta(destLat, destLng) {
         // Centrar el mapa en la ruta
         const bounds = new mapboxgl.LngLatBounds();
         route.coordinates.forEach(coord => bounds.extend(coord));
-        map.fitBounds(bounds, { padding: 20 });
+        map.fitBounds(bounds, { padding: 20, maxZoom: 12 });
 
         // Usar el control de direcciones para actualizar origen/destino
         directions.setOrigin(origen); // Configurar el origen dinámicamente
@@ -196,58 +209,6 @@ obtenerParcelas();
 
 // ------------------------------------------CUARENTENAS ACTIVAS----------------------------------------------------------------
 
-
-
-    parcelaPanel.appendChild(listaParcelas);
-    panel.appendChild(comunaAccordion);
-    panel.appendChild(parcelaPanel);
-
-    // Añadir funcionalidad de acordeón a cada comuna
-    comunaAccordion.addEventListener('click', function() {
-      this.classList.toggle('active');
-      const panel = this.nextElementSibling;
-      panel.style.maxHeight = panel.style.maxHeight ? null : panel.scrollHeight + 'px';
-    });
-function volarAParcelaDesdeDropdown(id, lat, lng) {
-  try {
-    // Validar el mapa
-    if (!map || typeof map.flyTo !== 'function') {
-      console.error('El mapa no está definido o no soporta el método flyTo');
-      return;
-    }
-
-    // Validar coordenadas
-    if (isNaN(lat) || isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-      console.error(`Coordenadas inválidas para la parcela ID: ${id} (Lat: ${lat}, Lng: ${lng})`);
-      return;
-    }
-
-    // Volar a la ubicación seleccionada
-    map.flyTo({
-      center: [lng, lat],
-      zoom: 15,
-      essential: true
-    });
-
-  } catch (error) {
-    console.error('Error al volar a la parcela:', error);
-  }
-}
-
-// Manejar el cambio en el dropdown
-dropdown.addEventListener('change', function() {
-  const selectedOption = dropdown.options[dropdown.selectedIndex];
-  const id = selectedOption.value;
-  const lat = parseFloat(selectedOption.getAttribute('data-lat'));
-  const lng = parseFloat(selectedOption.getAttribute('data-lng'));
-
-  if (id) {
-    volarAParcelaDesdeDropdown(id, lat, lng);
-  }
-});
-// Cargar las parcelas al iniciar la página
-obtenerParcelas();
-
 // CUARENTENAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
 // Variables globales
@@ -256,25 +217,38 @@ let cuarentenaActiva = 1; // Para mantener un registro de la cuarentena actualme
 
 const dropdownCuarentenas = document.getElementById('cuarentenas-dropdown');
 
-// Función para obtener cuarentenas desde la API
+
 async function obtenerCuarentenas() {
   try {
+    console.log('Intentando obtener cuarentenas...');
     const response = await fetch('/quarantines/get-comentario');
+    
+    console.log('Respuesta recibida:', response);
+    
     if (!response.ok) {
+      console.error(`Error en la respuesta. Status: ${response.status}`);
       throw new Error(`HTTP error! status: ${response.status}`);
     }
+    
     const cuarentenas = await response.json();
+    
+    console.log('Cuarentenas obtenidas:', cuarentenas);
+    
+    if (cuarentenas.length === 0) {
+      console.warn('No se encontraron cuarentenas');
+    }
+    
     return cuarentenas;
   } catch (error) {
-    console.error('Error al obtener cuarentenas:', error.message);
+    console.error('Error detallado al obtener cuarentenas:', error);
     throw error;
   }
 }
+
 // Función para llenar el dropdown con las cuarentenas agrupadas por zona
 function llenarDropdownConCuarentenasAgrupadas(cuarentenas) {
-  dropdownCuarentenas.innerHTML = '<option value="">Seleccione una cuarentena</option>'; // Limpia el dropdown
+  dropdownCuarentenas.innerHTML = '<option value="">Seleccione una cuarentena</option>'; 
 
-  // Agrupar las cuarentenas por zona (usando comuna)
   const zonas = cuarentenas.reduce((acc, cuarentena) => {
     const zona = cuarentena.comuna || 'Sin zona';
     if (!acc[zona]) acc[zona] = [];
@@ -282,13 +256,10 @@ function llenarDropdownConCuarentenasAgrupadas(cuarentenas) {
     return acc;
   }, {});
 
-  // Ordenar las zonas alfabéticamente
   Object.keys(zonas).sort().forEach(zona => {
-    // Crear el grupo de opciones para la zona
     const optgroup = document.createElement('optgroup');
     optgroup.label = zona;
 
-    // Agregar las cuarentenas de esta zona al grupo
     zonas[zona].forEach(cuarentena => {
       const option = document.createElement('option');
       option.value = cuarentena.id_cuarentena;
@@ -311,9 +282,8 @@ function generarListadoCuarentenasPorComentario(cuarentenas) {
   }
   panel.innerHTML = '';
 
-  const zonas = {}; // Agrupar por zona
+  const zonas = {}; 
 
-  // Agrupar las cuarentenas por zona
   cuarentenas.forEach(cuarentena => {
     const comentario = cuarentena.comentario || 'Sin comentario';
     const zona = cuarentena.comuna || 'Sin zona';
@@ -324,7 +294,6 @@ function generarListadoCuarentenasPorComentario(cuarentenas) {
     zonas[zona].push(cuarentena);
   });
 
-  // Crear un acordeón principal que englobe todas las zonas
   const acordeonGeneral = document.createElement('button');
   acordeonGeneral.classList.add('accordion');
   acordeonGeneral.textContent = `Cuarentenas (${Object.keys(zonas).length} zonas)`;
@@ -332,7 +301,6 @@ function generarListadoCuarentenasPorComentario(cuarentenas) {
   const acordeonPanel = document.createElement('div');
   acordeonPanel.classList.add('panel');
 
-  // Crear los elementos del sidebar por cada zona
   Object.keys(zonas).forEach(zona => {
     const zonaAccordion = document.createElement('button');
     zonaAccordion.classList.add('accordion');
@@ -341,19 +309,15 @@ function generarListadoCuarentenasPorComentario(cuarentenas) {
     const zonaPanel = document.createElement('div');
     zonaPanel.classList.add('panel');
 
-    // Añadir funcionalidad para mostrar las cuarentenas al hacer clic en la zona
     zonaAccordion.addEventListener('click', function () {
       this.classList.toggle('active');
       const panel = this.nextElementSibling;
 
-      // Limpiar el panel anterior
       zonaPanel.innerHTML = '';
 
-      // Si el panel estaba cerrado, mostrar las cuarentenas
       if (panel.style.maxHeight) {
         panel.style.maxHeight = null;
       } else {
-        // Mostrar detalles de cada cuarentena
         zonas[zona].forEach(cuarentena => {
           const li = document.createElement('li');
           li.innerHTML = `
@@ -363,7 +327,7 @@ function generarListadoCuarentenasPorComentario(cuarentenas) {
           `;
           zonaPanel.appendChild(li);
         });
-        panel.style.maxHeight = panel.scrollHeight + 'px'; // Ajustar la altura del panel
+        panel.style.maxHeight = panel.scrollHeight + 'px';
       }
     });
 
@@ -374,7 +338,6 @@ function generarListadoCuarentenasPorComentario(cuarentenas) {
   panel.appendChild(acordeonGeneral);
   panel.appendChild(acordeonPanel);
 
-  // Añadir funcionalidad de acordeón para el acordeón principal
   acordeonGeneral.addEventListener('click', function () {
     this.classList.toggle('active');
     acordeonPanel.style.maxHeight = acordeonPanel.style.maxHeight ? null : acordeonPanel.scrollHeight + 'px';
@@ -382,15 +345,13 @@ function generarListadoCuarentenasPorComentario(cuarentenas) {
 }
 
 function volarACuarentenaDesdeDropdown(id, lat, lng) {
-  console.log(`Volando a cuarentena ID: ${id}, Lat: ${lat}, Lng: ${lng}`);
-  
   try {
     // Limpiar cuarentenas existentes
     cuarentenasEnMapa.forEach(cuarentena => {
       map.removeLayer(cuarentena.layer);
       map.removeSource(cuarentena.source);
     });
-    cuarentenasEnMapa = []; // Reiniciar el array
+    cuarentenasEnMapa = []; 
 
     // Volar a la ubicación
     map.flyTo({
@@ -399,7 +360,6 @@ function volarACuarentenaDesdeDropdown(id, lat, lng) {
       essential: true
     });
 
-    // Agregar marcador de la cuarentena
     const sourceId = `cuarentena-${id}`;
     const layerId = `cuarentena-layer-${id}`;
 
@@ -420,7 +380,7 @@ function volarACuarentenaDesdeDropdown(id, lat, lng) {
       'source': sourceId,
       'paint': {
         'circle-radius': 10,
-        'circle-color': '#FF0000' // Color rojo para destacar
+        'circle-color': '#FF0000'
       }
     });
 
@@ -431,6 +391,7 @@ function volarACuarentenaDesdeDropdown(id, lat, lng) {
     console.error('Error al volar a la cuarentena:', error);
   }
 }
+
 dropdownCuarentenas.addEventListener('change', function() {
   const selectedOption = dropdownCuarentenas.options[dropdownCuarentenas.selectedIndex];
   const id = selectedOption.value;
@@ -442,21 +403,19 @@ dropdownCuarentenas.addEventListener('change', function() {
   }
 });
 
-// Función para inicializar la aplicación y cargar parcelas y cuarentenas
+// Función para inicializar la aplicación y cargar cuarentenas
 async function init() {
   try {
-    const [parcelas, cuarentenas] = await Promise.all([obtenerParcelas(), obtenerCuarentenas()]);
-    generarListadoParcelasPorComuna(parcelas);
-    generarListadoCuarentenasPorComentario(cuarentenas);
+    console.log('Inicializando aplicación de cuarentenas...');
+    const cuarentenas = await obtenerCuarentenas();
+    console.log('Cuarentenas recibidas:', cuarentenas);
     
-    // Llenar los dropdowns
-    llenarDropdownConParcelasAgrupadas(parcelas);
+    generarListadoCuarentenasPorComentario(cuarentenas);
     llenarDropdownConCuarentenasAgrupadas(cuarentenas);
   } catch (error) {
-    console.error('Error en la inicialización:', error);
+    console.error('Error en la inicialización completa:', error);
   }
 }
-
 // Inicializar la aplicación cuando el DOM esté completamente cargado
 document.addEventListener('DOMContentLoaded', init);
 
@@ -601,7 +560,7 @@ function generarListadoCuarentenasInactivasPorComentario(cuarentenas) {
 
 
 function volarACuarentenaInactivasDesdeDropdown(id, lat, lng) {
-  console.log(`Volando a cuarentena ID: ${id}, Lat: ${lat}, Lng: ${lng}`);
+  //console.log(`Volando a cuarentena ID: ${id}, Lat: ${lat}, Lng: ${lng}`);
   
   try {
     // Limpiar cuarentenas existentes
@@ -673,3 +632,48 @@ dropdownCuarentenasInactivas.addEventListener('change', function() {
     console.error('Error al inicializar cuarentenas inactivas:', error);
   }
 })();
+
+
+function cancelarZoomYRestablecer(dropdownId) {
+  try {
+    // Remove any existing cuarentena layers from the map
+    cuarentenasEnMapa.forEach(cuarentena => {
+      if (map.getLayer(cuarentena.layer)) {
+        map.removeLayer(cuarentena.layer);
+      }
+      if (map.getSource(cuarentena.source)) {
+        map.removeSource(cuarentena.source);
+      }
+    });
+    
+    // Clear the cuarentenasEnMapa array
+    cuarentenasEnMapa = [];
+
+    // Reset map view to initial state
+    map.flyTo({
+      center: [-72.9369, -41.4717], // Replace with your initial map center coordinates
+      zoom: 12, // Initial zoom level
+      essential: true
+    });
+
+    // Reset the dropdown
+    const dropdown = document.getElementById(dropdownId);
+    if (dropdown) {
+      dropdown.selectedIndex = 0; // Reset to the first option (usually a placeholder)
+      console.log(`Dropdown "${dropdownId}" reset successfully.`);
+    } else {
+      console.error(`Dropdown with ID "${dropdownId}" not found.`);
+    }
+
+  } catch (error) {
+    console.error('Error in cancelarZoomYRestablecer:', error);
+  }
+}
+
+document.getElementById('cancel-cuarentenas').addEventListener('click', () => {
+  cancelarZoomYRestablecer('cuarentenas-dropdown');
+});
+
+document.getElementById('cancel-inactivas').addEventListener('click', () => {
+  cancelarZoomYRestablecer('cuarentenas-inactivas-dropdown');
+});
