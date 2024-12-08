@@ -39,17 +39,17 @@ async function loadItems(Table, sectors = [], phases = [], crops = [], registere
         filters.innerHTML = `
 <div id="filters" class="flex flex-nowrap gap-4 justify-center items-center overflow-x-auto py-4">
     <div class="flex-shrink-0 w-60">
-        <select name="filter_sector" id="filter_sector" class="block w-full appearance-none border border-gray-300 text-gray-700 py-2 px-3 rounded leading-tight focus:outline-none focus:border-blue-500">
+        <select name="filter_sector" id="filter_sector" class="block w-full appearance-none border border-gray-300 text-gray-700 py-2 px-3 rounded leading-tight focus:outline-none focus:border-blue-500" multiple>
             <option value="">Seleccione la zona de interés</option>
         </select>
     </div>
     <div class="flex-shrink-0 w-60">
-        <select name="filter_fase" id="filter_fase" class="block w-full appearance-none border border-gray-300 text-gray-700 py-2 px-3 rounded leading-tight focus:outline-none focus:border-blue-500">
+        <select name="filter_fase" id="filter_fase" class="block w-full appearance-none border border-gray-300 text-gray-700 py-2 px-3 rounded leading-tight focus:outline-none focus:border-blue-500" multiple>
             <option value="">Seleccione una fase</option>
         </select>
     </div>
     <div class="flex-shrink-0 w-60">
-        <select name="filter_cultivo" id="filter_cultivo" class="block w-full appearance-none border border-gray-300 text-gray-700 py-2 px-3 rounded leading-tight focus:outline-none focus:border-blue-500">
+        <select name="filter_cultivo" id="filter_cultivo" class="block w-full appearance-none border border-gray-300 text-gray-700 py-2 px-3 rounded leading-tight focus:outline-none focus:border-blue-500" multiple>
             <option value="">Selecciona el tipo de cultivo</option>
         </select>
     </div>
@@ -99,7 +99,7 @@ async function loadItems(Table, sectors = [], phases = [], crops = [], registere
     
         <div id="filters" class="flex flex-wrap gap-10 justify-center items-center">
             <div class="flex flex-col w-60">
-                <select name="filter_sector" id="filter_provincia" class="block w-full appearance-none border border-gray-300 text-gray-700 py-2 px-3 rounded leading-tight focus:outline-none focus:border-blue-500">
+                <select name="filter_sector" id="filter_provincia" class="block w-full appearance-none border border-gray-300 text-gray-700 py-2 px-3 rounded leading-tight focus:outline-none focus:border-blue-500" multiple>
                     <option value="">Seleccione la zona de interés</option>
                 </select>
             </div>
@@ -121,7 +121,7 @@ async function loadItems(Table, sectors = [], phases = [], crops = [], registere
 
         <div id="filters" class="flex flex-wrap gap-10 justify-center items-center">
             <div class="flex flex-col w-60">
-                <select name="filter_sector" id="filter_sector" class="block w-full appearance-none border border-gray-300 text-gray-700 py-2 px-3 rounded leading-tight focus:outline-none focus:border-blue-500">
+                <select name="filter_sector" id="filter_sector" class="block w-full appearance-none border border-gray-300 text-gray-700 py-2 px-3 rounded leading-tight focus:outline-none focus:border-blue-500" multiple>
                     <option value="">Seleccione la zona de interés</option>
                 </select>
             </div>    
