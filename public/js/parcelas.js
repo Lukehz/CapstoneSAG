@@ -92,7 +92,9 @@ function eliminarParcela(idParcela, boton) {
       if (response.ok) {
         alert("Parcela eliminada correctamente.");
         boton.parentElement.style.display = 'none'; // Oculta el recuadro del mapa
+
         updateParcelas(); 
+
         // Eliminar el marcador del mapa si existe
         const marker = markerMap.get(idParcela);
         if (marker) {
