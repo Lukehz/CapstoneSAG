@@ -154,7 +154,7 @@ app.use((req, res, next) => {
 
 // Página de predicciones
 app.get('/prediccion', (req, res) => {
-    res.render('prediccion', { title: 'Predicción de Imágenes' });
+    res.render('prediccion', { title: 'Predicción de Imágenes', usuario: req.session.usuario });
 });
 
 const multer = require('multer');
@@ -204,6 +204,7 @@ app.post('/prediccion', upload.single('image'), (req, res) => {
                 // Si hay un error en la predicción, muestra el error
                 return res.status(500).send(`Error en la predicción: ${resultados.error}`);
             }
+            
 
             // Renderizar la vista de resultados con la imagen inferida
             res.render('prediccionResultados', { 

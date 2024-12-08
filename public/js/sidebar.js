@@ -1,17 +1,27 @@
 // Importa el mapa
 import { map } from './map.js';
 
+// Obtener el contenedor del dropdown
+const dropdown = document.getElementById('parcelas-dropdown');
 
+document.addEventListener('DOMContentLoaded', () => {
+  obtenerParcelas();
+});
 // Función para obtener parcelas desde la API
 async function obtenerParcelas() {
   try {
     const response = await fetch('/api/get-comuna/parcelas');
-    console.log('Respuesta de la API:', response);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const parcelas = await response.json();
-    console.log('Parcelas obtenidas:', parcelas);
+
+    // Llenar el dropdown con las parcelas agrupadas por comuna
+    llenarDropdownConParcelasAgrupadas(parcelas);
+
+    // Generar el acordeón con las parcelas agrupadas por comuna
+    generarListadoParcelasPorComuna(parcelas);
+
     return parcelas;
   } catch (error) {
     console.error('Error al obtener parcelas:', error.message);
@@ -19,9 +29,42 @@ async function obtenerParcelas() {
   }
 }
 
-// Función para generar el listado de parcelas agrupadas por comuna en un acordeón grande
+// Función para llenar el dropdown con las parcelas agrupadas por comuna
+function llenarDropdownConParcelasAgrupadas(parcelas) {
+  dropdown.innerHTML = '<option value="">Seleccione una parcela</option>'; // Limpia el dropdown
+
+  // Agrupar las parcelas por comuna
+  const comunas = parcelas.reduce((acc, parcela) => {
+    const { comuna } = parcela;
+    if (!acc[comuna]) acc[comuna] = [];
+    acc[comuna].push(parcela);
+    return acc;
+  }, {});
+
+  // Ordenar las comunas alfabéticamente
+  Object.keys(comunas).sort().forEach(comuna => {
+    // Crear el grupo de opciones para la comuna
+    const optgroup = document.createElement('optgroup');
+    optgroup.label = comuna;
+
+    // Agregar las parcelas de esta comuna al grupo
+    comunas[comuna].forEach(parcela => {
+      const option = document.createElement('option');
+      option.value = parcela.id_parcelacion;
+      option.textContent = `Parcela ${parcela.id_parcelacion} - ${parcela.cultivo}`;
+      option.setAttribute('data-lat', parcela.latitud);
+      option.setAttribute('data-lng', parcela.longitud);
+      optgroup.appendChild(option);
+    });
+
+    dropdown.appendChild(optgroup);
+  });
+}
+
+// Función para generar el listado de parcelas agrupadas por comuna en un acordeón
 function generarListadoParcelasPorComuna(parcelas) {
   const panel = document.getElementById('parcelacion-panel');
+  if (panel) {
   panel.innerHTML = ''; // Limpia el panel antes de agregar nuevo contenido
 
   // Agrupar las parcelas por comuna
@@ -32,23 +75,18 @@ function generarListadoParcelasPorComuna(parcelas) {
     return acc;
   }, {});
 
-  // Crear un acordeón principal que englobe todas las comunas
-  const acordeonGeneral = document.createElement('button');
-  acordeonGeneral.classList.add('accordion');
-  acordeonGeneral.textContent = `Parcelas (${Object.keys(comunas).length} comunas)`;
-
-  const acordeonPanel = document.createElement('div');
-  acordeonPanel.classList.add('panel');
-
-  // Crear los elementos del sidebar por cada comuna
-  Object.keys(comunas).forEach(comuna => {
+  // Crear los elementos del acordeón por cada comuna
+  Object.keys(comunas).sort().forEach(comuna => {
+    // Crear el botón de acordeón para la comuna
     const comunaAccordion = document.createElement('button');
     comunaAccordion.classList.add('accordion');
     comunaAccordion.textContent = `${comuna} (${comunas[comuna].length})`;
 
+    // Crear el panel asociado al acordeón
     const parcelaPanel = document.createElement('div');
     parcelaPanel.classList.add('panel');
 
+    // Crear la lista de parcelas dentro del panel
     const listaParcelas = document.createElement('ul');
     comunas[comuna].forEach(parcela => {
       const li = document.createElement('li');
@@ -61,65 +99,59 @@ function generarListadoParcelasPorComuna(parcelas) {
     });
 
     parcelaPanel.appendChild(listaParcelas);
-    acordeonPanel.appendChild(comunaAccordion);
-    acordeonPanel.appendChild(parcelaPanel);
+    panel.appendChild(comunaAccordion);
+    panel.appendChild(parcelaPanel);
 
-    // Añadir funcionalidad de acordeón para cada comuna
-    comunaAccordion.addEventListener('click', function () {
+    // Añadir funcionalidad de acordeón a cada comuna
+    comunaAccordion.addEventListener('click', function() {
       this.classList.toggle('active');
       const panel = this.nextElementSibling;
       panel.style.maxHeight = panel.style.maxHeight ? null : panel.scrollHeight + 'px';
     });
   });
-
-  panel.appendChild(acordeonGeneral);
-  panel.appendChild(acordeonPanel);
-
-  // Añadir funcionalidad de acordeón para el acordeón principal
-  acordeonGeneral.addEventListener('click', function () {
-    this.classList.toggle('active');
-    acordeonPanel.style.maxHeight = acordeonPanel.style.maxHeight ? null : acordeonPanel.scrollHeight + 'px';
-  });
+}
 }
 
+// Manejar la selección del dropdown
+dropdown.addEventListener('change', function() {
+  const selectedOption = dropdown.options[dropdown.selectedIndex];
+  const id = selectedOption.value;
+  const lat = parseFloat(selectedOption.getAttribute('data-lat'));
+  const lng = parseFloat(selectedOption.getAttribute('data-lng'));
 
-
-// Event listener para las parcelas
-document.getElementById('parcelacion-panel').addEventListener('click', function (event) {
-  const parcelaLink = event.target.closest('.parcela-link');
-  if (parcelaLink) {
-    const id = parcelaLink.getAttribute('data-id');
-    const lat = parseFloat(parcelaLink.getAttribute('data-lat'));
-    const lng = parseFloat(parcelaLink.getAttribute('data-lng'));
+  if (id) {
     volarAParcela(id, lat, lng);
   }
 });
 
-// Función para volar a una parcela en el mapa
+// Función para centrar el mapa o realizar acciones al seleccionar una parcela
 function volarAParcela(id, lat, lng) {
-  map.flyTo({
-    center: [lng, lat],
-    zoom: 14,
-    essential: true
-  });
+  console.log(`Volando a parcela ID: ${id}, Lat: ${lat}, Lng: ${lng}`);
+  map.flyTo([lat, lng], 15); // Centra el mapa en las coordenadas y aplica un zoom de 15
 }
 
+// Cargar las parcelas al iniciar la página
+obtenerParcelas();
 
 // CUARENTENAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
+
+// Variables globales
 let cuarentenasEnMapa = []; // Arreglo para mantener referencia a las cuarentenas en el mapa
-let cuarentenaActiva = null; // Para mantener un registro de la cuarentena actualmente seleccionada
+let cuarentenaActiva = 1; // Para mantener un registro de la cuarentena actualmente seleccionada
+
+const dropdownCuarentenas = document.getElementById('cuarentenas-dropdown');
+
+
 
 // Función para obtener cuarentenas desde la API
 async function obtenerCuarentenas() {
   try {
     const response = await fetch('/quarantines/get-comentario');
-    console.log('Respuesta de la API:', response);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const cuarentenas = await response.json();
-    console.log('Cuarentenas obtenidas:', cuarentenas);
     return cuarentenas;
   } catch (error) {
     console.error('Error al obtener cuarentenas:', error.message);
@@ -127,6 +159,41 @@ async function obtenerCuarentenas() {
   }
 }
 
+
+
+// Función para llenar el dropdown con las cuarentenas agrupadas por zona
+function llenarDropdownConCuarentenasAgrupadas(cuarentenas) {
+  dropdownCuarentenas.innerHTML = '<option value="">Seleccione una cuarentena</option>'; // Limpia el dropdown
+
+  // Agrupar las cuarentenas por zona (usando comuna)
+  const zonas = cuarentenas.reduce((acc, cuarentena) => {
+    const zona = cuarentena.comuna || 'Sin zona';
+    if (!acc[zona]) acc[zona] = [];
+    acc[zona].push(cuarentena);
+    return acc;
+  }, {});
+
+  // Ordenar las zonas alfabéticamente
+  Object.keys(zonas).sort().forEach(zona => {
+    // Crear el grupo de opciones para la zona
+    const optgroup = document.createElement('optgroup');
+    optgroup.label = zona;
+
+    // Agregar las cuarentenas de esta zona al grupo
+    zonas[zona].forEach(cuarentena => {
+      const option = document.createElement('option');
+      option.value = cuarentena.id_cuarentena;
+      option.textContent = `Cuarentena ${cuarentena.id_cuarentena} - ${cuarentena.comentario || 'Sin comentario'}`;
+      option.setAttribute('data-lat', cuarentena.latitud);
+      option.setAttribute('data-lng', cuarentena.longitud);
+      optgroup.appendChild(option);
+    });
+
+    dropdownCuarentenas.appendChild(optgroup);
+  });
+}
+
+// Función para generar el listado de cuarentenas por comentario
 function generarListadoCuarentenasPorComentario(cuarentenas) {
   const panel = document.getElementById('cuarentena-panel');
   if (!panel) {
@@ -203,26 +270,70 @@ function generarListadoCuarentenasPorComentario(cuarentenas) {
     this.classList.toggle('active');
     acordeonPanel.style.maxHeight = acordeonPanel.style.maxHeight ? null : acordeonPanel.scrollHeight + 'px';
   });
-
-  // Agregar los event listeners a los enlaces de cuarentena aquí
-  document.querySelectorAll('.cuarentena-link').forEach(cuarentenaLink => {
-    cuarentenaLink.addEventListener('click', function () {
-      const id = this.dataset.id;
-      const lat = parseFloat(this.dataset.lat);
-      const lng = parseFloat(this.dataset.lng);
-      volarACuarentena(id, lat, lng);
-      
-      // Volar a la ubicación en el mapa
-      map.flyTo({
-        center: [lng, lat],
-        zoom: 15,
-        essential: true
-      });
-      console.log(`Volando a la cuarentena ${id}`);
-    });
-  });
 }
 
+function volarACuarentenaDesdeDropdown(id, lat, lng) {
+  console.log(`Volando a cuarentena ID: ${id}, Lat: ${lat}, Lng: ${lng}`);
+  
+  try {
+    // Limpiar cuarentenas existentes
+    cuarentenasEnMapa.forEach(cuarentena => {
+      map.removeLayer(cuarentena.layer);
+      map.removeSource(cuarentena.source);
+    });
+    cuarentenasEnMapa = []; // Reiniciar el array
+
+    // Volar a la ubicación
+    map.flyTo({
+      center: [lng, lat],
+      zoom: 15,
+      essential: true
+    });
+
+    // Agregar marcador de la cuarentena
+    const sourceId = `cuarentena-${id}`;
+    const layerId = `cuarentena-layer-${id}`;
+
+    map.addSource(sourceId, {
+      'type': 'geojson',
+      'data': {
+        'type': 'Feature',
+        'geometry': {
+          'type': 'Point',
+          'coordinates': [lng, lat]
+        }
+      }
+    });
+
+    map.addLayer({
+      'id': layerId,
+      'type': 'circle',
+      'source': sourceId,
+      'paint': {
+        'circle-radius': 10,
+        'circle-color': '#FF0000' // Color rojo para destacar
+      }
+    });
+
+    // Guardar la cuarentena en el array
+    cuarentenasEnMapa.push({ source: sourceId, layer: layerId });
+
+  } catch (error) {
+    console.error('Error al volar a la cuarentena:', error);
+  }
+}
+
+
+dropdownCuarentenas.addEventListener('change', function() {
+  const selectedOption = dropdownCuarentenas.options[dropdownCuarentenas.selectedIndex];
+  const id = selectedOption.value;
+  const lat = parseFloat(selectedOption.getAttribute('data-lat'));
+  const lng = parseFloat(selectedOption.getAttribute('data-lng'));
+
+  if (id) {
+    volarACuarentenaDesdeDropdown(id, lat, lng);
+  }
+});
 
 // Función para inicializar la aplicación y cargar parcelas y cuarentenas
 async function init() {
@@ -230,71 +341,14 @@ async function init() {
     const [parcelas, cuarentenas] = await Promise.all([obtenerParcelas(), obtenerCuarentenas()]);
     generarListadoParcelasPorComuna(parcelas);
     generarListadoCuarentenasPorComentario(cuarentenas);
+    
+    // Llenar los dropdowns
+    llenarDropdownConParcelasAgrupadas(parcelas);
+    llenarDropdownConCuarentenasAgrupadas(cuarentenas);
   } catch (error) {
     console.error('Error en la inicialización:', error);
   }
 }
 
-// Inicializa la aplicación
-init();
-
-// Función para volar a una cuarentena en el mapa
-function volarACuarentena(id, lat, lng) {
-  // Limpiar las cuarentenas existentes del mapa
-  cuarentenasEnMapa.forEach(cuarentena => {
-    map.removeLayer(cuarentena.layer);
-    map.removeSource(cuarentena.source);
-  });
-  cuarentenasEnMapa = []; // Reiniciar el array
-
-  // Volar a la ubicación de la cuarentena seleccionada
-  map.flyTo({
-    center: [lng, lat],
-    zoom: 14,
-    essential: true
-  });
-  console.log(`Volando a la cuarentena ${id}`);
-
-  // Agregar la cuarentena seleccionada al mapa
-  const sourceId = `cuarentena-${id}`;
-  const layerId = `cuarentena-layer-${id}`;
-
-  // Añadir la fuente de la cuarentena
-  map.addSource(sourceId, {
-    'type': 'geojson',
-    'data': {
-      'type': 'Feature',
-      'geometry': {
-        'type': 'Point',
-        'coordinates': [lng, lat]
-      }
-    }
-  });
-
-  // Añadir la capa de la cuarentena
-  map.addLayer({
-    'id': layerId,
-    'type': 'circle',
-    'source': sourceId,
-    'paint': {
-      'circle-radius': 10,
-      'circle-color': '#FF0000' // Color rojo para destacar
-    }
-  });
-
-  // Guardar la cuarentena en el array
-  cuarentenasEnMapa.push({ source: sourceId, layer: layerId });
-}
-
-// Event listener para las cuarentenas
-document.getElementById('cuarentena-panel').addEventListener('click', function (event) {
-  const cuarentenaLink = event.target.closest('.cuarentena-link');
-  if (cuarentenaLink) {
-    const id = cuarentenaLink.getAttribute('data-id');
-    const lat = parseFloat(cuarentenaLink.getAttribute('data-lat'));
-    const lng = parseFloat(cuarentenaLink.getAttribute('data-lng'));
-    
-    // Ejecutar lógica para interactuar con el mapa
-    volarACuarentena(id, lat, lng); // Cambia a esta función
-  }
-});
+// Inicializar la aplicación cuando el DOM esté completamente cargado
+document.addEventListener('DOMContentLoaded', init);

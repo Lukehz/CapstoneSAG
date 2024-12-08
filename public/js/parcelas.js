@@ -107,7 +107,6 @@ let isCreatingParcela = false;
 // Al hacer clic en el botón, activar el modo de creación de parcela
 document.getElementById('create-parcela').addEventListener('click', () => {
   isCreatingParcela = true;
-  alert('Haz clic en el mapa para seleccionar la ubicación de la parcela.');
 });
 
 // Detectar clic en el mapa para obtener las coordenadas
