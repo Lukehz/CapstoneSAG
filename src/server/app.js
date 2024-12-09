@@ -161,7 +161,7 @@ app.use((req, res, next) => {
 });
 
 // Página de predicciones
-app.get('/prediccion', (req, res) => {
+app.get('/prediccion', verificarAutenticacion('Admin'), (req, res) => {
   res.render('prediccion', { title: 'Predicción de Imágenes', usuario: req.session.usuario });
 });
 
